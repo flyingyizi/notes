@@ -341,3 +341,86 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
     //    sc.stop()
     }
     ```
+
+- sparksql:通过自定义Schema解析部分json
+  下面的代码演示了生成json schema
+    ```scala  
+    //schema dls sample
+    //(
+    //props.name as realName,
+    //event.info.eventId,
+    //props.age,
+    //event.own.telnum as tel
+    //)
+    // ref https://blog.csdn.net/zgjdzwhy/article/details/72876913
+    object JsonSchemaBuilder {
+    final val columnSplitPattern = """\s*,\s*""".r
+    private final val fieldSplitPattern = """\.""".r
+    private final val fieldPattern = """([\w\.]+)(\s+as\s+\w+)?""".r
+    def getJsonSchema(schema: String): StructType = {
+        val fieldsList = columnSplitPattern
+        .split(schema)
+        .map(singleField => { //for each field map to list
+            singleField match {
+            case fieldPattern(fieldSource, xx) => {
+                val fieldArray = fieldSplitPattern.split(fieldSource)
+                fieldArray.toList
+            }
+            case _ => {
+                throw new IllegalArgumentException(
+                s"field format error:$singleField ,we need parent.children(as aliasName)")
+            }
+            }
+        })
+        .toList
+
+        //get stuctType schema
+        val structTypes = fieldsList.map(getStrcutType) 
+        //println(structTypes)
+        structTypes.reduce(mergeStructType)
+    }
+
+    private def getStrcutType(fields: List[String]): StructType = {
+        fields match {
+        case head :: Nil =>
+            StructType(StructField(head, StringType, true) :: Nil) //只有一个
+        case head :: tail =>
+            StructType(StructField(head, getStrcutType(tail), true) :: Nil)
+        }
+    }
+
+    private def mergeStructType(left: StructType,
+                                right: StructType): StructType = {
+        val newFields = ArrayBuffer.empty[StructField]
+        val leftFields = left.fields
+        val rightFields = right.fields
+        val rightMapped = fieldsMap(rightFields)
+        leftFields.foreach {
+        case leftField @ StructField(leftName, leftType, leftNullable, _) =>
+            rightMapped
+            .get(leftName)
+            .map {
+                case rightField @ StructField(_, rightType, rightNullable, _) =>
+                leftField.copy(
+                    dataType = mergeStructType(leftType.asInstanceOf[StructType],
+                                            rightType.asInstanceOf[StructType]),
+                    nullable = leftNullable || rightNullable)
+            }
+            .orElse(Some(leftField))
+            .foreach(newFields += _)
+        }
+
+        val leftMapped = fieldsMap(leftFields)
+        rightFields
+        .filterNot(f => leftMapped.get(f.name).nonEmpty)
+        .foreach(newFields += _)
+        StructType(newFields)
+    }
+
+    private def fieldsMap(
+        fields: Array[StructField]): Map[String, StructField] = {
+        import scala.collection.breakOut
+        fields.map(s ⇒ (s.name, s))(breakOut)
+    }
+    }
+    ```

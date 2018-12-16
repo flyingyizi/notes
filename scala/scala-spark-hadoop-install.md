@@ -203,10 +203,15 @@
 
 - 增加库依赖
     ```scala
-    //增加akka actor举例
-    libraryDependencies ++=Seq(
+    //增加akka actor，spark...举例
+    libraryDependencies ++= Seq(
+        "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1",
         "com.typesafe.akka" %% "akka-actor" % "2.5.19",
-        。。。
+        "org.scala-lang.modules" %% "scala-swing" % "2.0.3",
+        "org.apache.spark" %% "spark-core" % "2.4.0",
+        "org.apache.spark" %% "spark-sql" % "2.4.0",
+        scalaTest % Test
     )
+
     ```
 
