@@ -249,16 +249,16 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
 ## spark sql
 建个测试数据 people.txt
 ```json
-{"id":1,"name":"a1", "age":321}
-{"id":2,"name":"a2", "age":322}
-{"id":3,"name":"a3", "age":323}
-{"id":4,"name":"a4", "age":324}
-{"id":5,"name":"a5", "age":325}
-{"id":6,"name":"a6", "age":326}
-{"id":7,"name":"a7", "age":327}
-{"id":8,"name":"a8", "age":328}
-{"id":9,"name":"a9", "age":329}
-{"id":10,"name":"a10", "age":330}
+1,       "a1",321
+2,       "a2",322
+3,       "a3",323
+4,       "a4",324
+5,       "a5",325
+6,       "a6",326
+7,       "a7",327
+8,       "a8",328
+9,       "a9",329
+10,      "a10",330
 ```
 建个测试数据 salary.txt
 ```json
@@ -274,10 +274,70 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
 {"id":10,"name":"a10", "salary":330.0}
 ```
 
-registerTempTable
-
 [spark Sql](https://www.cnblogs.com/hadoop-dev/p/6742677.html)
 
 [spark结构化数据处理：Spark SQL、DataFrame和Dataset](https://www.cnblogs.com/seaspring/p/5831677.html)
 
 [Spark SQL DataFrame和DataSet](https://www.jianshu.com/p/a19486f5a0ea)
+
+[Spark编程基础](http://dblab.xmu.edu.cn/blog/spark/)
+
+[How do I apply schema with nullable = false to json reading](https://stackoverflow.com/questions/47443483/how-do-i-apply-schema-with-nullable-false-to-json-reading?r=SearchResults)
+
+- sparksql:创建通过编程接口指定Schema
+
+    当不能被预先定义的时候，编程创建DataFrame分为三步：
+
+    - 从原来的RDD创建一个Row格式的RDD.
+    - 创建与RDD中Rows结构匹配的StructType，通过该StructType创建表示RDD的Schema.
+    - 通过SQLContext提供的createDataFrame方法创建DataFrame，方法参数为RDD的Schema.
+    ```scala
+    //schema sample:
+    //Array(
+    //(StructField("id", IntegerType, true),0),
+    //(StructField("name", StringType, true),1),
+    //(StructField("age", IntegerType, true),2)
+    //)
+
+    /**
+        * load file to temp table with the field schema.
+        * temp table named
+        */
+    def loadTXT(sc: SparkContext,
+                filename: String,
+                schema: Array[(StructField, Int)],
+                tempViewName:String): Unit = {
+
+        //从指定的地址创建RDD,假设使用的文件每行中字段通过逗号分隔
+        val personRDD = sc.textFile(filename).map(_.split(","))
+        //通过StructType直接指定每个字段的schema
+        val schemas = StructType(schema.map(x => x._1))
+        val indexs = schema.map(x => x._2)
+        //将RDD映射到rowRDD
+        //val rowRDD = personRDD.map(s => Row(s(0).trim.toInt, s(1).trim, s(2).trim.toInt))
+        val rowRDD = personRDD.map(line => {
+        Row(schema.map(s => {
+            if (s._1.dataType.isInstanceOf[StringType]) {
+            line(s._2).trim
+            } else if (s._1.dataType.isInstanceOf[IntegerType]) {
+            line(s._2).trim.toInt
+            }
+        }): _*)
+        })
+
+        //创建SQLContext
+        val sqlContext = new SQLContext(sc)
+        //将schema信息应用到rowRDD上
+        val personDataFrame = sqlContext.createDataFrame(rowRDD, schemas)
+        //注册表
+        //personDataFrame.registerTempTable(tempViewName)
+        personDataFrame.createOrReplaceTempView(tempViewName)
+    //personDataFrame.createOrReplaceGlobalTempView(tempViewName)
+        //执行SQL
+    //    val df = sqlContext.sql("select * from t_person order by age desc")
+    //    //将结果以JSON的方式存储到指定位置
+    //    df.write.json(args(1))
+    //    //停止Spark Context
+    //    sc.stop()
+    }
+    ```
