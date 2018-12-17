@@ -344,16 +344,24 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
 
 - sparksql:通过自定义Schema解析部分json
   下面的代码演示了生成json schema
-    ```scala  
-    //schema dls sample
-    //(
-    //props.name as realName,
-    //event.info.eventId,
-    //props.age,
-    //event.own.telnum as tel
-    //)
-    // ref https://blog.csdn.net/zgjdzwhy/article/details/72876913
-    object JsonSchemaBuilder {
+   ```scala
+   object Hello {
+    def main(args: Array[String]): Unit = {
+        val schema =
+        "props.name as realName,\nevent.info.eventId,\nprops.age,\nevent.own.telnum as tel"
+        //println("input: " + args(0))
+        JsonSchemaBuilder.getJsonSchema(schema).printTreeString()
+    }
+  }
+   //schema dls sample
+   //(
+   //props.name as realName,
+   //event.info.eventId,
+   //props.age,
+   //event.own.telnum as tel
+   //)
+   // ref https://blog.csdn.net/zgjdzwhy/article/details/72876913
+   object JsonSchemaBuilder {
     final val columnSplitPattern = """\s*,\s*""".r
     private final val fieldSplitPattern = """\.""".r
     private final val fieldPattern = """([\w\.]+)(\s+as\s+\w+)?""".r
@@ -422,5 +430,5 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
         import scala.collection.breakOut
         fields.map(s ⇒ (s.name, s))(breakOut)
     }
-    }
-    ```
+   }
+   ```
