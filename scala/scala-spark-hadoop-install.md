@@ -179,14 +179,17 @@
   name [Scala Seed Project]: hello_world
   #Template applied in C:\home\scalaTest\.\hello_world
   c:\home\scalaTest>  
+  c:\home\scalaTest>cd hello_world
   ```
 
 - create ensime config
     ```shell
     #在sbt安装ensime插件，是为了后面在vscode中能实现代码补全
-    c:\home\scalaTest>echo addSbtPlugin("org.ensime" % "sbt-ensime" % "2.5.1") >> hello_world\project\pluings.sbt
+    c:\home\scalaTest\hello_world>echo addSbtPlugin("org.ensime" % "sbt-ensime" % "2.5.1") >> project\pluings.sbt
+    #在sbt安装测试插件
+    c:\home\scalaTest\hello_world>echo addSbtPlugin("com.artima.supersafe" % "sbtplugin" % "1.1.3") >> project\pluings.sbt
+
     #生成项目的.enime文件供scala lanuage server plugin in vscode 使用
-    c:\home\scalaTest>cd hello_world
     c:\home\scalaTest\hello_world>sbt ensimeConfig
     ```
 - configure scala language server plugin in vscode

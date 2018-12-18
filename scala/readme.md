@@ -432,3 +432,9 @@ def mulOneAtATime(x:Int)(y:Int) = x * y
     }
    }
    ```
+
+
+# scala测试
+
+[scala测试框架](https://blog.csdn.net/hany3000/article/details/51033610)
+
