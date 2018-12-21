@@ -43,13 +43,7 @@ puted using some similarity metrics [42]), the latter case resulting in a ranked
 
 The first step of the recommendation process is the one performed by the CONTENT ANALYZER , that usually borrows techniques from Information Retrieval systems [80, 6]. Item descriptions coming from Information Source are processed by the CONTENT ANALYZER , that extracts features (keywords, n-grams, concepts, ...) from unstructured text to produce a structured item representation, stored in the repository Represented Items.
 
-In order to construct and update the profile of the active user u a (user for
-which recommendations must be provided) her reactions to items are collected in
-some way and recorded in the repository Feedback. These reactions, called anno-
-tations [39] or feedback, together with the related item descriptions, are exploited
-duringtheprocessoflearningamodelusefultopredicttheactualrelevanceofnewly
-presented items. Users can also explicitly define their areas of interest as an initial
-profile without providing any feedback.
+In order to construct and update the profile of the active user u a (user for which recommendations must be provided) her reactions to items are collected in some way and recorded in the repository Feedback. These reactions, called annotations [39] or feedback, together with the related item descriptions, are exploited during the process of learning a model useful to predict the actual relevanceofnewly presented items. Users can also explicitly define their areas of interest as an initial profile without providing any feedback.
 
 Typically, it is possible to distinguish between two kinds of relevance feedback:
 positive information (inferring features liked by the user) and negative information
@@ -72,8 +66,7 @@ Explicit feedback has the advantage of simplicity, albeit the adoption of numeri
 In order to build the profile of the active user $u_a$ , the training set $TR_a$ for $u_a$ must be defined. $TR_a$ is a set of pairs $⟨I_k ,r_k⟩$, where $r_k$ is the rating provided by $u_a$ on the item representation $I_k$ . Given a set of item representation labeled with ratings, the PROFILE LEARNER applies supervised learning algorithms to generate a predictive model – the user profile – which is usually stored in a profile repository for later use by the FILTERING COMPONENT . Given a new item representation, the FILTERING COMPONENT predicts whether it is likely to be of interest for the active user, by comparing features in the item representation to those in the representation of user preferences (stored in the user profile). Usually, the FILTERING COMPONENT implements some strategies to rank potentially interesting items according to the relevance with respect to the user profile. Top-ranked items are included in a list of recommendations $L_a$ , that is presented to $u_a$ . User tastes usually change in time, therefore up-to-date information must be maintained and provided to the PROFILE LEARNER in order to automatically update the user profile. Further feedback is gathered on generated recommendations by letting users state their satisfaction or dissatisfaction with items in $L_a$ . After gathering that feedback, the learning process is performed again on the new training set, and the resulting profile is adapted to the updated user interests. The iteration of the feedback-learning cycle over time allows the system to take into account the dynamic nature of user preferences.
 
 ### 3.2.2 Advantages and Drawbacks of Content-based Filtering
-The adoption of the content-based recommendation paradigm has several advan-
-tages when compared to the collaborative one:
+The adoption of the content-based recommendation paradigm has several advantages when compared to the collaborative one:
 
 - • USER INDEPENDENCE - Content-based recommenders exploit solely ratings provided by the active user to build her own profile. Instead, collaborative filtering methods need ratings from other users in order to find the “nearest neighbors” of the active user, i.e., users that have similar tastes since they rated the same items similarly. Then, only the items that are most liked by the neighbors of the active user will be recommended;
 
@@ -85,10 +78,9 @@ Nonetheless, content-based systems have several shortcomings:
 
 • LIMITED CONTENT ANALYSIS - Content-based techniques have a natural limit in the number and type of features that are associated, whether automatically or manually, with the objects they recommend. Domain knowledge is often needed, e.g., for movie recommendations the system needs to know the actors and directors, and sometimes, domain ontologies are also needed. No content-based recommendation system can provide suitable suggestions if the analyzed content does not contain enough information to discriminate items the user likes from items the user does not like. Some representations capture only certain aspects of the content, but there are many others that would influence a user’s experience. For instance, often there is not enough information in the word frequency to model the user interests in jokes or poems, while techniques for affective computing would be most appropriate. Again, for Web pages, feature extraction techniques from text completely ignore aesthetic qualities and additional multimedia information.
 
-To sum up, both automatic and manually assignment of features to items could not be sufficient to define distinguishing aspects of items that turn out to be nec-
-essary for the elicitation of user interests.
+To sum up, both automatic and manually assignment of features to items could not be sufficient to define distinguishing aspects of items that turn out to be necessary for the elicitation of user interests.
 
-- • OVER - SPECIALIZATION -Content-basedrecommendershavenoinherentmethod for finding something unexpected. The system suggests items whose scores are high when matched against the user profile, hence the user is going to be recommended items similar to those already rated. This drawback is also called serendipity problem to highlight the tendency of the content-based systems to produce recommendations with a limited degree of novelty. To give an example, when a user has only rated movies directed by Stanley Kubrick, she will be recommended just that kind of movies. A “perfect” content-based technique would rarely find anything novel, limiting the range of applications for which it would be useful.
+- • OVER - SPECIALIZATION -Content-based recommenders have no inherent method for finding something unexpected. The system suggests items whose scores are high when matched against the user profile, hence the user is going to be recommended items similar to those already rated. This drawback is also called serendipity problem to highlight the tendency of the content-based systems to produce recommendations with a limited degree of novelty. To give an example, when a user has only rated movies directed by Stanley Kubrick, she will be recommended just that kind of movies. A “perfect” content-based technique would rarely find anything novel, limiting the range of applications for which it would be useful.
 
 - • NEW USER - Enough ratings have to be collected before a content-based recommender system can really understand user preferences and provide accurate recommendations. Therefore, when few ratings are available, as for a new user, the system will not be able to provide reliable recommendations.
 
@@ -100,38 +92,16 @@ Finally, different strategies for overcoming the new user problem will be presen
 
 ## 3.3 State of the Art of Content-based Recommender Systems
 
-As the name implies, content-based filtering exploits the content of data items to
-predict its relevance based on the user’s profile. Research on content-based recom-
-mender systems takes place at the intersection of many computer science topics,
-especially Information Retrieval [6] and Artificial Intelligence.
+As the name implies, content-based filtering exploits the content of data items to predict its relevance based on the user’s profile. Research on content-based recommender systems takes place at the intersection of many computer science topics, especially Information Retrieval [6] and Artificial Intelligence.
 
 From Information Retrieval (IR), research on recommendation technologies derives the vision that users searching for recommendations are engaged in an information seeking process. In IR systems the user expresses a one-off information need by giving a query (usually a list of keywords), while in IF systems the information need of the user is represented by her own profile. Items to be recommended can be very different depending on the number and types of attributes used to describe them. Each item can be described through the same small number of attributes with known set of values, but this is not appropriate for items, such as Web pages, news, emails or documents, described through unstructured text. In that case there are no attributes with well-defined values, and the use of document modeling techniques with roots in IR research is desirable.
 
-From an Artificial Intelligence perspective, the recommendation task can be cast
-as a learning problem that exploits past knowledge about users. At their simplest,
-user profiles are in the form of user-specified keywords or rules, and reflect the long-
-term interests of the user. Often, it is advisable for the recommender to learn the user
-profile rather than impose upon the user to provide one. This generally involves
-the application of Machine Learning (ML) techniques, whose goal is learning to
-categorize new information items based on previously seen information that have
-been explicitly or implicitly labelled as interesting or not by the user. Given these
-labelled information items, ML methods are able to generate a predictive model
-that, given a new information item, will help to decide whether it is likely to be of
-interest for the target user.
+From an Artificial Intelligence perspective, the recommendation task can be cast as a learning problem that exploits past knowledge about users. At their simplest, user profiles are in the form of user-specified keywords or rules, and reflect the long-term interests of the user. Often, it is advisable for the recommender to learn the user profile rather than impose upon the user to provide one. This generally involves the application of Machine Learning (ML) techniques, whose goal is learning to categorize new information items based on previously seen information that have been explicitly or implicitly labelled as interesting or not by the user. Given these labelled information items, ML methods are able to generate a predictive model that, given a new information item, will help to decide whether it is likely to be of interest for the target user.
 
-Section 3.3.1 describes alternative item representation techniques, ranging from
-traditional text representation, to more advanced techniques integrating ontologies
-and/or encyclopedic knowledge. Next, recommendation algorithms suitable for the
-described representations will be discussed in Section 3.3.2.
+Section 3.3.1 describes alternative item representation techniques, ranging from traditional text representation, to more advanced techniques integrating ontologies and/or encyclopedic knowledge. Next, recommendation algorithms suitable for the described representations will be discussed in Section 3.3.2.
 
 ### 3.3.1 Item Representation
-Items that can be recommended to the user are represented by a set of features,
-also called attributes or properties. For example, in a movie recommendation ap-
-plication, features adopted to describe a movie are: actors, directors, genres, subject
-matter, ...). When each item is described by the same set of attributes, and there is
-a known set of values the attributes may take, the item is represented by means of
-structured data. In this case, many ML algorithms can be used to learn a user profile
-[69].
+Items that can be recommended to the user are represented by a set of features, also called attributes or properties. For example, in a movie recommendation application, features adopted to describe a movie are: actors, directors, genres, subject matter, ...). When each item is described by the same set of attributes, and there is a known set of values the attributes may take, the item is represented by means of structured data. In this case, many ML algorithms can be used to learn a user profile [69].
 
 In most content-based filtering systems, item descriptions are textual features extracted from Web pages, emails, news articles or product descriptions. Unlike structured data, there are no attributes with well-defined values. Textual features create a number of complications when learning a user profile, due to the natural language ambiguity. The problem is that traditional keyword-based profiles are unable to capture the semantics of user interests because they are primarily driven by a string matching operation. If a string, or some morphological variant, is found in both the profile and the document, a match is made and the document is considered as relevant. String matching suffers from problems of:
 
@@ -140,31 +110,32 @@ In most content-based filtering systems, item descriptions are textual features 
 
 The result is that, due to synonymy, relevant information can be missed if the profile does not contain the exact keywords in the documents while, due to polysemy, wrong documents could be deemed relevant.
 
-Semantic analysis and its integration in personalization models is one of the most innovativeandinterestingapproachesproposedinliteraturetosolvethoseproblems. The key idea is the adoption of knowledge bases, such as lexicons or ontologies , for annotating items and representing profiles in order to obtain a “semantic” interpretation of the user information needs. In the next section, the basic keyword-based approach for document representation will be described, followed by a review of “traditional” systems relying on that model. Then, Sections 3.3.1.3 and 3.3.1.4 will provide an overview of techniques for semantic analysis based on ontological and world knowledge, respectively.
+Semantic analysis and its integration in personalization models is one of the most innovative and interesting approaches proposed in literature to solve those problems. The key idea is the adoption of knowledge bases, such as lexicons or ontologies , for annotating items and representing profiles in order to obtain a “semantic” interpretation of the user information needs. In the next section, the basic keyword-based approach for document representation will be described, followed by a review of “traditional” systems relying on that model. Then, Sections 3.3.1.3 and 3.3.1.4 will provide an overview of techniques for semantic analysis based on ontological and world knowledge, respectively.
 
 #### 3.3.1.1 Keyword-based Vector Space Model
 
-Most content-based recommender systems use relatively simple retrieval models, such as keyword matching or the Vector Space Model (VSM) with basic TF-IDF weighting. VSM is a spatial representation of text documents. In that model, each documentisrepresentedbyavectorinan-dimensionalspace,whereeachdimension corresponds to a term from the overall vocabulary of a given document collection. Formally, every document is represented as a vector of term weights, where each weight indicates the degree of association between the document and the term. Let $D = {d_1 ,d_2 ,...,d_N }$ denote a set of documents or corpus, and $T = {t_1 ,t_2 ,...,t_n }$ be the dictionary, that is to say the set of words in the corpus. T is obtained by applying some standard natural language processing operations, such as tokenization, stop words removal, and stemming [6]. Each document $d_j$ is represented as a vector in a n-dimensional vector space, so $d j = {w_{1j} ,w_{2j} ,...,d_{nj} }$, where w kj is the weight for term $t_k$ in document $d_j$ .
+Most content-based recommender systems use relatively simple retrieval models, such as keyword matching or the Vector Space Model (VSM) with basic TF-IDF weighting. VSM is a spatial representation of text documents. In that model, each document is represented by a vector in an-dimensional space, where each dimension corresponds to a term from the overall vocabulary of a given document collection. Formally, every document is represented as a vector of term weights, where each weight indicates the degree of association between the document and the term. Let $D = {d_1 ,d_2 ,...,d_N }$ denote a set of documents or corpus, and $T = {t_1 ,t_2 ,...,t_n }$ be the dictionary, that is to say the set of words in the corpus. T is obtained by applying some standard natural language processing operations, such as tokenization, stop words removal, and stemming [6]. Each document $d_j$ is represented as a vector in a n-dimensional vector space, so $d j = {w_{1j} ,w_{2j} ,...,d_{nj} }$, where $w_{kj}$ is the weight for term $t_k$ in document $d_j$ .
 
-Document representation in the VSM raises two issues: weighting the terms and measuring the feature vector similarity. The most commonly used term weighting scheme, TF - IDF (Term Frequency-Inverse Document Frequency) weighting, is based on empirical observations regarding text [79]:
+Document representation in the VSM raises two issues: weighting the terms and measuring the feature vector similarity. The most commonly used term weighting scheme, TF-IDF (Term Frequency-Inverse Document Frequency) weighting, is based on empirical observations regarding text [79]:
 
 - • rare terms are not less relevant than frequent terms ( IDF assumption);
 - • multiple occurrences of a term in a document are not less relevant than single occurrences ( TF assumption);
 - • long documents are not preferred to short documents (normalization assumption).
 
-In other words,termsthatoccurfrequentlyinonedocument( TF =term-frequency), but rarely in the rest of the corpus ( IDF = inverse-document-frequency), are more likely to be relevant to the topic of the document. In addition, normalizing the resulting weight vectors prevent longer documents from having a better chance of retrieval. These assumptions are well exemplified by the TF - IDF function:
+tu注：参考[TF-IDF算法介绍](http://www.ruanyifeng.com/blog/2013/03/tf-idf.html)
+
+In other words,terms that occur frequently in one document( TF =term-frequency), but rarely in the rest of the corpus ( IDF = inverse-document-frequency), are more likely to be relevant to the topic of the document. In addition, normalizing the resulting weight vectors prevent longer documents from having a better chance of retrieval. These assumptions are well exemplified by the TF-IDF function:
 
 - (3.1)
 $$TF-IDF (t_k ,d_j ) = \underset{TF}{TF (t_k ,d_j)} · \underset{IDF}{log \frac{N}{n_k}}$$
 
+where $N$ denotes the number of documents in the corpus, and $n_k$ denotes the number of documents in the collection in which the term $t_k$ occurs at least once.
 
-
-where $N$ denotes the number of documents in the corpus, and n k denotes the number
-of documents in the collection in which the term $t_k$ occurs at least once.
 - (3.2)
 $$TF (t_k ,d_j ) = \frac{ f_{k,j} }{max_z  f_{z,j}}$$
 
-where the maximum is computed over the frequencies f z,j of all terms t z that occur in document d j . In order for the weights to fall in the [0,1] interval and for the documents to be represented by vectors of equal length, weights obtained by Equation (3.1) are usually normalized by cosine normalization:
+where the maximum is computed over the frequencies $f_{z,j}$ of all terms $t_z$ that occur in document $d_j$ . In order for the weights to fall in the [0,1] interval and for the documents to be represented by vectors of equal length, weights obtained by Equation (3.1) are usually normalized by cosine normalization:
+
 - (3.3)
 $$w_{k,j} = \frac{ TF-IDF (t_k ,d_j )  }{ \sqrt{ \sum_{s=1}^{|T|} TF-IDF\left( t_s,d_j \right)^2 }  }$$
 
@@ -187,7 +158,7 @@ The same approach is adopted by Syskill & Webert, that represents documents with
 
 In the field of news filtering, noteworthy recommender systems are NewT [87], PSUN [90],INFOrmer [91],NewsDude[12],DailyLearner [13],andYourNews[2]. NewT (News Tailor) allows users to provide positive and negative feedback on articles, part of articles, authors or sources. Several filtering agents are trained for different types of information, e.g. one for political news, one for sports, etc. In the same way YourNews, a more recent system for personalized news access, maintains a separate interest profile for 8 different topics (National, World, Business, etc.). The user interest profile for each topic is represented as a weighted prototype term vector extracted from the user’s news view history. N articles from users’ past views are collected, and the 100 top-weighted terms are extracted to generate the final prototype vectors. The system maintains short-term profiles by considering only the 20 most recently viewed news item, whereas long-term profiles consider all past views. The system can use profiles to suggest recent and recommended news.
 
-Learning short-term and long-term profiles is quite typical of news filtering systems. NewsDude learns a short-term user model based on TF - IDF (cosine similarity), and a long-term model based on a na¨ ıve Bayesian classifier by relying on an initial training set of interesting news articles provided by the user. The news source is Yahoo! News. In the same way Daily Learner, a learning agent for wireless information access, adopts an approach for learning two separate user-models. The former, based on a Nearest Neighbor text classification algorithm, maintains the short-term interests of users, while the latter, based on a na¨ ıve Bayesian classifier, represents the long-term interests of users and relies on data collected over a longer period of time.
+Learning short-term and long-term profiles is quite typical of news filtering systems. NewsDude learns a short-term user model based on TF-IDF (cosine similarity), and a long-term model based on a na¨ ıve Bayesian classifier by relying on an initial training set of interesting news articles provided by the user. The news source is Yahoo! News. In the same way Daily Learner, a learning agent for wireless information access, adopts an approach for learning two separate user-models. The former, based on a Nearest Neighbor text classification algorithm, maintains the short-term interests of users, while the latter, based on a na¨ ıve Bayesian classifier, represents the long-term interests of users and relies on data collected over a longer period of time.
 
 Among systems using a more complex representation for articles or profiles, PSUN and INFOrmer are worth to note. PSUN adopts an alternative representation for articles. Profiles are provided initially by presenting the system with some articles the user finds interesting. Recurring words in these articles are recorded by means of n-grams stored in a network of mutually attracting or repelling words, whose degree of attraction is determined by the number of co-occurrences. Each user has multiple profiles that compete via a genetic algorithm, requiring explicit feedback. INFOrmer uses a semantic network for representing both user profiles and articles. A spreading activation technique [25] is used to compare articles and profiles, and a relevance feedback mechanism may be used to adapt the behavior of the system to user’s changing interests. The pure spreading activation model consists of a network data structure consisting of nodes interconnected by links, that may be labeled and/or weighted. The processing starts by labeling a set of source nodes with activation weights and proceeds by iteratively propagating that activation to other nodes linked to the source nodes, until a termination condition ends the search process over the network.
 
@@ -202,250 +173,58 @@ The most important lesson learned from the analysis of the main systems develope
 In the next sections, we will examine possible ways to infuse knowledge in the indexing phase by means of ontologies and encyclopedic knowledge sources.
 
 #### 3.3.1.3 Semantic Analysis by using Ontologies
-Semantic analysis allows learning more accurate profiles that contain references
-to concepts defined in external knowledge bases. The main motivation for this ap-
-proach is the challenge of providing a recommender system with the cultural and
-linguistic background knowledge which characterizes the ability of interpreting nat-
-ural language documents and reasoning on their content.
-In this section, a review of the main strategies adopted to introduce some seman-
-tics in the recommendation process is presented. The description of these strategies
-is carried out by taking into account several criteria:
+Semantic analysis allows learning more accurate profiles that contain references to concepts defined in external knowledge bases. The main motivation for this approach is the challenge of providing a recommender system with the cultural and linguistic background knowledge which characterizes the ability of interpreting natural language documents and reasoning on their content.
+In this section, a review of the main strategies adopted to introduce some semantics in the recommendation process is presented. The description of these strategies is carried out by taking into account several criteria:
+
 • the type of knowledge source involved (e.g. lexicon, ontology, etc.);
 • the techniques adopted for the annotation or representation of the items;
 • the type of content included in the user profile;
 • the item-profile matching strategy.
-SiteIF [52] is a personal agent for a multilingual news Web site. To the best of our
-knowledge, it was the first system to adopt a sense-based document representation in
-order to build a model of the user interests. The external knowledge source involved
-intherepresentationprocessisMultiWordNet,amultilinguallexicaldatabasewhere
-English and Italian senses are aligned. Each news is automatically associated with
-86 Pasquale Lops, Marco de Gemmis and Giovanni Semeraro
-a list of MultiWordNet synsets by using Word Domain Disambiguation [51]. The
-user profile is built as a semantic network whose nodes represent synsets found in
-the documents read by the user. During the matching phase, the system receives as
-input the synset representation of a document and the current user model, and it
-produces as output an estimation of the document relevance by using the Semantic
-Network Value Technique [92].
-ITR (ITem Recommender) is a system capable of providing recommendations
-for items in several domains (e.g., movies, music, books), provided that descrip-
-tions of items are available as text documents (e.g. plot summaries, reviews, short
-abstracts) [27, 83]. Similarly to SiteIF, ITR integrates linguistic knowledge in the
-process of learning user profiles, but Word Sense Disambiguation rather than Word
-Domain Disambiguation is adopted to obtain a sense-based document representa-
-tion. The linguistic knowledge comes exclusively from the WordNet lexical ontol-
-ogy. Items are represented according to a synset-based vector space model, called
-bag-of-synsets (BOS), that is an extension of the classical bag-of-words (BOW) one
-[8, 84]. In the BOS model, a synset vector, rather than a word vector, corresponds
-to a document. The user profile is built as a Na¨ ıve Bayes binary text classifier able
-to categorize an item as interesting or not interesting. It includes those synsets that
-turn out to be most indicative of the user preferences, according to the value of the
-conditional probabilities estimated in the training phase. The item-profile matching
-consists in computing the probability for the item of being in the class “interesting”,
-by using the probabilities of synsets in the user profile.
-SEWeP (Semantic Enhancement for Web Personalization) [31] is a Web person-
-alization system that makes use of both the usage logs and the semantics of a Web
-site’s content in order to personalize it. A domain-specific taxonomy of categories
-has been used to semantically annotate Web pages, in order to have a uniform and
-consistent vocabulary. While the taxonomy is built manually, the annotation process
-is performed automatically. SEWeP, like SiteIF and ITR, makes use of the lexical
-knowledge stored in WordNet to “interpret” the content of an item and to support
-the annotation/representation process. Web pages are initially represented by key-
-words extracted from their content, then keywords are mapped to the concepts of
-the taxonomy. Given a keyword, a WordNet-based word similarity measure is ap-
-plied to find the “closest” category word to that keyword. SEWeP does not build a
-personal profile of the user, rather it discovers navigational patterns. The categories
-which have been “semantically associated” to a pattern are used by the SEWeP rec-
-ommendation engine to expand the recommendation set with pages characterized
-by the thematic categories that seem to be of interest for the user.
-Quickstep [58] is a system for the recommendation of on-line academic research
-papers. The system adopts a research paper topic ontology based on the computer
-science classifications made by the DMOZ open directory project 6 (27 classes used).
-Semantic annotation of papers consists in associating them with class names within
-the research paper topic ontology, by using a k-Nearest Neighbor classifier. Inter-
-est profiles are computed by correlating previously browsed research papers with
-6
-http://www.dmoz.org/
-3 Content-based Recommender Systems: State of the Art and Trends 87
-their classification. User profiles thus hold a set of topics and interest values in these
-topics. The item-profile matching is realized by computing a correlation between
-the top three interesting topics in the user profile and papers classified as belong-
-ing to those topics. Foxtrot [58] extends the Quickstep system by implementing a
-paper search interface, a profile visualization interface and an email notification, in
-addition to the Web page recommendation interface. Profile visualization is made
-possible because profiles are represented in ontological terms understandable to the
-users.
-Informed Recommender [1] uses consumer product reviews to make recommen-
-dations. The system converts consumers’ opinions into a structured form by using a
-translation ontology, which is exploited as a form of knowledge representation and
-sharing. The ontology provides a controlled vocabulary and relationships among
-words to describe: the consumer’s skill level and experience with the product under
-review. To this purpose, the ontology contains two main parts: opinion quality and
-product quality, which formalize the two aforementioned aspects. A text-mining
-process automatically maps sentences in the reviews into the ontology information
-structure. The system does not build a profile of the user, rather it computes a set
-of recommendations on the basis of a user’s request, e.g. the user asks about the
-quality of specific features of a product. Informed Recommender is able to answer
-to query and also recommends the best product according to the features the user
-is concerned with. Two aspects make this work noteworthy: one is that ontologi-
-cal knowledge can model different points of view according to which items can be
-annotated, the other is the use of review comments in the form of free text.
-News@hand [18] is a system that adopts an ontology-based representation of
-item features and user preferences to recommend news. The annotation process as-
-sociates the news with concepts belonging to the domain ontologies. A total of 17
-ontologies have been used: they are adaptations of the IPTC ontology 7 , which con-
-tains concepts of multiple domains such as education, culture, politics, religion,
-science, sports, etc. It is not clear whether the annotation process is performed man-
-ually or by means of automated techniques such as text categorization. Item descrip-
-tions are vectors of TF - IDF scores in the space of concepts defined in the ontologies.
-User profiles are represented in the same space, except that a score measures the in-
-tensity of the user interest for a specific concept. Item-profile matching is performed
-as a cosine-based vector similarity.
-A recommender system for Interactive Digital Television is proposed in [14],
-where the authors apply reasoning techniques borrowed from the Semantic Web
-in order to compare user preferences with items (TV programs) in a more flexible
-way, compared to the conventional syntactic metrics. The TV programs available
-during the recommendation process are annotated by metadata that describe accu-
-rately their main attributes. Both the knowledge about the TV domain and the user
-profiles are represented using an OWL ontology. Ontology-profiles provide a for-
-mal representation of the users’ preferences, being able to reason about them and
-discover extra knowledge about their interests. The recommendation phase exploits
-7
-IPTC ontology, http://nets.ii.uam.es/neptuno/iptc/
-88 Pasquale Lops, Marco de Gemmis and Giovanni Semeraro
-the knowledge stored in the user profile to discover hidden semantic associations
-between the user’s preferences and the available products. The inferred knowledge
-is processed and a spreading activation technique is adopted to suggest products to
-the user. The noteworthy aspect of this work is that ontology-profiles improve flat
-lists-based approaches which are not well structured to foster the discovery of new
-knowledge.
-The JUMP System [10, 9] is capable of intelligent delivery of contextualized and
-personalized information to knowledge workers acting in their day-to-day working
-environment on non-routinary tasks. The information needs of the JUMP user is rep-
-resented in the form of a complex query, such as a task support request, rather than
-a user profile. An example of complex query is “I have to prepare a technical report
-for the VIKEF project”. The semantic analysis of both documents and user infor-
-mation needs is based on a domain ontology in which concepts are manually anno-
-tated using WordNet synsets. The mapping between documents and domain/lexical
-concepts is performed automatically by means of Word Sense Disambiguation and
-Named Entity Recognition procedures, which exploit the lexical annotations in the
-domain ontology. The matching between concepts in the user request and docu-
-ments is based on the relations in the domain ontology. For the processing of the
-example query, all instances of the concepts “technical report” and “project”, and
-relations among these instances are extracted from the ontology.
-The leading role of linguistic knowledge is highlighted by the wide use of Word-
-Net, which is mostly adopted for the semantic interpretation of content by using
-word sense disambiguation. On the other hand, the studies described above showed
-that the great potential provided by WordNet is not sufficient alone for the full com-
-prehension of the user interests and for their contextualization in the application do-
-main. Domain specific knowledge is also needed. Ontologies play the fundamental
-role of formalizing the application domain, being exploited for the semantic descrip-
-tions of the items and for the representation of the concepts (i.e. classes and their
-instances) and relationships (i.e. hierarchical links and properties) identified in the
-domain. In conclusion, all studies which incorporated either linguistic or domain-
-specific knowledge or both in content-based filtering methods provided better and
-more accurate results compared to traditional content-based methods. This encour-
-ages researchers to design novel filtering methods which formalize and contextu-
-alize user interests by exploiting external knowledge sources such as thesauri or
-ontologies.
+
+SiteIF [52] is a personal agent for a multilingual news Web site. To the best of our knowledge, it was the first system to adopt a sense-based document representation in order to build a model of the user interests. The external knowledge source involved in the representation process is MultiWordNet,a multilingual lexical data base where English and Italian senses are aligned. Each news is automatically associated with a list of MultiWordNet synsets by using Word Domain Disambiguation [51]. The user profile is built as a semantic network whose nodes represent synsets found in the documents read by the user. During the matching phase, the system receives as input the synset representation of a document and the current user model, and it produces as output an estimation of the document relevance by using the Semantic Network Value Technique [92].
+
+ITR (ITem Recommender) is a system capable of providing recommendations for items in several domains (e.g., movies, music, books), provided that descriptions of items are available as text documents (e.g. plot summaries, reviews, short abstracts) [27, 83]. Similarly to SiteIF, ITR integrates linguistic knowledge in the process of learning user profiles, but Word Sense Disambiguation rather than Word Domain Disambiguation is adopted to obtain a sense-based document representation. The linguistic knowledge comes exclusively from the WordNet lexical ontology. Items are represented according to a synset-based vector space model, called bag-of-synsets (BOS), that is an extension of the classical bag-of-words (BOW) one [8, 84]. In the BOS model, a synset vector, rather than a word vector, corresponds to a document. The user profile is built as a Na¨ ıve Bayes binary text classifier able to categorize an item as interesting or not interesting. It includes those synsets that turn out to be most indicative of the user preferences, according to the value of the conditional probabilities estimated in the training phase. The item-profile matching consists in computing the probability for the item of being in the class “interesting”, by using the probabilities of synsets in the user profile.
+
+SEWeP (Semantic Enhancement for Web Personalization) [31] is a Web personalization system that makes use of both the usage logs and the semantics of a Web site’s content in order to personalize it. A domain-specific taxonomy of categories has been used to semantically annotate Web pages, in order to have a uniform and consistent vocabulary. While the taxonomy is built manually, the annotation process is performed automatically. SEWeP, like SiteIF and ITR, makes use of the lexical knowledge stored in WordNet to “interpret” the content of an item and to support the annotation/representation process. Web pages are initially represented by key-words extracted from their content, then keywords are mapped to the concepts of the taxonomy. Given a keyword, a WordNet-based word similarity measure is applied to find the “closest” category word to that keyword. SEWeP does not build a personal profile of the user, rather it discovers navigational patterns. The categories which have been “semantically associated” to a pattern are used by the SEWeP recommendation engine to expand the recommendation set with pages characterized by the thematic categories that seem to be of interest for the user. 
+
+Quickstep [58] is a system for the recommendation of on-line academic research papers. The system adopts a research paper topic ontology based on the computer science classifications made by the DMOZ open directory project 6 (27 classes used). Semantic annotation of papers consists in associating them with class names within the research paper topic ontology, by using a k-Nearest Neighbor classifier. Interest profiles are computed by correlating previously browsed research papers with their classification. User profiles thus hold a set of topics and interest values in these topics. The item-profile matching is realized by computing a correlation between the top three interesting topics in the user profile and papers classified as belonging to those topics. Foxtrot [58] extends the Quickstep system by implementing a paper search interface, a profile visualization interface and an email notification, in
+addition to the Web page recommendation interface. Profile visualization is made possible because profiles are represented in ontological terms understandable to the users.
+
+Informed Recommender [1] uses consumer product reviews to make recommendations. The system converts consumers’ opinions into a structured form by using a translation ontology, which is exploited as a form of knowledge representation and sharing. The ontology provides a controlled vocabulary and relationships among words to describe: the consumer’s skill level and experience with the product under review. To this purpose, the ontology contains two main parts: opinion quality and product quality, which formalize the two aforementioned aspects. A text-mining process automatically maps sentences in the reviews into the ontology information structure. The system does not build a profile of the user, rather it computes a set of recommendations on the basis of a user’s request, e.g. the user asks about the quality of specific features of a product. Informed Recommender is able to answer to query and also recommends the best product according to the features the user is concerned with. Two aspects make this work noteworthy: one is that ontological knowledge can model different points of view according to which items can be annotated, the other is the use of review comments in the form of free text.
+
+News@hand [18] is a system that adopts an ontology-based representation of item features and user preferences to recommend news. The annotation process associates the news with concepts belonging to the domain ontologies. A total of 17 ontologies have been used: they are adaptations of the IPTC ontology 7 , which contains concepts of multiple domains such as education, culture, politics, religion, science, sports, etc. It is not clear whether the annotation process is performed manually or by means of automated techniques such as text categorization. Item descriptions are vectors of TF - IDF scores in the space of concepts defined in the ontologies. User profiles are represented in the same space, except that a score measures the intensity of the user interest for a specific concept. Item-profile matching is performed as a cosine-based vector similarity.
+
+A recommender system for Interactive Digital Television is proposed in [14], where the authors apply reasoning techniques borrowed from the Semantic Web in order to compare user preferences with items (TV programs) in a more flexible way, compared to the conventional syntactic metrics. The TV programs available during the recommendation process are annotated by metadata that describe accurately their main attributes. Both the knowledge about the TV domain and the user profiles are represented using an OWL ontology. Ontology-profiles provide a formal representation of the users’ preferences, being able to reason about them and discover extra knowledge about their interests. The recommendation phase exploits the knowledge stored in the user profile to discover hidden semantic associations between the user’s preferences and the available products. The inferred knowledge is processed and a spreading activation technique is adopted to suggest products to the user. The noteworthy aspect of this work is that ontology-profiles improve flat lists-based approaches which are not well structured to foster the discovery of new knowledge.
+
+The JUMP System [10, 9] is capable of intelligent delivery of contextualized and personalized information to knowledge workers acting in their day-to-day working environment on non-routinary tasks. The information needs of the JUMP user is represented in the form of a complex query, such as a task support request, rather than a user profile. An example of complex query is “I have to prepare a technical report for the VIKEF project”. The semantic analysis of both documents and user information needs is based on a domain ontology in which concepts are manually annotated using WordNet synsets. The mapping between documents and domain/lexical concepts is performed automatically by means of Word Sense Disambiguation and Named Entity Recognition procedures, which exploit the lexical annotations in the domain ontology. The matching between concepts in the user request and documents is based on the relations in the domain ontology. For the processing of the example query, all instances of the concepts “technical report” and “project”, and relations among these instances are extracted from the ontology.
+
+The leading role of linguistic knowledge is highlighted by the wide use of WordNet, which is mostly adopted for the semantic interpretation of content by using word sense disambiguation. On the other hand, the studies described above showed that the great potential provided by WordNet is not sufficient alone for the full comprehension of the user interests and for their contextualization in the application domain. Domain specific knowledge is also needed. Ontologies play the fundamental role of formalizing the application domain, being exploited for the semantic descriptions of the items and for the representation of the concepts (i.e. classes and their instances) and relationships (i.e. hierarchical links and properties) identified in the domain. In conclusion, all studies which incorporated either linguistic or domainspecific knowledge or both in content-based filtering methods provided better and more accurate results compared to traditional content-based methods. This encourages researchers to design novel filtering methods which formalize and contextualize user interests by exploiting external knowledge sources such as thesauri or ontologies.
 
 #### 3.3.1.4 Semantic Analysis by using Encyclopedic Knowledge Sources
-Common-sense and domain-specific knowledge may be useful to improve the effec-
-tiveness of natural language processing techniques by generating more informative
-features than the mere bag of words. The process of learning user profiles could ben-
-efit from the infusion of exogenous knowledge (externally supplied), with respect to
-the classical use of endogenous knowledge (extracted from the documents them-
-selves). Many sources of world knowledge have become available in recent years.
-3 Content-based Recommender Systems: State of the Art and Trends 89
-Examples of general purpose knowledge bases include the Open Directory Project
-(ODP), Yahoo! Web Directory, and Wikipedia.
 
-In the following we provide a brief overview of novel methods for generating
-new advanced features using world knowledge, even though those methods are not
-yet used in the context of learning user profiles.
+Common-sense and domain-specific knowledge may be useful to improve the effectiveness of natural language processing techniques by generating more informative features than the mere bag of words. The process of learning user profiles could benefit from the infusion of exogenous knowledge (externally supplied), with respect to the classical use of endogenous knowledge (extracted from the documents themselves). Many sources of world knowledge have become available in recent years. Examples of general purpose knowledge bases include the Open Directory Project (ODP), Yahoo! Web Directory, and Wikipedia.
 
-Explicit Semantic Analysis (ESA) [34, 35] is a technique able to provide a fine-
-grained semantic representation of natural language texts in a high-dimensional
-space of natural (and also comprehensible) concepts derived from Wikipedia . Con-
-cepts are defined by Wikipedia articles, e.g., I TALY , C OMPUTER S CIENCE , or R EC -
-OMMENDER S YSTEMS . The approach is inspired by the desire to augment text rep-
-resentation with massive amounts of world knowledge. In the case of Wikipedia as
-knowledge source, there are several advantages, such as its constant development
-by the community, the availability in several languages, and its high accuracy [37].
-Empirical evaluations showed that ESA leads to substantial improvements in com-
-puting word and text relatedness, and in the text categorization task across a diverse
-collection of datasets. It has also been shown that ESA enhanced traditional BOW-
-based retrieval models [30].
+In the following we provide a brief overview of novel methods for generating new advanced features using world knowledge, even though those methods are not yet used in the context of learning user profiles.
 
-Another interesting approach to add semantics to text is proposed by the Wikify!
-system [59, 26], which has the ability to identify important concepts in a text (key-
-word extraction), and then link these concepts to the corresponding Wikipedia pages
-(word sense disambiguation). The annotations produced by the Wikify! system can
-be used to automatically enrich documents with references to semantically related
-information. A Turing-like test to compare the quality of the system annotations to
-manual annotations produced by Wikipedia contributors has been designed. Human
-beings are asked to distinguish between manual and automatic annotations. Results
-suggest that the computer and human-generated Wikipedia annotations are hardly
-distinguishable, which indicates the high quality of the Wikify! system’s annota-
-tions.
+Explicit Semantic Analysis (ESA) [34, 35] is a technique able to provide a fine-grained semantic representation of natural language texts in a high-dimensional space of natural (and also comprehensible) concepts derived from Wikipedia . Concepts are defined by Wikipedia articles, e.g., ITALY , COMPUTER S CIENCE , or RECOMMENDER SYSTEMS . The approach is inspired by the desire to augment text representation with massive amounts of world knowledge. In the case of Wikipedia as knowledge source, there are several advantages, such as its constant development by the community, the availability in several languages, and its high accuracy [37]. Empirical evaluations showed that ESA leads to substantial improvements in computing word and text relatedness, and in the text categorization task across a diverse collection of datasets. It has also been shown that ESA enhanced traditional BOW-based retrieval models [30].
 
-To the best of our knowledge, there are no (content-based) recommender sys-
-tems able to exploit the above mentioned advanced semantic text representations for
-learning profiles containing references to world facts. The positive results obtained
-exploiting the advanced text representations in several tasks, such as semantic relat-
-edness, text categorization and retrieval, suggest that similar positive results could
-be also obtained in the recommendation task. It seems a promising research area,
-not yet explored.
+Another interesting approach to add semantics to text is proposed by the Wikify! system [59, 26], which has the ability to identify important concepts in a text (key-word extraction), and then link these concepts to the corresponding Wikipedia pages (word sense disambiguation). The annotations produced by the Wikify! system can be used to automatically enrich documents with references to semantically related information. A Turing-like test to compare the quality of the system annotations to manual annotations produced by Wikipedia contributors has been designed. Human beings are asked to distinguish between manual and automatic annotations. Results suggest that the computer and human-generated Wikipedia annotations are hardly distinguishable, which indicates the high quality of the Wikify! system’s annotations.
 
-In [47], Wikipedia is used to estimate similarity between movies, in order to
-provide more accurate predictions for the Netflix Prize competition. More specifi-
-cally, the content and the hyperlink structure of Wikipedia articles are exploited to
-identify similarities between movies. A similarity matrix containing the degree of
-similarity of each movie-movie pair is produced, and the prediction of user ratings
-from this matrix is computed by using a k-Nearest Neighbors and a Pseudo-SVD al-
-gorithm. Each of these methods combines the similarity estimates from Wikipedia
-with ratings from the training set to predict ratings in the test set. Unfortunately,
-these techniques did not show any significant improvement of the overall accuracy.
-90 Pasquale Lops, Marco de Gemmis and Giovanni Semeraro
+To the best of our knowledge, there are no (content-based) recommender systems able to exploit the above mentioned advanced semantic text representations for learning profiles containing references to world facts. The positive results obtained exploiting the advanced text representations in several tasks, such as semantic relatedness, text categorization and retrieval, suggest that similar positive results could be also obtained in the recommendation task. It seems a promising research area, not yet explored.
 
-In [88], a quite complex, but not yet complete, approach for filtering RSS feeds
-and e-mails is presented. More specifically, the authors present an approach exploit-
-ing Wikipedia to automatically generate the user profile from the user’s document
-collection. The approach mainly consists of four steps, namely the Wikipedia in-
-dexing, the profile generation, the problem-oriented index database creation, and
-the information filtering. The profile generation step exploits the collection of doc-
-uments provided by the user, which implicitly represents a set of topics interesting
-for the user. A set of terms is extracted from each document, then similar Wikipedia
-articles are found by using the ESA algorithm. The system then extracts the list of
-Wikipedia categories from the articles and clusters these categories in order to get
-a subset of categories corresponding to one topic in the user profile. The user can
-also check her own profile and add or remove categories in order to refine topics.
-For each topic in the user profile, a problem-oriented Wikipedia corpus is created
-and indexed, and represents the base for filtering information.
+In [47], Wikipedia is used to estimate similarity between movies, in order to provide more accurate predictions for the Netflix Prize competition. More specifically, the content and the hyperlink structure of Wikipedia articles are exploited to identify similarities between movies. A similarity matrix containing the degree of similarity of each movie-movie pair is produced, and the prediction of user ratings from this matrix is computed by using a k-Nearest Neighbors and a Pseudo-SVD algorithm. Each of these methods combines the similarity estimates from Wikipedia with ratings from the training set to predict ratings in the test set. Unfortunately, these techniques did not show any significant improvement of the overall accuracy.
 
-In [85], a different approach to exploit Wikipedia in the content analysis step
-is presented. More specifically, the idea is to provide a knowledge infusion process
-into content-based recommender systems, in order to provide them with the cultural
-background knowledge that hopefully allows a more accurate content analysis than
-classical approaches based on words. The encyclopedic knowledge is useful to rec-
-ognize specific domain-dependent concepts or named entities, especially in those
-contexts for which the adoption of domain ontologies is not feasible. Wikipedia en-
-tries have been modeled using Semantic Vectors, based on the WordSpace model
-[77], a vector space whose points are used to represent semantic concepts, such as
-words and documents. Relationships between words are then exploited by a spread-
-ing activation algorithm to produce new features that can be exploited in several
-ways during the recommendation process.
+In [88], a quite complex, but not yet complete, approach for filtering RSS feeds and e-mails is presented. More specifically, the authors present an approach exploiting Wikipedia to automatically generate the user profile from the user’s document collection. The approach mainly consists of four steps, namely the Wikipedia indexing, the profile generation, the problem-oriented index database creation, and the information filtering. The profile generation step exploits the collection of documents provided by the user, which implicitly represents a set of topics interesting for the user. A set of terms is extracted from each document, then similar Wikipedia articles are found by using the ESA algorithm. The system then extracts the list of Wikipedia categories from the articles and clusters these categories in order to get a subset of categories corresponding to one topic in the user profile. The user can also check her own profile and add or remove categories in order to refine topics. For each topic in the user profile, a problem-oriented Wikipedia corpus is created and indexed, and represents the base for filtering information.
+
+In [85], a different approach to exploit Wikipedia in the content analysis step is presented. More specifically, the idea is to provide a knowledge infusion process into content-based recommender systems, in order to provide them with the cultural background knowledge that hopefully allows a more accurate content analysis than classical approaches based on words. The encyclopedic knowledge is useful to recognize specific domain-dependent concepts or named entities, especially in those contexts for which the adoption of domain ontologies is not feasible. Wikipedia entries have been modeled using Semantic Vectors, based on the WordSpace model [77], a vector space whose points are used to represent semantic concepts, such as words and documents. Relationships between words are then exploited by a spreading activation algorithm to produce new features that can be exploited in several ways during the recommendation process.
 
 ### 3.3.2 Methods for Learning User Profiles
-Machine learning techniques, generally used in the task of inducing content-based
-profiles, are well-suited for text categorization [82]. In a machine learning approach
-to text categorization, an inductive process automatically builds a text classifier by
-learning from a set of training documents (documents labeled with the categories
-they belong to) the features of the categories.
+Machine learning techniques, generally used in the task of inducing content-based profiles, are well-suited for text categorization [82]. In a machine learning approach to text categorization, an inductive process automatically builds a text classifier by learning from a set of training documents (documents labeled with the categories they belong to) the features of the categories.
 
 The problem of learning user profiles can be cast as a binary text categorization
 task: each document has to be classified as interesting or not with respect to the
-user preferences. Therefore, the set of categories is C = {c + , c − }, where c + is the
-positive class (user-likes) and c − the negative one (user-dislikes).
+user preferences. Therefore, the set of categories is $C = {c + , c − }$, where $c +$ is the
+positive class (user-likes) and $c -$ the negative one (user-dislikes).
 
 In the next sections we review the most used learning algorithms in content-based
 recommender systems. They are able to learn a function that models each user’s
@@ -454,122 +233,48 @@ relevance score, and automatically infer profiles exploited in the filtering pro
 rank documents according to the user preferences.
 
 #### 3.3.2.1 Probabilistic Methods and Na¨ ıve Bayes
-Na¨ ıve Bayes is a probabilistic approach to inductive learning, and belongs to the
-general class of Bayesian classifiers. These approaches generate a probabilistic
-model based on previously observed data. The model estimates the a posteriori
-probability, P(c|d), of document d belonging to class c. This estimation is based
-on the a priori probability, P(c), the probability of observing a document in class c,
-P(d|c), the probability of observing the document d given c, and P(d), the proba-
-bility of observing the instance d. Using these probabilities, the Bayes theorem is
-applied to calculate P(c|d):
-P(c|d) =
-P(c)P(d|c)
-P(d)
-(3.5)
+Na¨ ıve Bayes is a probabilistic approach to inductive learning, and belongs to the general class of Bayesian classifiers. These approaches generate a probabilistic model based on previously observed data. The model estimates the a posteriori probability, $P(c|d)$, of document $d$ belonging to class $c$. This estimation is based on the a priori probability, $P(c)$, the probability of observing a document in class $c$, $P(d|c)$, the probability of observing the document d given c, and $P(d)$, the probability of observing the instance $d$. Using these probabilities, the Bayes theorem is applied to calculate $P(c|d)$:
+
+- (3.5)
+$$P(c|d) =  \frac {P(c)P(d|c)} {P(d)}$$
+
+
+
 To classify the document d, the class with the highest probability is chosen:
-c = argmax c j
-P(c j )P(d|c j )
-P(d)
-P(d) is generally removed as it is equal for all c j . As we do not know the value for
-P(d|c)andP(c),weestimatethembyobservingthetrainingdata.However,estimat-
-ing P(d|c) in this way is problematic, as it is very unlikely to see the same document
-more than once: the observed data is generally not enough to be able to generate
-good probabilities. The na¨ ıve Bayes classifier overcomes this problem by simplify-
-ing the model through the independence assumption: all the words or tokens in the
-observed document d are conditionally independent of each other given the class.
-Individual probabilities for the words in a document are estimated one by one rather
-than the complete document as a whole. The conditional independence assumption
-is clearly violated in real-world data, however, despite these violations, empirically
-the na¨ ıve Bayes classifier does a good job in classifying text documents [48, 11].
-There are two commonly used working models of the na¨ ıve Bayes classifier,
-the multivariate Bernoulli event model and the multinomial event model [54]. Both
-models treat a document as a vector of values over the corpus vocabulary,V, where
-each entry in the vector represents whether a word occurred in the document, hence
-both models lose information about word order. The multivariate Bernoulli event
-model encodes each word as a binary attribute, i.e., whether a word appeared or not,
-while the multinomial event model counts how many times the word appeared in
-the document. Empirically, the multinomial na¨ ıve Bayes formulation was shown to
-outperform the multivariate Bernoulli model. This effect is particularly noticeable
-for large vocabularies [54]. The way the multinomial event model uses its document
-vector to calculate P(c j |d i ) is as follows:
-P(c j |d i ) = P(c j ) ∏
-w∈V d i
-P(t k |c j ) N (d i ,t k ) (3.6)
-92 Pasquale Lops, Marco de Gemmis and Giovanni Semeraro
-where N (d i ,t k ) is defined as the number of times word or token t k appeared in docu-
-ment d i . Notice that, rather than getting the product of all the words in the corpus
-vocabulary V, only the subset of the vocabulary, V d i , containing the words that ap-
-pear in the document d i , is used.
-A key step in implementing na¨ ıve Bayes is estimating the word probabilities
-P(t k |c j ). To make the probability estimates more robust with respect to infre-
-quently encountered words, a smoothing method is used to modify the probabili-
-ties that would have been obtained by simple event counting. One important effect
-of smoothing is that it avoids assigning probability values equal to zero to words
-not occurring in the training data for a particular class. A rather simple smoothing
-method relies on the common Laplace estimates (i.e., adding one to all the word
-counts for a class). A more interesting method is Witten-Bell [100]. Although na¨ ıve
-Bayes performances are not as good as some other statistical learning methods such
-as nearest-neighbor classifiers or support vector machines, it has been shown that it
-can perform surprisingly well in the classification tasks where the computed proba-
-bility is not important [29]. Another advantage of the na¨ ıve Bayes approach is that
-it is very efficient and easy to implement compared to other learning methods.
-Although the classifiers based on the multinomial model significantly outperform
-those based on the multivariate one at large vocabulary sizes, their performance is
-unsatisfactory when: 1) documents in the training set have different lengths, thus
-resulting in a rough parameter estimation; 2) handling rare categories (few training
-documents available). These conditions frequently occur in the user profiling task,
-where no assumptions can be made on the length of training documents, and where
-obtaining an appropriate set of negative examples (i.e., examples of the class c − )
-is problematic. Indeed, since users do not perceive having immediate benefits from
-giving negative feedback to the system [81], the training set for the class c + (user-
-likes) may be often larger than the one for the class c − (user-dislikes). In [46], the
-authors propose a multivariate Poisson model for na¨ ıve Bayes text classification that
-allowsmorereasonableparameterestimationundertheabovementionedconditions.
-We have adapted this approach to the case of user profiling task [36].
-The na¨ ıve Bayes classifier has been used in several content-based recommenda-
-tion systems, such as Syskill & Webert [70, 68], NewsDude [12], Daily Learner [13],
-LIBRA [65] and ITR [27, 83].
+
+$$c = argmax_{c_j} \frac{P(c_j )P(d|c_j )}{P(d)}  $$
+
+$P(d)$ is generally removed as it is equal for all $c_j$ . As we do not know the value for $P(d|c)$ and $P(c)$, we estimate them by observing the training data. However,estimating $P(d|c)$ in this way is problematic, as it is very unlikely to see the same document more than once: the observed data is generally not enough to be able to generate good probabilities. The na¨ ıve Bayes classifier overcomes this problem by simplifying the model through the independence assumption: all the words or tokens in the observed document d are conditionally independent of each other given the class. Individual probabilities for the words in a document are estimated one by one rather than the complete document as a whole. The conditional independence assumption is clearly violated in real-world data, however, despite these violations, empirically the na¨ ıve Bayes classifier does a good job in classifying text documents [48, 11].
+
+There are two commonly used working models of the na¨ ıve Bayes classifier, the multivariate Bernoulli event model and the multinomial event model [54]. Both models treat a document as a vector of values over the corpus vocabulary,V, where each entry in the vector represents whether a word occurred in the document, hence both models lose information about word order. The multivariate Bernoulli event model encodes each word as a binary attribute, i.e., whether a word appeared or not, while the multinomial event model counts how many times the word appeared in the document. Empirically, the multinomial na¨ ıve Bayes formulation was shown to outperform the multivariate Bernoulli model. This effect is particularly noticeable for large vocabularies [54]. The way the multinomial event model uses its document vector to calculate $P(c_j |d_i )$ is as follows:
+
+- (3.6)
+
+$$P(c_j |d_i ) = P(c_j ) \prod_{ w∈V_{d_i} }^{ } P(t_k |c_j )^{N_{ (d_i ,t_k ) } }$$ 
+
+where $N_{ (d_i ,t_k ) }$ is defined as the number of times word or token $t_k$ appeared in document $d_i$ . Notice that, rather than getting the product of all the words in the corpus vocabulary V, only the subset of the vocabulary, $V_{d_i}$ , containing the words that appear in the document d i , is used.
+
+A key step in implementing na¨ ıve Bayes is estimating the word probabilities $P(t_k |c_j )$. To make the probability estimates more robust with respect to infrequently encountered words, a smoothing method is used to modify the probabilities that would have been obtained by simple event counting. One important effect of smoothing is that it avoids assigning probability values equal to zero to words not occurring in the training data for a particular class. A rather simple smoothing method relies on the common Laplace estimates (i.e., adding one to all the word counts for a class). A more interesting method is Witten-Bell [100]. Although na¨ ıve Bayes performances are not as good as some other statistical learning methods such as nearest-neighbor classifiers or support vector machines, it has been shown that it can perform surprisingly well in the classification tasks where the computed probability is not important [29]. Another advantage of the na¨ ıve Bayes approach is that it is very efficient and easy to implement compared to other learning methods.
+
+Although the classifiers based on the multinomial model significantly outperform those based on the multivariate one at large vocabulary sizes, their performance is unsatisfactory when: 1) documents in the training set have different lengths, thus resulting in a rough parameter estimation; 2) handling rare categories (few training documents available). These conditions frequently occur in the user profiling task, where no assumptions can be made on the length of training documents, and where obtaining an appropriate set of negative examples (i.e., examples of the class c − ) is problematic. Indeed, since users do not perceive having immediate benefits from giving negative feedback to the system [81], the training set for the class c + (user-likes) may be often larger than the one for the class c − (user-dislikes). In [46], the authors propose a multivariate Poisson model for na¨ ıve Bayes text classification that allows more reasonable parameter estimation under the above mentioned conditions. We have adapted this approach to the case of user profiling task [36].
+
+The na¨ ıve Bayes classifier has been used in several content-based recommendation systems, such as Syskill & Webert [70, 68], NewsDude [12], Daily Learner [13], LIBRA [65] and ITR [27, 83].
 
 #### 3.3.2.2 Relevance Feedback and Rocchio’s Algorithm
-Relevance feedback is a technique adopted in Information Retrieval that helps users
-to incrementally refine queries based on previous search results. It consists of the
-usersfeedingbackintothesystemdecisionsontherelevanceofretrieveddocuments
-with respect to their information needs.
-Relevance feedback and its adaptation to text categorization, the well-known
-Rocchio’s formula [75], are commonly adopted by content-based recommender sys-
-tems. The general principle is to allow users to rate documents suggested by the rec-
-ommender system with respect to their information need. This form of feedback can
-3 Content-based Recommender Systems: State of the Art and Trends 93
-subsequently be used to incrementally refine the user profile or to train the learning
-algorithm that infers the user profile as a classifier.
-Some linear classifiers consist of an explicit profile (or prototypical document)
-of the category [82]. The Rocchio’s method is used for inducing linear, profile-style
-classifiers. This algorithm represents documents as vectors, so that documents with
-similar content have similar vectors. Each component of such a vector corresponds
-to a term in the document, typically a word. The weight of each component is com-
-puted using the TF - IDF term weighting scheme. Learning is achieved by combining
-document vectors (of positive and negative examples) into a prototype vector for
-each class in the set of classes C. To classify a new document d, the similarity be-
-tween the prototype vectors and the corresponding document vector representing d
-are calculated for each class (for example by using the cosine similarity measure),
-then d is assigned to the class whose document vector has the highest similarity
-value.
-More formally, Rocchio’s method computes a classifier
-− →
-c i = ⟨ ω 1i ,..., ω |T|i ⟩ for
-the category c i (T is the vocabulary, that is the set of distinct terms in the training
-set) by means of the formula:
-ω ki = β ·
-∑
-{d j ∈POS i }
-ω kj
-|POS i |
-− γ ·
-∑
-{d j ∈NEG i }
-ω kj
-|NEG i |
-(3.7)
+
+Relevance feedback is a technique adopted in Information Retrieval that helps users to incrementally refine queries based on previous search results. It consists of the users feeding back into the system decisions on the relevance of retrieved documents with respect to their information needs.
+
+Relevance feedback and its adaptation to text categorization, the well-known Rocchio’s formula [75], are commonly adopted by content-based recommender systems. The general principle is to allow users to rate documents suggested by the recommender system with respect to their information need. This form of feedback can subsequently be used to incrementally refine the user profile or to train the learning algorithm that infers the user profile as a classifier.
+
+Some linear classifiers consist of an explicit profile (or prototypical document) of the category [82]. The Rocchio’s method is used for inducing linear, profile-style classifiers. This algorithm represents documents as vectors, so that documents with similar content have similar vectors. Each component of such a vector corresponds to a term in the document, typically a word. The weight of each component is computed using the TF - IDF term weighting scheme. Learning is achieved by combining document vectors (of positive and negative examples) into a prototype vector for each class in the set of classes C. To classify a new document d, the similarity between the prototype vectors and the corresponding document vector representing $d$ are calculated for each class (for example by using the cosine similarity measure), then $d$ is assigned to the class whose document vector has the highest similarity value.
+
+More formally, Rocchio’s method computes a classifier $\overrightarrow{c_i}  ⟨ ω_{1i} ,..., ω_{|T|i} ⟩$ for the category $c_i$ ($T$ is the vocabulary, that is the set of distinct terms in the training set) by means of the formula:
+
+- (3.7)
+
+$$ \omega _{ki} = β · \sum_{d_j ∈POS_i} \frac{ \omega _{kj} }{ |POS_i| } − γ ·  \sum_{d_j ∈NEG_i}  \frac{ \omega _{kj} }{ |NEG_i| }$$
+
+
 where ω kj is the TF - IDF weight of the term t k in document d j , POS i and NEG i are
 the set of positive and negative examples in the training set for the specific class c j ,
 β and γ arecontrolparametersthatallowtosettherelativeimportanceofallpositive
