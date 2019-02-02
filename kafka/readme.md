@@ -55,7 +55,7 @@ You can also deploy your verticle programatically and pass the number of instanc
   wurstmeister/kafka
   ```
 
-  或通过下面的docker-compose.yml方式启动. 
+  或通过下面的docker-compose.yml文件，运行`docker-compose up -d`方式启动. 
   ```yaml
   version: '2'
   services:
@@ -71,6 +71,12 @@ You can also deploy your verticle programatically and pass the number of instanc
         KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
         KAFKA_ZOOKEEPER_CONNECT: zk_serv:2181
   ```  
+
+  进入docker容器，可以运行kafka命令，例如
+  ```shell
+  docker exec -it kafka_msg_sender_1 /bin/bash
+  #/opt/kafka/bin/kafka-topics.sh --list  --zookeeper zk_serv:2181
+  ```
 
 ```yaml
 version: '2' # 固定，表示其版本为2 
