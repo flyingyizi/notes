@@ -1,237 +1,84 @@
 
+# 使用AVR-GCC编程Arduino
 
-C:\prog\Arduino\hardware\arduino\avr\cores\arduino\Arduino.h
+[英文](http://www.javiervalcarce.eu/wiki/Program_Arduino_with_AVR-GCC),[中文](https://blog.csdn.net/liujiandu101/article/details/79869616)
 
+建议仔细看“doc\avr-libc\avr-libc-user-manual\group__demo__project.html”
 
-- [Machinekit Raspbian Jessie for RPi1 and RPi2](https://www.raspberrypi.org/forums/viewtopic.php?p=920778)
+- blink例子
 
-linuxcnc raspberry : http://www.wire2wire.org/PICnc_5axis/PICnc_5axis.html, https://github.com/kinsamanka/PICnc-V2/wiki
-
-
-- arduino UNO 引脚与AVR单片机(AtMega328p)管脚对应关系
-
-
-    |UNO<br>数字引脚|UNO<br>模拟引脚|AVR 管脚|AVR扩展功能|
-    |--|-|----|--------|
-    |0 |/|PD 0|USART RX|
-    |1 |/|PD 1|USART TX|
-    |2 |/|PD 2|Ext int 0|
-    |3 |/|PD 3|PWM T2B,Ext int 1|
-    |4 |/|PD 4||
-    |5 |/|PD 5|PWM T0A|
-    |6 |/|PD 6|PWM T0B|
-    |7 |/|PD 7||
-    |8 |/|PB 0|input capture|
-    |9 |/|PB 1|PWM T1A|
-    |10|/|PB 2|PWM T1B,SS|
-    |11|/|PB 3|PWM T2A,MOSI|
-    |12|/|PB 4|SPI MISO|
-    |13|/|PB 5|SPI SCK|
-    |14|A0|PC 0||
-    |15|A1|PC 1||
-    |16|A2|PC 2||
-    |17|A3|PC 3||
-    |18|A4|PC 4|I2C SDA|
-    |19|A5|PC 5|I2C SCL|
-    |||||
-
-
-- 后来又找到一个avr的扩展库函数，名为Procyon AVRlib，里面涵盖了非常多的常用外设的驱动，都是标准C写的，注释详细，结构清晰，代码风格优美，从中学到了很多东西。
-- 最终在..\Arduino\reference 文件夹内找到arduino官方IDE的所有库函数的说明文档。
-
-
-### 步进电机
-
-
-- 八拍方式驱动，顺序为A AB B BC C CD D DA
-
-- 1 ) 4988驱动板可以驱动57电机吗？4988可以驱动的电机跟尺寸关系不大，主要与工作电流有关，理论上电流小于2A的步进电机都是可以驱动的，不论是42还是57电机。
-- 2）4988可以驱动多大的电流？如果4988芯片上没有加散热片，电流最好在1.2A以下。如果加散热片，电流可以达到2A。
-
-
-### 晶振
-
-晶振通常分为无源晶振和有源晶振两种类型，无源晶振一般称之为 crystal（晶体），而有源晶振则叫做 oscillator（振荡器）。
-
-有源晶振是一个完整的谐振振荡器，它是利用石英晶体的压电效应来起振，所以有源晶振需要供电，当我们把有源晶振电路做好后，不需要外接其它器件，只要给它供电，它就可以主动产生振荡频率，并且可以提供高精度的频率基准，信号质量也比无源信号要好。
-
-无源晶振自身无法振荡起来，它需要芯片内部的振荡电路一起工作才能振荡，它允许不同的电压，但是信号质量和精度较有源晶振差一些。相对价格来说，无源晶振要比有源晶振价格便宜很多。无源晶振两侧通常都会有个电容，一般其容值都选在 10 pF~40 pF 之间，如果手册中有具体电容大小的要求则要根据要求来选电容，如果手册没有要求，我们用 20 pF 就是比较好的选择，这是一个长久以来的经验值，具有极其普遍的适用性。
-
-
-- 通过vscode使用 avr-gcc,配置c_cpp_properties.json
-
-    ```json
-    {
-        "configurations": [
-            {
-                "name": "Win32",
-                "includePath": [
-                    "${workspaceFolder}/**",
-                    "C:\\prog\\Arduino\\hardware\\tools\\avr\\avr\\include",
-                    "C:\\prog\\Arduino\\hardware\\tools\\avr\\avr\\include\\avr"
-    
-    
-                ],
-                "defines": [
-                    "_DEBUG",
-                    "UNICODE",
-                    "_UNICODE",
-                    "__AVR_ATmega328P__"
-                ],
-                "windowsSdkVersion": "",
-                "compilerPath": "C:\\prog\\Arduino\\hardware\\tools\\avr\\bin\\avr-g++.exe",
-                "cStandard": "c11",
-                "cppStandard": "c++17",
-                "intelliSenseMode": "clang-x64"
-            }
-        ],
-        "version": 4
-    }
-    ```
-    
-- [VR Tutorial](http://www.ladyada.net/learn/avr/index.html)
-- [Using AVR microcontrollers: Minimalist target boards](https://www.evilmadscientist.com/2007/using-avr-microcontrollers-minimalist-target-boards/)
-- [ AVR Fuse Calculator](http://www.engbedded.com/fusecalc/)
-- [Use Arduino as an ISP programmer to program non-Arduino AVR microcontrollers](https://hardwarefun.com/tutorials/use-arduino-as-an-isp-programmer-to-program-non-arduino-avr-microcontrollers)
-- [gcc-AVR-Options](http://gcc.gnu.org/onlinedocs/gcc/AVR-Options.html)
-
-- [AVR 各系列芯片简介](http://www.kovacs.cc/AVRBlog/Files/AVR_Microcontroller_Features.xls)
-
-
-### 使用usbtiny 记录
-
-- [raspberry & machinekit](#raspberry--machinekit)
-    - [install Machinekit-hal](#install-machinekit-hal)
-- [raspberry PI3 B 安装 machinekit](#raspberry-pi3-b-%E5%AE%89%E8%A3%85-machinekit)
-    - [安装 RT-preempt系统补丁版本](#%E5%AE%89%E8%A3%85-rt-preempt%E7%B3%BB%E7%BB%9F%E8%A1%A5%E4%B8%81%E7%89%88%E6%9C%AC)
-    - [安装machinekit](#%E5%AE%89%E8%A3%85machinekit)
 ```shell
+c:\home\notes\电子\arduino>C:\tools\msys64\mingw64\bin\mingw32-make.exe hex
 
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -F
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.02s
-
-avrdude: Device signature = 0x1e9403
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -U luse:r:-:i
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.02s
-
-avrdude: Device signature = 0x1e9403
-"luse" memory type not defined for part "ATMEGA16"
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -U lfuse:r:-:i
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.02s
-
-avrdude: Device signature = 0x1e9403
-avrdude: reading lfuse memory:
-
-Reading | ################################################## | 100% 0.01s
-
-avrdude: writing output file "<stdout>"
-:01000000E11E
-:00000001FF
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -U efuse:r:-:i
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.02s
-
-avrdude: Device signature = 0x1e9403
-"efuse" memory type not defined for part "ATMEGA16"
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -U hfuse:r:-:i
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.03s
-
-avrdude: Device signature = 0x1e9403
-avrdude: reading hfuse memory:
-
-Reading | ################################################## | 100% 0.01s
-
-avrdude: writing output file "<stdout>"
-:0100000019E6
-:00000001FF
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -U lfuse:r:-:i
-
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.02s
-
-avrdude: Device signature = 0x1e9403
-avrdude: reading lfuse memory:
-
-Reading | ################################################## | 100% 0.01s
-
-avrdude: writing output file "<stdout>"
-:01000000E11E
-:00000001FF
-
-avrdude: safemode: Fuses OK
-
-avrdude done.  Thank you.
-
-
-C:\Users\tu_xu>
-
+c:\home>C:\prog\Arduino\hardware\tools\avr\bin\avr-gcc.exe   -g -Os -mmcu=atmega8 -c blink.c
+In file included from blink.c:2:0:
+c:\prog\arduino\hardware\tools\avr\avr\include\util\delay.h:92:3: warning: #warning "F_CPU not defined for <util/delay.h>" [-Wcpp]
+ # warning "F_CPU not defined for <util/delay.h>"
+   ^
+c:\home>C:\prog\Arduino\hardware\tools\avr\bin\avr-gcc.exe   -g -mmcu=atmega8 -o blink.elf blink.o
+c:\home>
+c:\home>C:\prog\Arduino\hardware\tools\avr\bin\avr-objcopy.exe  -j .text -j .data -O ihex blink.elf blink.hex
+c:\home>
 ```
 
+## AVR-GCC 8.3.0 for Windows 32 and 64 bit 
+
+[AVR-GCC 8.3.0 for Windows 32 and 64 bit](http://blog.zakkemble.net/avr-gcc-builds/)
+
+### upgrading the Arduino IDE
+
+Upgrading the Arduino IDE is pretty easy, though there could be some incompatibilities with certain libraries. I’ve only tested this with Arduino 1.8.2.
+
+- Download and extract one of the downloads above
+- Navigate to your Arduino IDE folder
+- Go to hardware/tools
+- Move the avr folder somewhere else, like to your desktop (renaming the folder won’t work, Arduino has some auto-detect thing which sometimes gets confused)
+- Move the extracted folder from earlier to the tools folder and rename it to avr
+- Copy the builtin_tools_versions.txt file and etc folder from the old avr folder to the new one
+- Done! Open up the Arduino IDE, load up the Blink example, upload it to your Arduino and make sure the LED is blinking!
 
 
+## vscode avr-gcc环境
+
+在vscode中编辑c_cpp_properties.json：修改includePath看起来像这样：
+```json
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:/prog/Arduino/hardware/tools/avr/avr/include",
+                "${workspaceFolder}/**",
+                "C:/prog/Arduino/hardware/tools/avr/lib/gcc/avr/4.9.2/include",
+                "C:/prog/Arduino/hardware/arduino/avr/cores/arduino",
+                "C:/prog/Arduino/hardware/arduino/avr/variants/standard",
+                "C:/prog/Arduino"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__AVR_ATmega328P__"
+            ],
+            "windowsSdkVersion": "",
+            "compilerPath": "C:\\prog\\Arduino\\hardware\\tools\\avr\\bin\\avr-g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
+```
+
+因为`#include <avr/io.h>`中是通过定义不同的mcu引入的，为了查看代码所以任意定义了个`__AVR_ATmega328P__`.
+
+## makefile 调试
+
+调试Makefile的工具——[remake](http://bashdb.sourceforge.net/remake/)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### AVRGCC通用Makefile（带注释）
+## AVRGCC通用Makefile（带注释）
 
 ```makefile
 #××××××××××××××××××××××××××××××
@@ -266,23 +113,26 @@ C:\Users\tu_xu>
 # make clean = 删除所有前一次编译的整个工程所产生的文件
 #
 # make coff = 转换 ELF 调试文件到 AVR 的 COFF 调试文件.适用于AVRStudio.3.X及以前的版本. 
-# VMLAB <3.10 # # make extcoff = 转换 ELF 调试文件到 AVR 的 Extended COFF 调试文件. VMLAT 3.10+ # 适用于AVRStudio.4.07 及以后的版本。也就是现在我们要使用的版本 # 但是好像AVRStdio.4.10及以上的版本开始支持 ELF 调试文 # # make program = 用 avrdude(gnu的avr单片机下载软件) 下载 hex 文件到AVR单片机内, # 不要再这之前要先配置好 avrdude .注：我们可以用双龙的下载软件等。 # # make debug = 启动 simulavr 或 avarice 进行调试，你用 avr-gdb 或是avr-insight作的你的调试前端 # # make filename.s = 单独编译 filename.c 到汇编文件filename.s . # # make filename.i = 通过这个命令进行预编译，来查看GCC工程是否有错. # # 说了这么多，最有用的就是下面这两句： # make clean # make all # 这样你的工程就编译完成了。 #----------------------------------------------------------------------------
- 
+# VMLAB <3.10 
+#
+# make extcoff = 转换 ELF 调试文件到 AVR 的 Extended COFF 调试文件. VMLAT 3.10+ # 适用于AVRStudio.4.07 及以后的版本。也就是现在我们要使用的版本 # 但是好像AVRStdio.4.10及以上的版本开始支持 ELF 调试文
+#
+# make program = 用 avrdude(gnu的avr单片机下载软件) 下载 hex 文件到AVR单片机内,
+# 不要再这之前要先配置好 avrdude .注：我们可以用双龙的下载软件等。
+#
+# make debug = 启动 simulavr 或 avarice 进行调试，你用 avr-gdb 或是avr-insight作的你的调试前端 
+#
+# make filename.s = 单独编译 filename.c 到汇编文件filename.s . 
+#
+# make filename.i = 通过这个命令进行预编译，来查看GCC工程是否有错. 
+#
+# 说了这么多，最有用的就是下面这两句： # make clean # make all # 这样你的工程就编译完成了。 #----------------------------------------------------------------------------
+
 #下面对AVR-GCC参数的说明 
 #注：关于Makefile的知识网上有很多，看看Makefile的手册
-# AVR单片机的名字。这个很重要，不可写错，因为这个参数真接关系到
- 
-文件所包含的
- 
-文件
-# 这个
- 
-文件包含了所以的对于 你所选的AVR 单片机的所有引脚和寄存器定义。
-# 就如keil 51中的引用
- 
-或
- 
-一样 
+# AVR单片机的名字。这个很重要，不可写错，因为这个参数真接关系到文件所包含的文件
+# 这个文件包含了所以的对于 你所选的AVR 单片机的所有引脚和寄存器定义。
+# 就如keil 51中的引用或一样
 MCU = atmega128
 # MCU 的运行频率.
 # 下面是给出的一些典型值:
@@ -298,9 +148,7 @@ MCU = atmega128
 # F_CPU = 16000000
 # F_CPU = 18432000
 # F_CPU = 20000000
-# 在使用
- 
-中的延时程序时很有用
+# 在使用中的延时程序时很有用
 F_CPU = 7372800
 # 输出文件格式，对于单片机编程来说，一般我们先intel 的hex格式. (可以是: srec, ihex, binary)
 FORMAT = ihex
@@ -724,29 +572,24 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 @echo
 @echo $(MSG_COMPILING_CPP) $< $(CC) -c $(ALL_CPPFLAGS) $< -o $@
- 
- 
+
 # 编 译: 编译 C 源文件创建 .s 汇编文件
 %.s : %.c
 $(CC) -S $(ALL_CFLAGS) $< -o $@
- 
- 
+
 # 编 译: 编译 C++ 源文件创建 .s 汇编文件
 %.s : %.cpp
 $(CC) -S $(ALL_CPPFLAGS) $< -o $@
- 
- 
+
 # 汇 编: 编译 .S 汇编源文件创建 .o 目标文件(必须大写"S"作后缀)
 $(OBJDIR)/%.o : %.S
 @echo
 @echo $(MSG_ASSEMBLING) $< $(CC) -c $(ALL_ASFLAGS) $< -o $@
- 
- 
+
 # 只对源文件进行预处理，查看是源文件是否有错
 %.i : %.c
 $(CC) -E -mmcu=$(MCU) -I. $(CFLAGS) $< -o $@
- 
- 
+
 # 目 标: 清除整个工程,便于下次编译
 clean: begin clean_list end
 clean_list :
@@ -763,7 +606,7 @@ $(REMOVEDIR) $(OBJDIR)
 $(REMOVE) $(SRC:.c=.s)
 $(REMOVE) $(SRC:.c=.d)
 $(REMOVEDIR) .dep
- 
+
 # 创建用于存目标文件的目录 $(OBJDIR)
 $(shell mkdir $(OBJDIR) 2>/dev/null)
 # 包含依赖文件
@@ -773,4 +616,3 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 build elf hex eep lss sym coff extcoff \
 clean clean_list program debug gdb-config
 ```
-
