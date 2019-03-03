@@ -136,7 +136,7 @@ Upgrading the Arduino IDE is pretty easy, though there could be some incompatibi
 MCU = atmega128
 # MCU 的运行频率.
 # 下面是给出的一些典型值:
-# F_CPU = 1000000
+# F_CPU = 1000000  #默认的1Mhz
 # F_CPU = 1843200
 # F_CPU = 2000000
 # F_CPU = 3686400

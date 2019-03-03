@@ -1,6 +1,15 @@
+# USB ISP
+
+硬件是淘宝买的[51+AVR AVR转接板 ISP下载线 isp ](https://detail.tmall.com/item.htm?id=40116348521&spm=a1z09.2.0.0.4c072e8dhDMo6O&_u=31861sba041),使用软件是progisp，是免驱动的。
+
 # usbtinyISP
 
+硬件是淘宝购买的USBtinyisp v2.0,  软件使用avrdude, 也可以通过gui来操作，[AVRDUDESS – A GUI for AVRDUDE ](http://blog.zakkemble.net/avrdudess-a-gui-for-avrdude/)
+
+驱动是C:\download\AVR单片机学习资料打包共享\usbtinyisp驱动资料\usbtinyisp，也可以从https://learn.adafruit.com/usbtinyisp/download 处下载。
+
 ## 使用usbtiny 记录
+
 
 ```shell
 C:\Users\tu_xu>c:\prog\winavr\bin\avrdude -c usbtiny -p m16 -F

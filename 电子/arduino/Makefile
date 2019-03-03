@@ -33,6 +33,7 @@ OBJ            = blink.o
 #MCU_TARGET     = atmega324p
 #MCU_TARGET     = atmega325
 #MCU_TARGET     = atmega3250
+MCU_TARGET     = atmega328p
 #MCU_TARGET     = atmega329
 #MCU_TARGET     = atmega3290
 #MCU_TARGET     = atmega48
@@ -44,7 +45,7 @@ OBJ            = blink.o
 #MCU_TARGET     = atmega6450
 #MCU_TARGET     = atmega649
 #MCU_TARGET     = atmega6490
-MCU_TARGET     = atmega8
+# MCU_TARGET     = atmega8
 #MCU_TARGET     = atmega8515
 #MCU_TARGET     = atmega8535
 #MCU_TARGET     = atmega88
@@ -87,6 +88,7 @@ AVRDUDE        = $(DIRAVRBIN)/avrdude.exe -C $(DIRAVR)/etc/avrdude.conf
 AVRDUDE_PROGRAMMER = usbtiny
 # com1 = serial port. Use lpt1 to connect to parallel port.
 #AVRDUDE_PORT = com1 # programmer connected to serial device
+AVRDUDE_PORT = usb # programmer connected to serial device
 AVRDUDE_WRITE_FLASH = -U flash:w:$(PRG).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
 # Uncomment the following if you want avrdude's erase cycle counter.
@@ -100,12 +102,12 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(PRG).hex
 # reports about avrdude. See <[url]http://savannah.nongnu.org/projects/avrdude>[/url]
 # to submit bug reports.
 # AVRDUDE_VERBOSE = -v -v
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -p $(MCU_TARGET) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
-#下载程序到目标MCU
+#下载程序到目标
 program: $(PRG).hex 
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
 
