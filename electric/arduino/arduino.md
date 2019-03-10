@@ -30,7 +30,7 @@
     |19|A5|PC 5|I2C SCL|
     |||||
 
-- 后来又找到一个avr的扩展库函数，名为Procyon AVRlib，里面涵盖了非常多的常用外设的驱动，都是标准C写的，注释详细，结构清晰，代码风格优美，从中学到了很多东西。
+- 后来又找到一个avr的扩展库函数，名为[Procyon AVRlib](http://www.procyonengineering.com/embedded/avr/avrlib/)，里面涵盖了非常多的常用外设的驱动，都是标准C写的，注释详细，结构清晰，代码风格优美，从中学到了很多东西。  [avr-liberty](https://github.com/dreamiurg/avr-liberty)，是基于AVRlib，增加了功能的另外一个库。
 - 在..\Arduino\reference 文件夹内找到arduino官方IDE的所有库函数的说明文档。
 
 - 堆栈指针SPL/SPH设置
@@ -154,13 +154,17 @@ atmega16新芯片的缺省配置设定为使用内部1M的RC振荡源作为系�
 
 同时根据[发光二极管（led）的导通压降和电流](http://blog.sina.com.cn/s/blog_817569a601019923.html), 按照${U_1 - U_2}$为5V，$V_{led}$为2V，$I$大小20mA来看，R的大小是$I=\frac{5 - 2}{20}1000=150$Ω
 
-## 继电器与可控硅控制
+## 继电器与可控硅控制todo
 
 - [如何用好可控硅？](https://www.amobbs.com/thread-643997-1-1.html)
 
 在工业控制以及许多场合中，嵌入式系统要驱动一些继电器和电磁开关，用于控制马达的开启和关闭，阀门的开启和关闭等。继电器和电磁开关需要功率驱动，驱动电流往往需要几百毫安，超出了AVR本身I/O口的驱动能力，因此在外围硬件电路中要考虑使用功率驱动
 
 晶闸管(Thyristor)又叫可控硅，按照其工作特性又可分单向可控硅(SCR)、双向可控硅(TRIAC)。其中双向可控硅又分四象限双向可控硅和三象限双向可控硅。同时可控硅又有绝缘与非绝缘两大类，如ST的可控硅用BT名称后的“A”、与“B”来区分绝缘与非绝缘。  
+
+## 中断 interupt
+
+早期版本的avr-libc 对中断服务程序的书写提供了两个宏SIGNAL 和INTERRUPT，并且需要包含两个头文件：avr/signal.h 和avr/interrupt.h。新版（如2007 版WINAVR）中，INTERRUPT 宏不再可用，而建议用ISR 宏替代SIGNAL宏，ISR 和SIGNAL 是一回事，但以后的版本中SIGNAL 宏将会逐渐被丢弃，所以新的程序建议使用ISR，也就是使用ISR作为中断服务函数名
 
 
 

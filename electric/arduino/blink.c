@@ -10,7 +10,7 @@
 
 int main(void) {
 
-    PUD
+    TCCR1A
 
     unsigned char counter;
     sbit(DDB5,DDRB) ;      //设置PORTB5输出

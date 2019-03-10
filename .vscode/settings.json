@@ -1,6 +1,8 @@
 {
     "python.pythonPath": "C:\\tools\\msys64\\mingw64\\bin\\python3.6.exe",
     "files.associations": {
-        "io.h": "c"
+        "io.h": "c",
+        "arduino.h": "c",
+        "string.h": "c"
     }
 }

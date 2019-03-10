@@ -1,3 +1,17 @@
+
+# using arduino lib for regular AVR code
+
+[using-the-arduino-libraries-for-regular-avr-code](https://stackoverflow.com/questions/13260508/using-the-arduino-libraries-for-regular-avr-code)
+
+[arduino-base.mk](https://git.vnks.de/uli/arduino_core/raw/branch/master/arduino-base.mk)
+
+- demo
+
+`c:\home\notes\电子\arduino\avrgcc_using_arduinolib>C:\tools\msys64\mingw64\bin\mingw32-make.exe`
+
+- vscode 编辑环境
+
+```json
 {
     "configurations": [
         {
@@ -11,7 +25,7 @@
                 "C:/prog/Arduino"
             ],
             "defines": [
-                "__AVR_ATmega328P__",
+                "__AVR_ATmega16__",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
@@ -26,3 +40,4 @@
     "version": 4
 }
 
+```
