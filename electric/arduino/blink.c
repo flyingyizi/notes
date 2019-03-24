@@ -9,9 +9,6 @@
 #define cbit(x,PORT) (PORT) &= ~( _BV(x) )
 
 int main(void) {
-
-    TCCR1A
-
     unsigned char counter;
     sbit(DDB5,DDRB) ;      //设置PORTB5输出
     while(1) {

@@ -38,14 +38,15 @@ OPTIMIZE       = -O2
 
 DEFS           =
 LIBS           =
-
+F_CPU   = 16000000
+F_CPU   = 11092500
 # You should not have to change anything below here.
 
 CC             = $(DIRAVRBIN)/avr-gcc.exe
 RM             = C:/tools/msys64/usr/bin/rm.exe
 # Override is only needed by avr-lib build system.
 
-override CFLAGS        = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS)
+override CFLAGS        = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS)   -D F_CPU=$(F_CPU)
 override LDFLAGS       = -Wl,-Map,$(PRG).map
 
 OBJCOPY        = $(DIRAVRBIN)/avr-objcopy.exe
