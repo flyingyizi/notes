@@ -1,8 +1,9 @@
 {
-    "python.pythonPath": "C:\\tools\\msys64\\mingw64\\bin\\python3.6.exe",
+    "python.pythonPath": "C:\\tools\\Anaconda3\\python.exe",
     "files.associations": {
         "io.h": "c",
         "arduino.h": "c",
         "string.h": "c"
-    }
+    },
+    "python.linting.pylintEnabled": true
 }
