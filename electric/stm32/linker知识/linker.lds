@@ -6,6 +6,6 @@ MEMORY
 SECTIONS  
 {  
     .text 0x500  :  AT(0)  {  *(.text) }  > ram
-    .data        :         {  *(.data) }  > rom
+    .data        :  AT ( LOADADDR (.text) + SIZEOF (.text) )       {  *(.data) }  > rom
 }  
 

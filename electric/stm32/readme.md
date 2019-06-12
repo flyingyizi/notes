@@ -1,10 +1,10 @@
 
+- STM32CubeMX user manual (UM1718).
+- [trueStudio开发环境配置笔记](https://blog.csdn.net/cshy2013/article/details/88948643)
+
 STM32系列单片机在startup_stm32fxx.s文件中，定义了Heap_Size 和 Stack_Size.常见的大小分别是0x200（512 bytes）,0x400（1024 bytes),大小可以修改，但是要考虑程序的规模和单片机IRAM的大小。
 
 在stm32cube project manager中出现在linker setting中的minimum heap size （default:0x200）,minimum stack size （default:0x400）.堆和栈的区别：stack的空间由操作系统自动分配/释放，heap上的空间手动分配/释放。stack的空间有限，heap是很大的自由存储区(heap虽然有很大的存储区，但是这个存储区并不是无限大的，在stm32中，heap区的最大值由SRAM区决定，而SRAM区的大小可以参考具体的数据手册)。[参考](https://blog.csdn.net/qq_27312943/article/details/52943844)
-
-
-
 
 [linux上搭建stm32开发环境 vscode+gcc+stm32cubeMX 和 vscode+platformIO](https://blog.csdn.net/baidu_36482169/article/details/80457184)
 
