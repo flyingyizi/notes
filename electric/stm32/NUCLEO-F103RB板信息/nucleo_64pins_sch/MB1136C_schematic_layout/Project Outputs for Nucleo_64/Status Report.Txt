@@ -1,0 +1,11 @@
+Output: Simple BOM
+Type  : SimpleBOM
+From  : Project [MB1136.PRJPCB]
+   Generated File[MB1136.BOM]
+   Generated File[MB1136.CSV]
+
+
+Files Generated   : 2
+Documents Printed : 0
+
+Finished Output Generation At 23:22:24 On 2019/9/15

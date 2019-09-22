@@ -1,6 +1,8 @@
 
-- STM32CubeMX user manual (UM1718).
+- STM32CubeMX user manual (UM1718).  [STM32 基础系列教程 1- CubeMX+GPIO](https://blog.csdn.net/zhanglifu3601881/article/details/88839590)
 - [trueStudio开发环境配置笔记](https://blog.csdn.net/cshy2013/article/details/88948643)
+
+- [STM32 基础系列教程](https://blog.csdn.net/zhanglifu3601881/article/details/88839590)
 
 STM32系列单片机在startup_stm32fxx.s文件中，定义了Heap_Size 和 Stack_Size.常见的大小分别是0x200（512 bytes）,0x400（1024 bytes),大小可以修改，但是要考虑程序的规模和单片机IRAM的大小。
 

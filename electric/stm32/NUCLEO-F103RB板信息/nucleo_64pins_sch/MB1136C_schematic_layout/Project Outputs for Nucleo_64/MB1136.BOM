@@ -1,0 +1,71 @@
+Bill of Material for MB1136.PRJPCB
+On 2019/9/15 at 23:22:22
+
+ Comment             Pattern     Quantity  Components
+------------------------------------------------------------------------------
+ [N/A]               0603R            5    R26, R34, R35, R36, R37      Resistor             
+                     SIP2/2.54        6    CN3, CN11, CN12, JP1, JP4                         
+                                           JP6
+                     SIP3             1    JP5                                               
+ 0                   0603R            3    R17, R18, R19                Resistor 0402 / 0603 / 0805 
+ 100[N/A]            0603R            1    R9                           Resistor 0402 / 0603 / 0805 
+ 100                 0603R            6    R11, R20, R21, R24, R25, R29 Resistor 0402 / 0603 / 0805 
+ 100K                0603R            3    R6, R14, R15                 Resistor 0402 / 0603 / 0805 
+ 100nF               0603C           16    C1, C4, C5, C6, C7, C11, C12 Capacitor 0402 / 0603 / 0805 
+                                           C14, C15, C19, C20, C23, C24
+                                           C27, C28, C30
+ 10K[N/A]            0603R            1    R2                           Resistor 0402 / 0603 / 0805 
+ 10K                 0603R            4    R1, R3, R12, R33             Resistor 0402 / 0603 / 0805 
+ 10nF_X7R_0603       0603C            1    C9                           0603  X7R 10NF       
+ 10pF[N/A]           0603C            2    C31, C32                     Capacitor            
+ 10uF(25V)           TAN-B            1    C16                          Polarized Capacitor (Radial) 
+ 10uF                TAN-A            1    C17                          Polarized Capacitor (Radial) 
+ 1K                  0603R            1    R32                          Resistor 0402 / 0603 / 0805 
+ 1K5                 0603R            1    R16                          Resistor 0402 / 0603 / 0805 
+ 1uF_X5R_0603        0603C            5    C2, C13, C18, C21, C29       0603  X5R 1µF        
+ 2.2uF               TAN-A            3    C22, C25, C26                Capacitor,2.2uF,16V, X7R,10%,0805,YAGEO 
+ 20pF[N/A]           0603C            3    C10, C33, C34                Capacitor 0402 / 0603 / 0805 
+ 20pF                0603C            2    C3, C8                       Capacitor 0402 / 0603 / 0805 
+ 22                  0603R            4    R5, R8, R13, R22             Resistor 0402 / 0603 / 0805 
+ 2K7                 0603R            1    R7                           Resistor             
+ 32.768K[N/A]        XTAL_4SM_8X3R8    1    X2                                                
+ 36K                 0603R            1    R10                          Resistor             
+ 4K7                 0603R            5    R4, R23, R27, R28, R30       Resistor             
+ 5075BMR-05-SM       USB-MINI-B-SMD    1    CN1                          USB-MINI-typeB connector 
+ 510                 0603R            1    R31                          Resistor             
+ 8MHz(12pF)          XTAL1            1    X1                           Crystal Oscillator   
+ 8MHz(16pF)[N/A]     XTAL1            1    X3                           Crystal              
+ 9013                SOT-23           1    T1                           NPN Bipolar Transistor 
+ BAT60JFILM          SOD323/A         3    D1, D2, D3                   BAT60JFILM           
+ BEAD                0603L            1    L1                           Inductor             
+ Circuit Breaker     JP2_SMD         65    SB1, SB2, SB3, SB4, SB5, SB6 Circuit Breaker      
+                                           SB7, SB8, SB9, SB10, SB11
+                                           SB12, SB13, SB14, SB15, SB16
+                                           SB17, SB18, SB19, SB20, SB21
+                                           SB22, SB23, SB24, SB25, SB26
+                                           SB27, SB28, SB29, SB30, SB31
+                                           SB32, SB33, SB34, SB35, SB36
+                                           SB37, SB38, SB39, SB40, SB41
+                                           SB42, SB43, SB44, SB45, SB46
+                                           SB47, SB48, SB49, SB50, SB51
+                                           SB52, SB53, SB54, SB55, SB56
+                                           SB57, SB58, SB59, SB60, SB61
+                                           SB62, SB63, SB64, SB65
+ Green               0603D            1    LD2                          Typical RED, GREEN, YELLOW, AMBER GaAs LED 
+ Header 10X1_Female  1*10P_FEMALE     1    CN5                          Header, 10-Pin, Single row,female 
+ Header 19X2         2*19P            2    CN7, CN10                    Header, 19-Pin, Dual row 
+ Header 4            1*4              1    CN2                          Header, 4-Pin, Single row 
+ Header 6X1_Female   1*6P_FEMALE      1    CN8                          Header, 6-Pin, Single row,female 
+ Header 6X1          1*6P             1    CN4                          Header, 6-Pin, Single row 
+ Header 8X1_Female   1*8P_FEMALE      2    CN6, CN9                     Header, 8-Pin, Single row,female 
+ LD_BICOLOR_CMS      HSMF-A201        1    LD1                          Bicolor Led          
+ LD1117S50TR         SOT-223          1    U3                                                
+ LD39050PU33R        DFN6(3X3)        1    U4                                                
+ LD3985M33R          SOT-23-5L        1    U1                           Ultra low drop-low noise BiCMOS voltage, regulators low ESR capacitors compatible 
+ MCU_LQFP64          LQFP64           1    U5                                                
+ RED                 0603D            1    LD3                                               
+ STM32F103CBT6       QFP48 7X7        1    U2                           Medium-density performance line ARM-based 32-bit MCU with 64KB Flash 
+ STPS2L30A           SMA              1    D4                           STPS2L30A            
+ STS7PF30L           SO8              1    T2                                                
+ TD-0341 [RESET/Black] PB10             1    B2                           SE PUSHBUTTON        
+ USER (Blue)         PB10             1    B1                           SE PUSHBUTTON        

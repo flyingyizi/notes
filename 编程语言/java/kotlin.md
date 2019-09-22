@@ -43,4 +43,28 @@ enum class Color(
 - [[Difference between List and Array types in Kotlin]](https://stackoverflow.com/questions/36262305/difference-between-list-and-array-types-in-kotlin)
 
 
+# android 开发
+
+[kotlin-for-android-developers-zh](https://legacy.gitbook.com/book/wangjiegulu/kotlin-for-android-developers-zh/details),[对应代码](https://github.com/antoniolg/Kotlin-for-Android-Developers)
+
+
+##  关于android:id="@+id/xx"的理解
+
+android:id属性的内容比较特别：
+
+例如：@+id/height
+
+“@”符号是提示XML解析器应该把后面的字符串解析成标识符号。
+
+“+”符号代表将添加一个标识符号。
+
+“id/”表示这个标识符号回被归类在“id”下面。
+
+"height"是这个界面主见的“android:id”。
+
+以后的程序中，会使用“R.id.height”来取得这个界面组件。因此"@+id/height"的意思是我们在此创建了名为“height”的标识符，可以通过这个标识符来控制所对应的界面组件，“R”类会自动配置一个地址给这个界面组件。“R”类的内容，这可以通过查看“R.java”文件得知。
+
+## 使用android studio
+
+[使用布局编辑器构建界面](https://developer.android.google.cn/studio/write/layout-editor.html)
 

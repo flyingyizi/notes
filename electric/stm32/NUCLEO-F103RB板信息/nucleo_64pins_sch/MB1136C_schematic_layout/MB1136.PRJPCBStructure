@@ -1,0 +1,4 @@
+Record=SheetSymbol|SourceDocument=MB1136.SchDoc|Designator=U_Connectors|SchDesignator=U_Connectors|FileName=Connectors.SchDoc
+Record=SheetSymbol|SourceDocument=MB1136.SchDoc|Designator=U_MCU_64|SchDesignator=U_MCU_64|FileName=MCU_64.SchDoc
+Record=SheetSymbol|SourceDocument=MB1136.SchDoc|Designator=U_ST_LINK_V2-1|SchDesignator=U_ST_LINK_V2-1|FileName=ST_LINK_V2-1.SCHDOC
+Record=TopLevelDocument|FileName=MB1136.SchDoc
