@@ -40,3 +40,51 @@ vmkfstools -z /vmfs/devices/disks/t10.ATA_____TOSHIBA_MG05ACA800E_______________
 
    最后进入虚拟机将磁盘挂载上来。例如`sudo mount -t ntfs-3g  /dev/sdb1  /mnt/toshiba/`
 
+4. samba提供访问直通盘
+   
+   在linux系统下，考虑通过samba对外提供直通盘的访问，因为历史采用NFS访问时，乱码问题较难解决。
+    - (2)安装samba服务器。
+    sudo apt-get install samba samba-common
+
+Ubuntu 18.04 安装Samba服务器及配置
+
+(3)创建一个用于分享的samba目录。
+sudo mkdir /home/linuxidc/linuxidc.com/share
+
+(4)给创建的这个目录设置权限
+sudo chmod 777 /home/linuxidc/linuxidc.com/share
+
+Ubuntu 18.04 安装Samba服务器及配置
+
+(5)添加用户(下面的linuxidc是我的用户名，之后会需要设置samba的密码)。
+sudo smbpasswd -a linuxidc
+
+Ubuntu 18.04 安装Samba服务器及配置
+
+(6)配置samba的配置文件。
+sudo nano /etc/samba/smb.conf
+
+在配置文件smb.conf的最后添加下面的内容：
+
+[share]
+comment = share folder
+browseable = yes
+path = /home/linuxidc/linuxidc.com/share
+create mask = 0700
+directory mask = 0700
+valid users = linuxidc
+force user = linuxidc
+force group = linuxidc
+public = yes
+available = yes
+writable = yes
+
+Ubuntu 18.04安装Samba服务器及配置
+
+在上面valid users = linuxidc中的linuxidc为我的用户名。
+
+(7)重启samba服务器。
+
+sudo service smbd restart
+
+(8)Windows徽标+R 在弹出的运行窗口中输入 \\ip即可访问。如\\192.168.182.188,输入samba用户名及密码访问即可看到共享，然后就可以在Linux系统与Windows系统直接进行文件共享了
