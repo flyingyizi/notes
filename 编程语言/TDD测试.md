@@ -10,11 +10,6 @@ Unity介绍
     源码下载：https://github.com/ThrowTheSwitch/Unity/downloads 
     github主页：https://github.com/ThrowTheSwitch/Unity
 
-- [Unit Testing of Embedded Firmware – Part 1 – Software Confucius](https://uncannier.com/unit-testing-of-embedded-firmware-part-1-software-confucius/)
-- [Unit Testing of Embedded Firmware – Part 2 – x86 Build (CppUTest, Simplicity Studio & Thunderboard)](https://uncannier.com/unit-testing-of-embedded-firmware-part-2-x86-build-cpputest-simplicity-studio-thunderboard/)
-- [Unit Testing of Embedded Firmware – Part 3 – x86 Running & Debugging (in Simplicity Studio AKA Eclipse)](https://uncannier.com/unit-testing-of-embedded-firmware-part-3-x86-running-debugging-in-simplicity-studio-aka-eclipse/)
-
-
 ## 使用TrueSTUDIO构建CppUTest
 
 下文中的“1。使用MinGW-w64安装CppUTest”，与“2。使用trueStudio安装 CppUTest”是二选一的，他们之间不存在谁依赖谁。
@@ -240,3 +235,5 @@ Unity介绍
     ```text
     ${CPPUTEST_HOME}/lib
     ```
+
+- [搭配Atollic TrueSTUDIO尝试CppUTest](https://qiita.com/tk23ohtani/items/1f1cc4b9fa58a04f520c)
