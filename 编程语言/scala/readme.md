@@ -20,7 +20,9 @@
 
 
 
-- 基本语法，Scala 基本语法需要注意以下几点:
+### 基本语法，
+
+  Scala 基本语法需要注意以下几点:
 
     - 区分大小写:  Scala是大小写敏感的，这意味着标识Hello 和 hello在Scala中会有不同的含义。
 
@@ -38,7 +40,7 @@
 
         def main(args: Array[String]) - Scala程序从main()方法开始处理，这是每一个Scala程序的强制程序入口部分
 
-- 定义包package
+### 定义包package
 
     Scala 使用 package 关键字定义包，在Scala将代码定义到某个包中有两种方式：
 
@@ -54,7 +56,7 @@
     }
     ```
 
-- 引用import
+### 引用import
 
     import语句可以出现在任何地方，而不是只能在文件顶部。import的效果从开始延伸到语句块的结束。这可以大幅减少名称冲突的可能性。注意：默认情况下，Scala 总会引入 java.lang._ 、 scala._ 和 Predef._，这里也能解释，为什么以scala开头的包，在使用时都是省去scala.的。
 
@@ -67,13 +69,13 @@
     import java.util.{HashMap => _, _} // 引入了util包的所有成员，但是HashMap被隐藏了
     ```
 
-- 函数与匿名函数定义
+### 函数与匿名函数定义
     ```scala
     scala> def addOne(m: Int): Int = m + 1
     scala> val addOne = (m: Int) => m + 1
     ```
 
-- 使用数组Array
+### 使用数组Array
 
     索引基于0。定长数组使用Array，变长数组使用ArrayBuffer。
     
@@ -95,7 +97,7 @@
     val result = for (elem <-a) yield 2*elem  //result: Array[Int] = Array(4, 6, 8, 10)
     ```
 
-- 使用collection: list, set, map,tuple 
+### 使用collection: list, set, map,tuple 
   Map 有两种类型，可变与不可变，区别在于可变对象可以修改它，而不可变对象不可以。默认情况下 Scala 使用不可变 Map。如果你需要使用可变集合，你需要显式的引入 import scala.collection.mutable.Map 类. 在 Scala 中 你可以同时使用可变与不可变 Map，不可变的直接使用 Map，可变的使用 mutable.Map。
 
   List  索引基于0， List一旦创建不可改变，
@@ -120,7 +122,7 @@
     // 定义 Option
     val x:Option[Int] = Some(5)
     ```
-- 文件操作
+### 文件操作
     ```scala  
     scala.io.fromFile("").getLines().toList
     ```
@@ -138,7 +140,7 @@
     for(i<-1 to 100) out.println(i)
     out.close
     ```
-- 正则表达式与正则表达式组
+### 正则表达式与正则表达式组
   ```scala
   import scala.util.matching.Regex
   val numPattern = """[0-9]+""".r //构造一个regrex对象
@@ -154,7 +156,7 @@
   ```
   
 
-- for
+### for
     ```scala
     for (i <- m to n) //[m,n]
     for (i <- m until n) //[m,n)
@@ -169,7 +171,7 @@
     )
     ```
 
-- class
+### class
 
     类中的字段自动带getter方法与setter方法。可以用@BeanProperty注解生成javabeans的getXxx/setXxx方法。
 
@@ -181,7 +183,7 @@
     }
     ```
 
-- 单例对象  
+### 单例对象  
     ```scala
     //当单例对象与某个类共享同一个名称时，称为这个类的伴生对象(companio object)
     class Account private(val id:Int) {
@@ -192,7 +194,7 @@
     ```
     不与伴生类共享名称的单例对象称为独立对象(standalone object)
 
-- 特质 trait
+### 特质 trait
 
    trait中没有被实现的方法默认就是抽象的（absract），因此它可以替代abstract
     ```scala
@@ -204,7 +206,7 @@
         def log(msg: String) {println(msg)} //不需要写override
     }
     ```
-- 操作符
+### 操作符
   
   scala中变量/函数/类等的名称统称为标识符号。scala中的标识符比java/c有更多的选择，并且还可以通过反引号将保留关键字作为普通标识符使用，例如\`yield\`就是一个普通的标识符了。
     ```scala
@@ -226,9 +228,9 @@
     -a //等价于  a.unary_-
     ```
 
-- 提取器(//TODO)
+### 提取器(//TODO)
 
-- 高阶函数
+### 高阶函数
     ```scala
     import scala.math._
     val fun = ceil _  
@@ -236,7 +238,7 @@
     //巧忘记了给他送参数,从技术上来说_将ceil方法转成了函数
     ```
 
-- 柯里化(currying) //TODO
+### 柯里化(currying) //TODO
   将原来接受两个参数的函数变成新的接受一个参数的函数的过程。新的函数返回一个以原来第二个参数作为参数的函数。
 
 ```scala
