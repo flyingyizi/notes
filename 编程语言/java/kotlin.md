@@ -68,3 +68,6 @@ android:id属性的内容比较特别：
 
 [使用布局编辑器构建界面](https://developer.android.google.cn/studio/write/layout-editor.html)
 
+
+# kotlin 语言
+
