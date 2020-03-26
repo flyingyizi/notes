@@ -1,7 +1,58 @@
 
-## openresty 安装与运行
+# openresty 安装与运行
 
-###  镜像下载与container运行
+## linux安装openresty
+
+[OpenResty® Linux 包](http://openresty.org/cn/linux-packages.html)
+
+[运行openresty](http://openresty.org/cn/getting-started.html)
+
+## NGINX重启/升级。。
+
+`ps aux | grep nginx` 查看pid
+
+[参考](https://www.cnblogs.com/wushuaishuai/p/9315611.html)
+
+首先应该通过"nginx -t -c"命令来坚持conf文件的正确性。然后 通过“kill -HUP nginx主进程号” ，nginx的信号包括以下：
+- TERM,INT 快速关闭
+- QUIT 从容关闭
+- HUP  平滑重启，重新加载配置文件
+- USR1  重新打开日志文件，在切割日志时用途较大
+- USR2  平滑升级可执行文件
+- WINCH  从容关闭工作进程
+
+例如
+```sh
+$kill -HUP `cat /usr/local/openresty/nginx/nginx.pid`
+```
+
+### 使用systemctl来管理openresty
+
+```sh
+#查看openresty状态
+systemctl status openresty.service
+
+#启动openresty
+systemctl start openresty.service
+
+#设置openresty开机自启动
+systemctl enable openresty.service
+
+#重启openresty
+systemctl restart openresty.service
+
+#
+systemctl reload openresty.service
+
+#停止openresty
+systemctl stop openresty.service
+
+#取消openresty开机自启动
+systemctl disable openresty.service
+```
+
+
+##  docker安装与运行
 
 下载镜像：
 atmel@atmel-virtual-machine:~$ docker image ls
@@ -32,6 +83,9 @@ fastcgi_params          koi-win                 nginx.conf              scgi_par
 nginx: the configuration file /usr/local/openresty/nginx/conf/nginx.conf syntax is ok
 nginx: configuration file /usr/local/openresty/nginx/conf/nginx.conf test is successful
 ~ #
+
+## 配置
+
 ### 日志位置
 /usr/local/openresty/nginx/logs # ls
 access.log  error.log   nginx.pid
@@ -79,15 +133,8 @@ http {
     }
 }
 ```
-### NGINX重启/升级。。
 
-首先应该通过"nginx -t -c"命令来坚持conf文件的正确性。然后 通过“kill -HUP nginx主进程号” ，nginx的信号包括以下：
-- TERM,INT 快速关闭
-- QUIT 从容关闭
-- HUP  平滑重启，重新加载配置文件
-- USR1  重新打开日志文件，在切割日志时用途较大
-- USR2  平滑升级可执行文件
-- WINCH  从容关闭工作进程
+
 
 ### nginx日志文件配置与切割
 
@@ -126,10 +173,11 @@ $ gmake && gmake install
 
 $ ln -s /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx
 
+# openresty 上传服务器
 
 
 
-## wrk 安装与运行
+# wrk 安装与运行
 
 看下面链接文章吧
 

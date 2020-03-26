@@ -64,7 +64,7 @@ android {
 
 默认情况下， debug 模式的签名己经被配置好了，使用的就是Android SDK 自动生成的debug 证书。它一般位于`$HOME/.android/debug.keystore` ，其Key 和密码都是己知的， 一般情况下我们不需要单独配置debug 模式的签名信息。
 
-详细说明参见另一份“android签名.md”文件。
+详细说明参见另一份“[android签名说明文档](android%20签名.md)”文件。
 
 例如：
 ```groovy
