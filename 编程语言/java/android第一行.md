@@ -1,4 +1,6 @@
 
+[android studio developer](https://developer.android.google.cn/studio/command-line/logcat)
+
 使用Android Studio模板节省开发时间， [参考](https://riggaroo.co.za/custom-file-templates-android-studio/)
 
 - Live Templates ： “Android Studio -> settings -> Editor -> Live Templates”
@@ -29,4 +31,71 @@ Android一共有四种常用的组件：Activity、Service、ContentProvider、B
 - ContentProvider：ContentProvider类似于我们的档案馆，里面存放了我们的各种数据，例如通讯录中的信息等，这个组件就是运行程序对其进行访问，然后得到里面的数据。
 
 - BroadcastReceiver：BroadcastReceiver组件是广播接收器，主要是用来监听系统的各个行为的，例如当电量不足的时候会给我们发送一条广播信息。
+
+## autostudio studio记录
+
+使用启用gradle wrapper模式，可以通过“file/settings/build,execution,deployment/gradle ” 进行设置
+
+一个android项目，在项目目录下的local.properties 文件中记录的是SDK路径。当SDK位置变化时应更新该文件
+
+当打开一个资源文件时，在右上角有“code, split , design” 几种选项来观察。
+
+需要查看API函数的功能和参数，在把鼠标放上去会提示，在Android studio ，通过"file/settings/editor/general/ "选择show quick documentation on mouse move
+
+
+
+
+## 
+
+androidManifest.xml 文件中,通过`intent-filter`注册活动
+
+```xml
+<manifest ...  package=..>
+    <application ...>
+        <activity android:name=".SecondActivity"></activity>
+        
+        <activity
+            <!-- 这个“.”写法是基于上面节点已经定义过package包 -->
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <!--MAIN决定应用的入口Activity，也就是我们启动应用时首先显示哪一个Activity-->
+                <action android:name="android.intent.action.MAIN" />
+                <!--LAUNCHER表示activity应该被列入系统的启动器(launcher)(允许用户启动它)。Launcher是安卓系统中的桌面启动器，是桌面UI的统称-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+```
+
+
+## 日志logCat
+
+在method外输入logt + TAB，会得到以当前类名自动生成的TAG，用于写log.i(..)等
+
+```sh
+$adb logcat --help
+
+$ adb shell
+# logcat
+```
+
+## 项目中资源
+
+- 代码中访问资源： R.layout.activity_main
+- XML中访问资源： @string/hello_word
+
+## 活动activity
+
+
+## Toast提醒
+
+使用简单就是建立个对象，然后show
+
+```java
+   Toast.makeText(FirstActivity.this,
+       "you click button", Toast.LENGTH_SHORT).show();
+```                        
 

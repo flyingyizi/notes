@@ -652,6 +652,15 @@ Annotation [] anns = clazz.getAnnotations();
 1. 设置环境变量: ANDROID，变量值：C:\prog\Android\sdk\platform-tools(sdk路径)
 2. 在Path末尾添加;%ANDROID%
 
+为了使用真正的手机硬件进行调试，以下是几个需要的预备动作。
+
+- 在手机上开启usb debug调试模式。
+- 在android studio,通过“settings/system settings/android sdk/sdk tools”中选择“google usb driver”进行安装。
+- 对android studio所在pc机，通过设备管理器，对已经连在pc机上的手机进行驱动更新。驱动是上一步下载得到，路径在“xxx\Android\sdk\extras\google\usb_driver”
+
+以上预备动作作为后，后面在android studio上执行run，选择对应的手机硬件
+
+
 # gradle
 
 去看 <Android Gradle权威指南>
