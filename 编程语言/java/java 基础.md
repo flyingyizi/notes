@@ -13,6 +13,8 @@
 
 [gradle教程](https://www.w3cschool.cn/gradle/)
 
+[廖雪峰java教程](https://www.liaoxuefeng.com/wiki/1252599548343744)
+
 ## java helloword
 
 - java执行class文件是根据CLASSPATH指定的地方来找，不是我们理解当前目录。如果希望它查询当前目录，需要在CLASSPATH中加入“.;”,代表当前目录。
@@ -619,7 +621,11 @@ HashMap举例
 
 ## java 反射reflect
 
-程序需要在运行时发现对象和类的真实信息。解决该问题有以下两种做法。
+程序需要在运行时发现对象和类的真实信息。由于JVM为每个加载的class创建了对应的Class实例，并在实例中保存了该class的所有信息，包括类名、包名、父类、实现的接口、所有方法、字段等，因此，如果获取了某个Class实例，我们就可以通过这个Class实例获取到该实例对应的class的所有信息。
+
+这种通过Class实例获取class信息的方法称为反射（Reflection）。
+
+解决该问题有以下两种做法。
 
 - 第一种做法是假设在编译时和运行时都完全知道类型的具体信息，在这种情况下，可以先使用instanceof 运算符进行判断，再利用强制类型转换将其转换成其运行时类型的变量即可。
 - 第二种做法是编译时根本无法预知该对象和类可能属于哪些类， 程序只依靠运行时信息来发现该对象和类的真实信息，这就必须使用反射。
@@ -629,7 +635,7 @@ HashMap举例
 ### 获得Class 对象
 
 - `<Class>.forName(String clazzName)`使用Class 类静态方法。该方法需要传入字符串参数，该字符串参数的值是某个类的全限定类名（必须添加完整包名） 。
-- `<Class>.class`使用某个类的class 属性来获取该类对应的Class 对象。例如， Person.class 将会返回Person 类对应的Class 对象。
+- `<Class>.class`使用某个类的class 静态变量来获取该类对应的Class 对象。例如， Person.class 将会返回Person 类对应的Class 对象。
 - `<Object>.getClass()`调用某个对象的getClass()方法。该方法是java.lang.Object 类中的一个方法，所以所有的Java对象都可以调用该方法，该方法将会返回该对象所属类对应的Class对象。
 
 例如定义个类ClassTest，
@@ -645,7 +651,41 @@ Annotation [] anns = clazz.getAnnotations();
 
 ```
 
+### 访问字段
 
+Class类提供了以下几个方法来获取字段：
+
+- Field getField(name)：根据字段名获取某个public的field（包括父类）
+- Field getDeclaredField(name)：根据字段名获取当前类的某个field（不包括父类）
+- Field[] getFields()：获取所有public的field（包括父类）
+- Field[] getDeclaredFields()：获取当前类的所有field（不包括父类）
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Class stdClass = Student.class;
+        // 获取public字段"score":
+        System.out.println(stdClass.getField("score"));
+        // 获取继承的public字段"name":
+        System.out.println(stdClass.getField("name"));
+        // 获取private字段"grade":
+        Field f = stdClass.getDeclaredField("grade");
+        System.out.println(f);
+        // 赋值
+        f.setAccessible(true);
+        f.set(p, 200);        
+    }
+}
+
+class Student extends Person {
+    public int score;
+    private int grade;
+}
+
+class Person {
+    public String name;
+}
+```
 
 # adb
 
