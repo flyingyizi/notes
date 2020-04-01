@@ -289,6 +289,16 @@ public static void actionStart(Context c, String data1, String data2) {
     startActivity(intent);
     ```
 
+## broadcast 广播
+
+android中的广播有两种类型
+
+- normal broadcast：标准广播
+- ordered broadcast：有序广告。这种广播是先到优先级高的，再到优先级低的广播接收器。其中广播接收器可以控制广播是否继续往下传
+
+
+
+
 # android UI
 
 
@@ -376,7 +386,7 @@ BaseAdapter，ArrayAdapter，SimpleAdapter是几个常用的适配器
         return  view;
     }
    ```
-- 最后，在对应activity 的onCreate()中, 为该listView 设置自定义的Adapter（即建立数据与listview之间的关系）
+- 最后，在对应activity 的onCreate()中, 为该listView 设置自定义的Adapter（即建立数据与listview之间的关系, listView.setAdapter(...)）
 
 ### 点击
 
@@ -393,7 +403,35 @@ BaseAdapter，ArrayAdapter，SimpleAdapter是几个常用的适配器
 
 ## TODO重要控件之：RecyclerView控件
 
-这个控件目标是取代ListView. 它在support库中。
+这个控件目标是取代ListView. 它在support库中。因此首先在gradle.build中需要添加
+
+```groovy
+dependencies {
+    ...
+    implementation 'com.android.support:recyclerview-v7:24.2.1'
+```
+
+- 先在对应的main activity layout中增加RecyclerView控件`<RecyclerView/>`. 
+   
+   ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+    </LinearLayout>
+   ```
+
+- 新建FruitAdapter`class FruitAdapter extends RecyclerView.Adapter<FruitAdapter.ViewHolder>`
+
+待续
+
+RecyclerViewTest
 
 
 

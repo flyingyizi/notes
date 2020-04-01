@@ -687,6 +687,22 @@ class Person {
 }
 ```
 
+## java 调用native动态库
+
+Java调用Native的动态库有两种方式，JNI和JNA，[JNA](https://github.com/java-native-access/jna)是Oracle最新推出的与Native交互的方式。
+
+![JNA调用过程](image/JNA调用过程.png)
+
+注：JNA中，它提供了一个动态的C语言编写的转发器，可以自动实现Java和C的数据类型映射。
+
+```groovy
+dependencies 
+{
+    ...
+    implementation 'net.java.dev.jna:jna:4.5.0'
+}
+```
+
 # adb
 
 1. 设置环境变量: ANDROID，变量值：C:\prog\Android\sdk\platform-tools(sdk路径)

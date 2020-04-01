@@ -1,6 +1,7 @@
 
-# [Minimize Installation](https://docs.go-chassis.com/getstarted/install.html
-)
+[代码提交指南](http://servicecomb.apache.org/cn/developers/submit-codes/)
+
+# [Minimize Installation](https://docs.go-chassis.com/getstarted/install.html)
 
     Install go 1.10+
 
@@ -22,3 +23,5 @@
     docker pull servicecomb/service-center
     docker run -d -p 30100:30100 servicecomb/service-center
     ```
+
+#     
