@@ -1,9 +1,10 @@
 
 
 
-## Sharing Golang packages to C and Go
+# Sharing Golang packages to C and Go
+
 [Sharing Golang packages to C and Go](http://blog.ralch.com/tutorial/golang-sharing-libraries/)
-[go-cshared-examples](https://github.com/vladimirvivien/go-cshared-examples)
+[go-cshared-examples](https://github.com/vladimirvivien/go-cshared-examples),[对应博客](https://awesomeopensource.com/project/vladimirvivien/go-cshared-examples)
 
 The latest Go 1.5 version is out. As part of the new features, Go compiler can compile packages as a shared libraries.
 
@@ -18,7 +19,7 @@ By default, listed main packages are built into executables and listed non-main 
 
 In this article we will explore two major ways to share libraries between Go and C:
 
-### Using shared library in Go
+## Using shared library in Go
 
 Assume that GOPATH contains this structure:
 ```text
@@ -75,13 +76,16 @@ Result: 15
 ```
 *Note that this feature is available on linux/amd64 platform or when gccgo compiler is used.*
 
-### Using shared Go library in C
+## Using shared Go library in C
 
 Go functions can be executed from C applications. They should be exported by using the following comment line:
+
 ```go
 //export <your_function_name>
 ```
+
 In the code snippet below, the function SayHello and SayBye are exported:
+
 ```go
 // package name: nautilus
 package main
@@ -112,6 +116,7 @@ $ go build -buildmode=c-shared -o nautilus.a nautilus.go
 // as c-archive 
 $ go build -buildmode=c-archive -o nautilus.a nautilus.go
 ```
+
 As result the **GO** compiler will produce a static/dynamic **C** library **nautilus.a** and header file **nautilus.h**. The header file contains type definitions that marshall and unmarshall data between Go and C:
 ```c
 typedef signed char GoInt8;
@@ -179,12 +184,13 @@ This is a C Application.
 Nautilus says: Hello, Jack!
 Nautilus says: Bye!
 ```
-### Conclusion
+## Conclusion
 
 Sharing libraries between C and Go gives opportunity to build greater and better application by using the best from both worlds. This provides to a legacy system a modern language that can improve their maintainance costs and business needs. It maximize code reusability in the Go ecosystem.
 
 从下面可以看出，动态链接与默认的静态文件大小区别还是挺大的。
-```shell
+
+```sh
 $go build -linkshared -o app main.go
 $go build  -o appx main.go
 $ ls -lh
@@ -208,6 +214,7 @@ $ ldd ./app
 ### 几个问题的解决
 
 - /usr/bin/ld: cannot find crti.o: No such file or directory
+
 ```text
 This is a BUG reported in launchpad, byt there is a workaround :
 

@@ -691,6 +691,8 @@ class Person {
 
 Java调用Native的动态库有两种方式，JNI和JNA，[JNA](https://github.com/java-native-access/jna)是Oracle最新推出的与Native交互的方式。
 
+[JNA Examples](https://www.eshayne.com/jnaex/index.html)
+
 ![JNA调用过程](image/JNA调用过程.png)
 
 注：JNA中，它提供了一个动态的C语言编写的转发器，可以自动实现Java和C的数据类型映射。
@@ -702,6 +704,86 @@ dependencies
     implementation 'net.java.dev.jna:jna:4.5.0'
 }
 ```
+
+golang构建动态库为例，`Go build -buildmode=c-shared -o libhello.dll .\libhello.go`
+
+```golang
+package main
+
+import "C"
+
+import "fmt"
+
+//export Hello
+func Hello(msg string)  *C.char  {
+    fmt.Print("hello: " + msg)    
+    return C.CString("hello: " + msg)
+}
+
+//export Sum
+func Sum(a int, b int) int {   return a + b}
+
+func main() {}
+```
+
+java 创建对应调用接口。 以整型与String为例
+
+```java
+package com.example.helloWord;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import java.util.List;
+import java.util.Arrays;
+import com.sun.jna.Structure;
+
+public interface LibHello extends Library {
+    LibHello INSTANCE = (LibHello) Native.loadLibrary("c:/home/libhello", LibHello.class);
+
+    int Sum(int a, int b);
+
+    // GoString class maps to:
+    // C type struct { const char *p; GoInt n; }
+    public class GoString extends Structure {
+        public static class ByValue extends GoString implements Structure.ByValue {
+        }
+
+        public String p;
+        public long n;
+
+        protected List getFieldOrder() {
+            return Arrays.asList(new String[] { "p", "n" });
+        }
+
+    }
+
+    public String Hello(GoString.ByValue msg);
+}
+
+```
+
+java 调用golang动态库为例，
+
+```java
+package com.example.helloWord;
+
+public class App {
+        public static void main(String[] args) {
+        //System.out.println(new App().getGreeting());
+        System.out.println(LibHello.INSTANCE.Sum(222, 333));
+
+        LibHello.GoString.ByValue str = new LibHello.GoString.ByValue();
+        str.p = "msg, Hello Java!";
+        str.n = str.p.length();
+
+        String returnstr = LibHello.INSTANCE.Hello(str);
+        System.out.printf("\nreturned:%s\n",returnstr);
+    }
+}
+```
+
+将C头文件生成JNA接口，有个工具[java -jar jnaeratorStudio.jar](https://github.com/nativelibs4java/JNAerator)可以考虑使用。
+
 
 # adb
 
