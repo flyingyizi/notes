@@ -2,6 +2,7 @@
 下载电子书来自www.32r.com
 
 
+
 [书籍附带sourceCode](https://www.manning.com/downloads/732)，来自[链接](https://www.manning.com/books/junit-in-action-second-edition)页面。
 
 准备工作1：添加junit依赖
@@ -33,11 +34,51 @@ public class AppTest {
 }
 ```
 
+
+
+## 单元测试任务包括：
+
+- 接口功能测试：用来保证接口功能的正确性。
+- 局部数据结构测试（不常用）：用来保证接口中的数据结构是正确的
+    - 比如变量有无初始值
+    - 变量是否溢出
+- 边界条件测试
+    - 变量没有赋值（即为NULL）
+    - 变量是数值（或字符)
+        - 主要边界：最小值，最大值，无穷大（对于DOUBLE等）
+        - 溢出边界（期望异常或拒绝服务）：最小值-1，最大值+1
+        - 临近边界：最小值+1，最大值-1
+    - 变量是字符串
+        - 引用“字符变量”的边界
+        - 空字符串
+        - 对字符串长度应用“数值变量”的边界
+    - 变量是集合
+        - 空集合
+        - 对集合的大小应用“数值变量”的边界
+        - 调整次序：升序、降序
+    - 变量有规律
+        - 比如对于Math.sqrt，给出n^2-1，和n^2+1的边界
+- 所有独立执行通路测试：保证每一条代码，每个分支都经过测试
+    - 代码覆盖率
+        - 语句覆盖：保证每一个语句都执行到了
+        - 判定覆盖（分支覆盖）：保证每一个分支都执行到
+        - 条件覆盖：保证每一个条件都覆盖到true和false（即if、while中的条件语句）
+        - 路径覆盖：保证每一个路径都覆盖到
+
+- 相关软件
+    - Cobertura/jaCoCo：语句覆盖
+    - Emma: Eclipse插件Eclemma
+- 各条错误处理通路测试：保证每一个异常都经过测试
+
+
+
 ## 最佳实践
 
 - 对还没有实现的测试代码应抛出异常
 - 总是为跳过测试填写说明原因@Ingore(value="....")
 - 使用[hamcrest](http://hamcrest.org/)来优化断言的编写
+- 不要再mock object中写入业务逻辑，它必须是傻对象，只是测试驱动的，这个特性和stub相反
+- 
 
 ## 测试类
 
@@ -64,11 +105,25 @@ JUnit的测试运行器包括：
 
 它们都继承自org.junit.runner.Runner类
 
-### @before @After
+### @before @After @BeforeClass @AfterClass
 
 JUnit在调用每一个测试方法(使用@Test注解)前，会调用@Before注解修饰的方法。之后会调用@After。  无论测试是通过还是失败。
 
 如果有多个@Before/@After，那它们的执行顺序是不被定义的。
+
+
+@Before：初始化方法   对于每一个测试方法都要执行一次（注意与BeforeClass区别，后者是对于所有方法执行一次）
+@After：释放资源  对于每一个测试方法都要执行一次（注意与AfterClass区别，后者是对于所有方法执行一次）
+
+@BeforeClass：针对所有测试，只执行一次，且必须为static void 
+@AfterClass：针对所有测试，只执行一次，且必须为static void 
+一个JUnit4的单元测试用例执行顺序为： 
+@BeforeClass -> @Before -> @Test -> @After -> @AfterClass; 
+
+每一个测试方法的调用顺序为： 
+
+@Before -> @Test -> @After; 
+
 
 ### @Ingore
 
@@ -296,4 +351,11 @@ stub弊端：
 - stub往往比较复杂难以编写，并且本身也需要调试
 - stub不能很好的应用在细粒度测试
 - 不同情况需要不同stub策略
+
+jetty: 可以嵌入测试用例的java web服务器。测试例子见“ch06-stubs”
+
+
+## mock
+
+[EasyMock 使用方法与原理剖析](https://www.ibm.com/developerworks/cn/opensource/os-cn-easymock/)
 
