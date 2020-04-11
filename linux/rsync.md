@@ -7,6 +7,27 @@
 
 [linux中Rsync命令的实际示例](https://www.cnblogs.com/weifeng1463/p/7809851.html)
 
+
+与rsync命令一起使用的一些常见选项
+```text
+-v：详细
+-r：将数据递归（但不保存时间戳和权限，同时传输数据
+-a：归档模式下，归档模式允许递归地拷贝文件，同时也保留了符号链接，文件权限，用户组所有权和时间戳
+-z：压缩文件中的数据
+-h：在人类可读的格式人类可读，输出数字
+```
+
+例如：
+
+```sh
+#rsync options source destination
+#backup.tar需要的文件名被复制或同步到/tmp/备份/文件夹。
+[root@howtoing]$rsync -zvh backup.tar /tmp/backups/
+
+#将来自本地计算机的目录同步到远程机器，例如 ：有一个在其中包含了一些RPM包本地计算机“rpmpkgs”的文件夹，你想那个地方目录的内容发送到远程服务器，您可以使用以下命令。
+[root@howtoing]$rsync -avz rpmpkgs/ root@192.168.0.101:/home/
+```
+
 ## Linux 服务侧配置
 
 安装 rsync

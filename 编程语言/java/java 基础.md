@@ -5,6 +5,9 @@
 
 类目录的绝对路径叫做 class path。设置在系统变量 CLASSPATH 中。编译器和 java 虚拟机通过将 package 名字加到 class path 后来构造 .class 文件的路径。一个 class path 可能会包含好几个路径，多路径应该用分隔符分开。
 
+从oracle下载[jdk](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html),如果需要帐号,可以使用[开放帐号](http://bugmenot.com/view/oracle.com)
+
+
 1. 设置环境变量: JAVA_HOME
 2. 设置环境变量(后面有个.): CLASSPATH=.;%%JAVA_HOME%%\lib\dt.jar;%%JAVA_HOME%%\lib\tools.jar;  
 3. 设置环境变量: 追加PATH=%%JAVA_HOME%%\bin;%%JAVA_HOME%%\jre\bin;  
