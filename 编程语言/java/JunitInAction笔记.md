@@ -1,5 +1,5 @@
 
-# 
+# junit
 
 下载电子书来自www.32r.com, 来自https://github.com/ppatil9096/books
 
@@ -336,7 +336,7 @@ test {
 ```
 具体见[gradle test filtering](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering)
 
-## 测试覆盖率
+# 测试覆盖率Exploring Code Coverage
 
 术语含义：
 
@@ -348,7 +348,7 @@ test {
 
 [jacoco代码覆盖率报告分析](https://www.jianshu.com/p/ef987f1b6f2f)
 
-### cobertura (不支持JDK8以及后续版本)
+## cobertura (不支持JDK8以及后续版本)
 cobertura是一个与JUnit集成的代码覆盖率测量工具
 
 准备动作,在build.gradle中添加[plugin](https://github.com/stevesaliman/gradle-cobertura-plugin/blob/master/usage.md)：
@@ -376,7 +376,7 @@ cobertura是一个与JUnit集成的代码覆盖率测量工具
 $./gradlew  cobertura
 ```
 
-### jaCoCo
+## jaCoCo
 
 [jacoco_plugin](https://docs.gradle.org/current/userguide/jacoco_plugin.html)
 
@@ -390,19 +390,7 @@ $./gradlew test
 $./gradlew jacocoTestReport
 ```
 
-## stub 粗粒度测试
 
-开发中依赖开发环境（e.g. 依赖数据库，依赖文件系统...）.STUB是一种机制，用来模拟真实代码或尚未完成的代码所产生的行为。
-
-stub是一段代码，通常在运行时使用插入的stub代码来代替真实的代码，一边将其调用者与真正的实现隔离开来。
-
-stub弊端：
-
-- stub往往比较复杂难以编写，并且本身也需要调试
-- stub不能很好的应用在细粒度测试
-- 不同情况需要不同stub策略
-
-jetty: 可以嵌入测试用例的java web服务器。测试例子见“ch06-stubs”
 
 # test  doubles 
 
@@ -513,7 +501,21 @@ testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 
 ### 生成 Mock 对象；
 
-首先需要通过在对应测试类加上`@RunWith(MockitoJUnitRunner.class)`进行初始化工作
+首先需要通过在对应测试类进行初始化工作,采用：
+
+```java
+@RunWith(MockitoJUnitRunner.class)
+public class MockitoAnnotationTest {
+    ...
+}
+```
+或
+```java
+@Before
+public void init() {
+    MockitoAnnotations.initMocks(this);
+}
+```
 
 MockitoJUnitRunner 和 initMocks(this) 对UT提供mock初始化工作
 在单元测试中使用@Mock, @Spy, @InjectMocks等注解时，需要进行初始化后才能使用
@@ -670,6 +672,57 @@ be tested, but other methods use them; so, these methods need to be stubbed to w
 the other methods. A spy object can stub the nontestable methods so that other methods
 can be tested easily.
 
+Spying real objects and calling real methods on a spy has side effects; to counter this side
+effect, use doReturn() instead of thenReturn().
+spying 真实对象,通过spying调用对象的方法是会有副作用的,需要使用doReturn API, 见下面例子:
+
+```java
+    @Test
+    public void doReturn_usage()() {
+
+        List<String> list = new ArrayList<String>();
+        List<String> spy = Mockito.spy(list);
+        // impossible the real list.get(0) is called and fails
+        // with IndexOutofBoundsException, as the list is empty
+        //when(spy.get(0)).thenReturn("not reachable");
+
+        // doReturn fixed the issue
+        Mockito.doReturn("now reachable").when(spy).get(0);
+        assertEquals("now reachable", spy.get(0));
+    }
+```
+
+### 参数验证
+
+通过ArgumentCaptor对象的`forClass(Class<T> clazz)`方法来构建ArgumentCaptor对象。然后便可在验证时对方法的参数进行捕获，最后验证捕获的参数值。如果方法有多个参数都要捕获验证，那就需要创建多个ArgumentCaptor对象处理。
+
+需要监视这个类中的foo函数内部使用的data
+```java
+class A {
+    public void foo(OtherClass other) {
+        SomeData data = new SomeData("Some inner data");
+        other.doSomething(data);
+    }
+}
+```
+
+可以采用下面的方式:
+
+```JAVA
+// Create a mock of the OtherClass
+OtherClass other = mock(OtherClass.class);
+
+// Run the foo method with the mock
+new A().foo(other);
+
+// Capture the argument of the doSomething function
+ArgumentCaptor<SomeData> captor = ArgumentCaptor.forClass(SomeData.class);
+verify(other, times(1)).doSomething(captor.capture());
+
+// Assert the argument
+SomeData actual = captor.getValue();
+assertEquals("Some inner data", actual.innerData);
+```
 
 
 ## JMockit

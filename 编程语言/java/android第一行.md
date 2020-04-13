@@ -294,9 +294,258 @@ public static void actionStart(Context c, String data1, String data2) {
 android中的广播有两种类型
 
 - normal broadcast：标准广播
-- ordered broadcast：有序广告。这种广播是先到优先级高的，再到优先级低的广播接收器。其中广播接收器可以控制广播是否继续往下传
+- ordered broadcast：有序广播。这种广播是先到优先级高的，再到优先级低的广播接收器。其中广播接收器可以控制广播是否继续往下传
+
+### 动态注册广播接收
+
+缺点是要程序启动后才能接收广播
+
+- 步骤1: 注册广播
+- 步骤2: 定制收到广播的处理
+- 步骤3: 取消注册广播
+
+```java
+
+public class MainActivity extends AppCompatActivity {
+    private  NetworkChangeReceiver receiver;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        // 步骤1
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(receiver,filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //步骤3
+        unregisterReceiver(receiver);
+    }
+
+    private class NetworkChangeReceiver extends BroadcastReceiver {
+        //步骤2
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(context,"network change",Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+}
+
+```
+
+###  静态注册广播接收
+
+实现开机启动
+
+快捷方式: 在package右击然后"new/other/broadcast receiver" 创建. 与下面手工方式等效
+
+- 实现一个BroadcastReceiver的子类
+
+```JAVA
+
+public class MyReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        // TODO: This method is called when the BroadcastReceiver is receiving
+        // an Intent broadcast.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+}
+```
+
+- 在AndroidManifest.xml中添加`<receiver/>`
+
+```XML
+<manifest ... >
+    <application  ...>
+        <receiver
+            android:name=".MyReceiver"
+            
+            <!--是否启用该广告播接收器--> 
+            android:enabled="true"
+            <!--是否允许该接收器接收本程序以外的广播-->
+            android:exported="true">
+            <intent-filter>
+               <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>    
+        </receiver>
+
+        <activity ....>
+    </application>
+
+</manifest>
+```
+
+### 发送广播
+
+- 发送标准广播
+
+```JAVA
+Intent  intent= new Intent("com.example.xxxx.MY_BROADCAST");
+sendBroadcast(intent);
+```
+
+- 发送有序广播
+
+```JAVA
+Intent  intent= new Intent("com.example.xxxx.MY_BROADCAST");
+sendOrderedBroadcast(intent,null/*权限相关*/);
+```
+
+对接收到有序广播的广播接收器，可以通过call  `abortBroadcast()`终止广播继续向下传递，即截断广播。
 
 
+## 数据持久化
+
+android提供了几种数据持久化：文件存储，sharedPreference存储，数据库存储，保存在SD卡
+
+### 存储到文件
+
+context类中提供的openFileOutput(filename, Context.MODE_PRIVATE|MODE_APPEND|)方法，存储路径是`data/data/<packagename>/files/`
+
+- 写入
+
+```java
+    public void save(String inputText) {
+        FileOutputStream out = null;
+        BufferedWriter writer = null;
+        try {
+            out = openFileOutput("data", Context.MODE_PRIVATE);
+            writer = new BufferedWriter(new OutputStreamWriter(out));
+            writer.write(inputText);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+```
+
+- 读出
+
+```JAVA
+
+    public String load() {
+        FileInputStream in = null;
+        BufferedReader reader = null;
+        StringBuilder content = new StringBuilder();
+        try {
+            in = openFileInput("data");
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return content.toString();
+    }
+```
+
+### sharedPreference存储
+
+sharedPreference使用key/value存储数据。存储路径是`data/data/<packagename>/shared_prefs/`
+
+- 写入
+
+```JAVA
+        Button saveData = (Button) findViewById(R.id.save_data);
+        saveData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                editor.putString("name", "Tom");
+                editor.putInt("age", 28);
+                editor.putBoolean("married", false);
+                editor.apply();
+            }
+        });
+```        
+
+- 读出
+
+```java
+        Button restoreData = (Button) findViewById(R.id.restore_data);
+        restoreData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences pref = getSharedPreferences("data", MODE_PRIVATE);
+                String name = pref.getString("name", "");
+                int age = pref.getInt("age", 0);
+                boolean married = pref.getBoolean("married", false);
+                Log.d("MainActivity", "name is " + name);
+                Log.d("MainActivity", "age is " + age);
+                Log.d("MainActivity", "married is " + married);
+            }
+        });
+```
+
+### 数据库存储
+
+通过内置sqlLite支持，SQLite支持的数据类型包括：real, integer, text,blob.
+
+存储路径是`data/data/<packagename>/databases/`
+
+
+
+## 内容提供器－跨程序共享
+
+Content Provider主要用在不同应用程序间共享数据。它可以选择只对哪一部分数据进行共享，这个需要运行时权限的支持。完整andoid权限列表见 [ANDOID权限列表](https://developer.android.com/reference/android/Manifest.permission)
+
+运行时权限的核心是在程序运行过程中由用户授权去执行。 下面是一个例子
+
+- 步骤1：通过`ContextCompat.checkSelfPermission`判断是否已经有授权
+- 步骤2：如果上一步判断没有权限通过`ActivityCompat.requestPermissions`申请权限
+- 步骤3：上一步的申请结果会被`onRequestPermissionsResult`中返回
+
+### 访问其他程序的数据
+
+要访问内容提供器中共享的数据，需要使用ContentResolver类。
+
+
+```java
+
+```
+
+
+```xml
+<manifest package="com.example.broadcasttest">
+
+    <uses-permission android:name="android.permission.ACCEPT_HANDOVER"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application...>
+        <receiver ...>
+              <intent-filter>...</intent-filter>
+        </receiver>
+
+        <activity android:name=".MainActivity">
+            ...
+        </activity>
+    </application>
+
+</manifest>
+```
 
 
 # android UI
@@ -566,4 +815,29 @@ dependencies {
 ### TableLayout
 
 
+# sdk tools
 
+## device monitor
+
+“Android\Sdk\tools\monitor.bat”， 比如使用其中的file  explorer
+
+
+
+## adb
+
+1. 设置环境变量: ANDROID，变量值：C:\prog\Android\sdk\platform-tools(sdk路径)
+2. 在Path末尾添加;%ANDROID%
+
+为了使用真正的手机硬件进行调试，以下是几个需要的预备动作。
+
+- 在手机上开启usb debug调试模式。
+- 在android studio,通过“settings/system settings/android sdk/sdk tools”中选择“google usb driver”进行安装。
+- 对android studio所在pc机，通过设备管理器，对已经连在pc机上的手机进行驱动更新。驱动是上一步下载得到，路径在“xxx\Android\sdk\extras\google\usb_driver”. 。如果是在win7，需要通过“浏览计算机以查找驱动程序软件”/从计算机的设备驱动程序列表中选择”/“显示所有设备”/“从磁盘安装”/选择第三项“Android Composite ADB Inter”
+
+以上预备动作作为后，通过下面的命令查看是否正确了。后面在android studio上执行run，选择对应的手机硬件
+
+```sh
+$adb devices -l
+List of devices attached
+022AUM7N38080574       device product:P6-C00 model:HUAWEI_P6_C00 device:hwp6-c00 transport_id:2
+``` 
