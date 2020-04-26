@@ -1,7 +1,7 @@
 
 # 有用链接
 
-
+[书籍](https://git-scm.com/book/zh/v2)
 
 # docker_build
 
@@ -60,7 +60,24 @@ git add filename/目录
 git  commit -m  "comment"
 ```
 
+- 撤销还没有提交的代码
 
+就是对编辑了，还没有通过`git add xxx`进行提交的可以通过该命令撤销
+```sh
+git checkout app/xx/xx/abc.java
+```
+
+- 撤销已经提交的代码
+
+```sh
+git restore HEAD  app/xx/xx/abc.java
+```
+
+- 查看远程库地址
+
+```sh
+git remote -v
+```
 
 
 

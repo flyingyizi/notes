@@ -70,7 +70,12 @@ Java IO方式有哪些?
 
 [Java网络编程（4）NIO的理解与NIO的三个组件](https://blog.csdn.net/key_768/article/details/104577022)
 
-NIO 包含通道Channel与缓冲区Buffer、多复用选择器Selector三个重要组件
+NIO 包含三个重要组件:
+
+- 通道Channel与
+- 缓冲区Buffer、
+- 多复用选择器Selector
+
 ![selector-channel-buffer关系](image/selector-channel-buffer关系.png)
 
 在Java NIO中，通道Channel是在实体和字节缓冲区Buffer之间有效传输数据的媒介. 有两种类型的通道：文件通道（file）和套接字通道（socket）.

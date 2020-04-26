@@ -1,4 +1,5 @@
 
+[Android 教程](https://www.runoob.com/android/android-tutorial.html)
 [android studio developer](https://developer.android.google.cn/studio/command-line/logcat)
 
 使用Android Studio模板节省开发时间， [参考](https://riggaroo.co.za/custom-file-templates-android-studio/)
@@ -94,7 +95,7 @@ $ adb shell
    - 创建类：在App对应的package下，通过"new/activity/empty activity"方式，不勾选generate layout file与launcher activity选项。生成activity class文件。
    - 创建布局：在“res/layout” 下面新增对应该activity的layout文件
    - 加载布局：比如在类的onCreate方法中新增`setContentView(R.layout.资源id);`
-   - 注册：在“AndroidManifest.xml”里面新增activity注册类似<activity android:name="..."></activity>
+   - 注册：在“AndroidManifest.xml”里面新增activity注册类似<activity android:name="<class>"></activity>
 
 ### 在activity中使用Toast提醒
 
@@ -256,6 +257,138 @@ public static void actionStart(Context c, String data1, String data2) {
     c.startActivity(intent);
 }    
 ```
+
+## 碎片Fragment
+
+Fragment是Android里面中一个非常灵巧的设计，它可以看做ui模块，由活动activity托管。
+
+完全手动新增一个Fragment，涉及以下：
+
+   - 创建fragment类：在App对应的package下，通过"new/Fragment/fragment(blank)"方式，不勾选create layout file。生成fragment class文件。如果勾选了，下面三步手动步骤就自动完成了。
+   - 创建fragment布局：在“res/layout” 下面新增对应该fragment的layout文件。这里是采用FragmentLayout,还是LinearLayout viewgroup，看自己方便。
+   - 加载布局：在类的onCreateView方法中新增`return inflater.inflate(R.layout.布局资源id, container, false);`
+   - 注册：在“AndroidManifest.xml”里面通过`android:name`新增fragment注册类
+
+    ```xml
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <fragment
+            android:id="@+id/left_fragment"
+            <!--fragment类-->
+            android:name="com.example.fragmenttest.LeftFragment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <!--下面这个是动态注册用的，所以不用通过`android:name`注册-->
+        <FrameLayout
+            android:id="@+id/right_layout"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+    ```
+
+### 在Fragment中使用MENU
+
+我们都知道在活动中添加menu只用编写好menu，在onCreateOptionsMenu中加载，并在onOptionsItemSelected中处理点击事件就可以了
+
+要在fragment添加menu需要以下步骤：
+
+- 在fragment的onCreate中添加一句 setHasOptionsMenu(true)；
+- 如果用的是活动的标题栏，只需在onCreateOptionsMenu中加载menu；如果用Fragment自己的toolbar需要先用活动初始化toolbar，然后再onCreateOptionsMenu
+- 在活动中重写onOptionsItemSelected，讲需要在fragment中处理的menu item直接返回false，再在fragment的onOptionsItemSelected中处理
+
+[Fragment中添加menu](https://www.jianshu.com/p/1b5b4b7724bc)
+
+[How to add Options Menu to Fragment in Android](https://stackoverflow.com/questions/8308695/how-to-add-options-menu-to-fragment-in-android)
+
+
+### 动态添加fragment
+
+比如在activity中的right_layout Fragment是用于动态占位的
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <fragment
+        android:id="@+id/left_fragment"
+        android:name="com.example.fragmenttest.LeftFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/right_layout"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+</LinearLayout>
+```
+使用下面方式进行动态占位
+```java
+    //对layout中占位(比如R.id.right_layout)，关联class
+    private void replaceFragment(@IdRes int containerViewId, @NonNull Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(containerViewId, fragment);
+        //按下ba键，回到上一个fragment
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+```
+
+### 动态添加view
+
+来自[Android LayoutInflater原理分析，带你一步步深入了解View(一)](https://blog.csdn.net/guolin_blog/article/details/12921889)
+
+MainActivity对应的布局文件叫做activity_main.xml，代码如下所示：
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+ 
+</LinearLayout>
+```
+
+接下来我们再定义一个布局文件，给它取名为button_layout.xml，代码如下所示：
+```java
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Button" >
+ 
+</Button>
+```
+
+下面代码先是获取到了LayoutInflater的实例，然后调用它的inflate()方法来加载button_layout这个布局，最后调用LinearLayout的addView()方法将它添加到LinearLayout中。
+```java
+public class MainActivity extends Activity {
+ 
+	private LinearLayout mainLayout;
+ 
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		mainLayout = (LinearLayout) findViewById(R.id.main_layout);
+		LayoutInflater layoutInflater = LayoutInflater.from(this);
+		View buttonLayout = layoutInflater.inflate(R.layout.button_layout, null);
+		mainLayout.addView(buttonLayout);
+	}
+ 
+}
+```
+
+
 
 ## intent
 
@@ -500,7 +633,7 @@ sharedPreference使用key/value存储数据。存储路径是`data/data/<package
         });
 ```
 
-### 数据库存储
+### 数据库存储  TODO
 
 通过内置sqlLite支持，SQLite支持的数据类型包括：real, integer, text,blob.
 
@@ -510,23 +643,97 @@ sharedPreference使用key/value存储数据。存储路径是`data/data/<package
 
 ## 内容提供器－跨程序共享
 
+数据存储路径通过`内容uri`来指示，它由两部分组成authority与path。例如"content://com.example.databasetest.provider/book"。 程序包名是“com.example.databasetest”，authority就是“com.example.databasetest.provider”。表名table就是book。
+
 Content Provider主要用在不同应用程序间共享数据。它可以选择只对哪一部分数据进行共享，这个需要运行时权限的支持。完整andoid权限列表见 [ANDOID权限列表](https://developer.android.com/reference/android/Manifest.permission)
+
+[Android - 内容提供者(Content Provider)](https://www.runoob.com/android/android-content-providers.html)
+
+### 运行时权限
 
 运行时权限的核心是在程序运行过程中由用户授权去执行。 下面是一个例子
 
-- 步骤1：通过`ContextCompat.checkSelfPermission`判断是否已经有授权
+- 步骤1：通过`ContextCompat.checkSelfPermission`判断是否已经有授权。[请求应用权限例子](https://developer.android.com/training/permissions/requesting?hl=zh-cn)
 - 步骤2：如果上一步判断没有权限通过`ActivityCompat.requestPermissions`申请权限
 - 步骤3：上一步的申请结果会被`onRequestPermissionsResult`中返回
 
-### 访问其他程序的数据
+### 访问其他程序的内提供器
 
 要访问内容提供器中共享的数据，需要使用ContentResolver类。
 
+- 添加数据
 
 ```java
-
+        Button addData = (Button) findViewById(R.id.add_data);
+        addData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 添加数据
+                Uri uri = Uri.parse("content://com.example.databasetest.provider/book");
+                ContentValues values = new ContentValues();
+                values.put("name", "A Clash of Kings");
+                values.put("author", "George Martin");
+                values.put("pages", 1040);
+                values.put("price", 55.55);
+                Uri newUri = getContentResolver().insert(uri, values);
+                newId = newUri.getPathSegments().get(1);
+            }
+        });
 ```
 
+- 查询数据
+
+```java
+        Button queryData = (Button) findViewById(R.id.query_data);
+        queryData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 查询数据
+                Uri uri = Uri.parse("content://com.example.databasetest.provider/book");
+                Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        String name = cursor.getString(cursor. getColumnIndex("name"));
+                        String author = cursor.getString(cursor. getColumnIndex("author"));
+                        int pages = cursor.getInt(cursor.getColumnIndex ("pages"));
+                        double price = cursor.getDouble(cursor. getColumnIndex("price"));
+                        Log.d("MainActivity", "book name is " + name);
+                        Log.d("MainActivity", "book author is " + author);
+                        Log.d("MainActivity", "book pages is " + pages);
+                        Log.d("MainActivity", "book price is " + price);
+                    }
+                    cursor.close();
+                }
+            }
+        });
+```
+
+- 更新数据
+
+```java
+        Button updateData = (Button) findViewById(R.id.update_data);
+        updateData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 更新数据
+                Uri uri = Uri.parse("content://com.example.databasetest.provider/book/" + newId);
+                ContentValues values = new ContentValues();
+                values.put("name", "A Storm of Swords");
+                values.put("pages", 1216);
+                values.put("price", 24.05);
+                getContentResolver().update(uri, values, null, null);
+            }
+        });
+        Button deleteData = (Button) findViewById(R.id.delete_data);
+        deleteData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 删除数据
+                Uri uri = Uri.parse("content://com.example.databasetest.provider/book/" + newId);
+                getContentResolver().delete(uri, null, null);
+            }
+        });
+```
 
 ```xml
 <manifest package="com.example.broadcasttest">
@@ -546,6 +753,77 @@ Content Provider主要用在不同应用程序间共享数据。它可以选择�
 
 </manifest>
 ```
+
+### 创建内容提供器
+
+快捷方式: 在package右击然后"new/other/content provider" 创建. 与下面的手工方式创建content provider等效。
+
+- 在AndroidManifest.xml中添加`<provider/>`
+
+```XML
+<manifest ... >
+    <application  ...>
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="com.example.app.provider"
+            android:enabled="true"
+            android:exported="true"></provider>
+
+        <activity ....>
+    </application>
+
+</manifest>
+```
+
+- 新建继承自ContentProvider的子类来创建自己的内提供器。其中有几个抽象方法必须要重写。
+
+```java
+public class MyContentProvider extends ContentProvider {
+    public MyContentProvider() {
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        // Implement this to handle requests to delete one or more rows.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    //MIME组成是：<vnd.><andoid.cursor.>[dir|item]</><vnd.><${authority}>.<${path}>
+    @Override
+    public String getType(Uri uri) {
+        // TODO: Implement this to handle requests for the MIME type of the data
+        // at the given URI.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        // TODO: Implement this to handle requests to insert a new row.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+    //初始化内容提供器时被调用，通常在这里完成对数据库的创建与升级，返回true代表初始化成功，注意只有在contentResolver尝试访问我们程序中的数据时，内容提供器才会被初始化
+    @Override
+    public boolean onCreate() {
+        // TODO: Implement this to initialize your content provider on startup.
+        return false;
+    }
+
+    @Override
+    public Cursor query(Uri uri/*哪张表*/, String[] projection/*哪些列*/, String selection/*哪些行*/,
+                        String[] selectionArgs/*哪些行*/, String sortOrder) {
+        // TODO: Implement this to handle query requests from clients.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection,
+                      String[] selectionArgs) {
+        // TODO: Implement this to handle requests to update one or more rows.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+}
+```
+
 
 
 # android UI
@@ -591,7 +869,7 @@ dialog.setTitle("this is dialog");
 dialog.show();
 ```
 
-## 重要控件之：ListView控件
+## 重要控件之：ListView控件(被RecyclerView替代)
 
 在其中有个挺重要的知识点“适配器Adapter”，[android中Adapter适配器的讲解](https://www.cnblogs.com/Jeely/p/11059336.html)
 
@@ -652,12 +930,27 @@ BaseAdapter，ArrayAdapter，SimpleAdapter是几个常用的适配器
 
 ## TODO重要控件之：RecyclerView控件
 
+[RecyclerView 官方指导](https://developer.android.com/guide/topics/ui/layout/recyclerview)
+
+[RecyclerView 示例应用](https://github.com/android/views-widgets-samples/tree/master/RecyclerView)
+
+[android-recyclerview-tutorial](https://github.com/DeveloperLx/Android-Development-Tutorials-translation/blob/master/Android%20RecyclerView%20Tutorial%20with%20Kotlin.md)
+
+[RecyclerView常用方法总结](https://juejin.im/post/5d4b9552e51d4561cc25efe4)
+
+[RecyclerView通过GridLayoutManager实现多样式布局的示例](https://www.cnblogs.com/aademeng/articles/9820693.html)
+
 这个控件目标是取代ListView. 它在support库中。因此首先在gradle.build中需要添加
 
 ```groovy
 dependencies {
     ...
-    implementation 'com.android.support:recyclerview-v7:24.2.1'
+    //legacy
+    //implementation 'com.android.support:recyclerview-v7:24.2.1'
+    
+    implementation "androidx.recyclerview:recyclerview:1.2.0-alpha01"
+    // For control over item selection of both touch and mouse driven selection
+    implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc01"
 ```
 
 - 先在对应的main activity layout中增加RecyclerView控件`<RecyclerView/>`. 
@@ -682,11 +975,21 @@ dependencies {
 
 RecyclerViewTest
 
+## 布局layouts
+
+[Android四种基本布局（LinearLayout \ RelativeLayout \ FrameLayout \ TableLayout）](https://www.cnblogs.com/woider/p/5118742.html)
+
+布局可定义应用中的界面结构（例如 Activity 的界面结构）. 包含View与ViewGroup
 
 
-## 布局
+![UI布局](image/andoid-UI-布局结构.png)
 
 android中由四种基本布局：LinearLayout， RelativeLayout， 
+
+声明布局有两种方式：
+
+- 定义layout xml文件，通过`setContentView(R.layout.activity_main)`类似代码引入运行时。
+- 运行时实例化布局,通过`android.widget.AdapterView extends android.view.ViewGroup` 来动态创建布局
 
 所有控件都有下面两个属性：
 
@@ -698,7 +1001,112 @@ android中由四种基本布局：LinearLayout， RelativeLayout，
 
 android:layout_weight：系统先将xxx的所有控件的该属性值相加得到一个总值。然后每个控件所在比例的大小就是该控件layout_weight值与总值的比例。
 
+### What is the difference between setContentView and LayoutInflater?
+
+```java
+// Inflate the layout for this fragment
+return inflater.inflate(R.layout.another_fragment, container, false);
+
+setContentView(R.layout.activity_main);
+```
+
+[What is the difference between setContentView and LayoutInflater?](https://stackoverflow.com/questions/17808177/what-is-the-difference-between-setcontentview-and-layoutinflater)
+
+```java
+    //对layout中占位R.id.right_layout，关联class
+    //@IdRes int containerViewId, @NonNull Fragment fragment
+    private void replaceFragment(Fragment fragment) {        
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.right_layout, fragment);
+        //按下back键，回到上一个fragment
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+```
+
+setContentView and LayoutInflater都是
+
+- setContentView ： 是Activity方法，比如Fragments是没有这个方法的。
+- 
+In Android ,each Activity has one ViewRoot and usually one Window ,attached to it. However, a SurfaceView has its own window. So, if an Activity has a SurfaceView it will have more than one Window.
+
+This activity is used for screen display occupying the entire Window. Views are attached to this Window. Every Window has a Surface and Surface uses Canvas to draw on the surface.The window the view is attached to owns the surface.
+
+Basically ViewRoot is responsible for for collecting and dispatching the input and View is responsible for managing focus/key events, Canvas is only responsible for "drawing" operation using onDraw().
+
+setContentView(View) is a method exclusively available for Activity. Internally it calls the setContentView(View) of Window. This method sets the activity content to an explicit view. This view is placed directly into the activity's view hierarchy. Calling this function "locks in" various characteristics of the window that can not, from this point forward, be changed. Hence it is called only once.
+
+LayoutInflater is used to instantiate layout XML file into its corresponding View objects. Basically the purpose is to create view objects at runtime depending on the requirement. Best example is the AdapterViews like ListView, Spinner etc, where a single view object corresponding to single record is created at run time depending on the number of records.
+
+In case of Toast, LayoutInflater is used if the child view is going to be altered dynamically eg. changing the image at run time. If no changes to child views are to be made then simplly setView(View) of toast is enough to set the layout view for toast.
+
+Same as Toast is with the AlertDialog if you observe carefully.
+
+### gravity and layout_gravity属性解释
+[LinearLayout gravity and layout_gravity explained ](http://sandipchitale.blogspot.com/2010/05/linearlayout-gravity-and-layoutgravity.html)，根据该解释
+
+- android:gravity：sets the gravity of the contents (i.e. its subviews) of the View it's used on. in other world, arranges the content inside the view.
+
+- android:layout_gravity： sets the gravity of the View or Layout relative to its parent. in other world,arranges the view's position outside of itself.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:orientation="vertical" android:background="#666666">
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:text="Linear Layout - horizontal, gravity=center"
+        android:textColor="#FFFFFF" android:padding="2dip" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent" android:orientation="horizontal"
+        android:layout_height="0dip" android:layout_weight="1"
+        android:gravity="center" android:background="#EEEEEE">
+
+        <Button android:id="@+id/Button01" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="top"
+            android:text="top"></Button>
+        <Button android:id="@+id/Button02" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="center"
+            android:text="center"></Button>
+        <Button android:id="@+id/Button03" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="bottom"
+            android:layout_gravity="bottom"></Button>
+    </LinearLayout>
+
+    <TextView android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:text="Linear Layout - vertical, gravity=center"
+        android:textColor="#FFFFFF" android:padding="2dip" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent" android:orientation="vertical"
+        android:layout_height="0dip" android:layout_weight="1"
+        android:gravity="center" android:background="#DDDDDD">
+
+        <Button android:id="@+id/Button04" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="left"
+            android:text="left"></Button>
+        <Button android:id="@+id/Button05" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="center"
+            android:text="center"></Button>
+        <Button android:id="@+id/Button06" android:layout_height="wrap_content"
+            android:text="right" android:layout_gravity="right"
+            android:layout_width="wrap_content"></Button>
+    </LinearLayout>
+</LinearLayout>
+```
+
+![对应图解](image/LinearLayout-gravity-and-layout_gravity-explained.png)
+
+
 ### LinearLayout
+
+```java
+public class LinearLayout extends ViewGroup {
+    ...
+```
+
+
+
 
 ### RelativeLayout
 
@@ -806,13 +1214,245 @@ dependencies {
 
 ### ConstraintLayout
 
-约束布局ConstraintLayout 是一个ViewGroup，可以在Api9以上的Android系统使用它，它的出现主要是为了解决布局嵌套过多的问题，以灵活的方式定位和调整小部件。从 Android Studio 2.3 起，官方的模板默认使用 ConstraintLayout。
+[使用 ConstraintLayout 构建自适应界面](https://developer.android.com/training/constraint-layout)
 
+约束布局ConstraintLayout 是一个ViewGroup，可以在Api9以上的Android系统使用它，它的出现主要是为了解决布局嵌套过多的问题，以灵活的方式定位和调整小部件。从 Android Studio 2.3 起，官方的模板默认使用 ConstraintLayout。 依赖：
+```groovy
+//build.gradle
+    dependencies {
+        implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    }
+```
 
+[GitHub 上的约束布局示例项目](https://github.com/android/views-widgets-samples/tree/master/ConstraintLayoutExamples)
+
+强调：
+
+- 要在 ConstraintLayout 中定义某个视图的位置，您必须为该视图添加至少一个水平约束条件和一个垂直约束条件。
+- 
 
 ### AbsoluteLayout
 
 ### TableLayout
+
+# 多媒体
+
+## 通知
+
+使用场景是程序不在前台运行，但希望向用户发出提示信息显示在状态栏。通知常常在广播接收器或服务中创建。
+
+创建通知的步骤：
+
+- step0: 创建点击通知时触发的pendingIntent
+- step1: 通过Context getSystemService()获取NotificationManager
+- step2: 创建Notification对象
+- step3: 使用manage发送notification
+
+范例
+
+```java
+
+        Button button = findViewById(R.id.send_notify);
+        button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //step0
+                Intent intent = new Intent(this, NotificationActivity.class);
+                PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+                //step1
+                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                //step2 
+                //高版本需要渠道
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    //只在Android O之上需要渠道
+                    NotificationChannel notificationChannel = new NotificationChannel("channelid1", "channelname", NotificationManager.IMPORTANCE_HIGH);
+                    //如果这里用IMPORTANCE_NOENE就需要在系统的设置里面开启渠道，通知才能正常弹出
+                    manager.createNotificationChannel(notificationChannel);
+                }
+                //第二个参数channelid1需要与前面渠道保持一样
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, "channelid1");
+                Notification notification = builder.setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("通知标题")
+                        .setContentText("通知内容")
+                        .setAutoCancel(true)
+                        .setContentIntent(pi)
+                        .build();
+                //step3        
+                //发送通知
+                manager.notify(0x12, notification);
+            }
+        });
+```  
+
+## 调用摄像头
+
+调用摄像头步骤：
+
+- 启动系统的相机,这里采用startActivityForResult，指示东西放在imageUri
+
+```java
+    // 启动相机程序
+    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+    //指定图片输出地址
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+    startActivityForResult(intent, TAKE_PHOTO);
+```
+
+- 在本体的onActivityResult中处理，此时表明拍照已经完成了。
+
+- 由于程序使用了FileProvider，因此需要在androidManifest中填写对应的`<provider>`,以及在res新增一个对应的资源meta-data，具体处理见链接[Android FileProvider详细解析和踩坑指南](https://blog.csdn.net/wxz1179503422/article/details/84874171)
+
+例子：
+
+```java
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private ImageView picture;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        picture = (ImageView) findViewById(R.id.picture);
+        Button takePhoto = (Button) findViewById(R.id.take_photo);
+        Button chooseFromAlbum = (Button) findViewById(R.id.choose_from_album);
+        takePhoto.setOnClickListener(this);
+        chooseFromAlbum.setOnClickListener(this);
+    }
+
+    private Uri imageUri;
+    public static final int TAKE_PHOTO = 1;
+    public static final int CHOOSE_PHOTO = 2;
+
+    @Override
+    public void onClick(View v) {
+        int from = v.getId();
+
+        switch (from) {
+            case R.id.take_photo:
+                // 创建File对象，用于存储拍照后的图片
+                File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+                try {
+                    if (outputImage.exists()) {
+                        outputImage.delete();
+                    }
+                    outputImage.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (android.os.Build.VERSION.SDK_INT < 24) {
+                    imageUri = Uri.fromFile(outputImage);
+                } else {
+                    imageUri = FileProvider.getUriForFile(MainActivity.this, /*任意唯一字符串*/"com.example.cameraalbumtest.fileprovider", outputImage);
+                }
+                // 启动相机程序
+                Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                //指定图片输出地址
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(intent, TAKE_PHOTO);
+                break;
+            case R.id.choose_from_album:
+                break;
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case TAKE_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        // 将拍摄的照片显示出来
+                        //通过decodeStream将图片转换为bitmap
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                        //设置到ImageView，从而显示
+                        picture.setImageBitmap(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+//            case CHOOSE_PHOTO:
+//                if (resultCode == RESULT_OK) {
+//                    // 判断手机系统版本号
+//                    if (Build.VERSION.SDK_INT >= 19) {
+//                        // 4.4及以上系统使用这个方法处理图片
+//                        handleImageOnKitKat(data);
+//                    } else {
+//                        // 4.4以下系统使用这个方法处理图片
+//                        handleImageBeforeKitKat(data);
+//                    }
+//                }
+//                break;
+            default:
+                break;
+        }
+
+    }
+
+
+}
+```
+
+andoid Manifest修改
+```xml
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.cameraalbumtest.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        <!--为了兼容老版本，新增加下面的权限-->
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+```
+
+新建“res\xml\file_paths.xml”
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path name="my_images" path="" />
+</paths>
+```
+
+## 调用相册  todo
+
+- step1: 处理运行时权限
+- step2: 
+
+```java
+    ...
+    @Override
+    public void onClick(View v) {
+        int from = v.getId();
+
+        switch (from) {
+            case R.id.take_photo:
+                ...
+            case R.id.choose_from_album:
+                //step1：处理运行时权限
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission. WRITE_EXTERNAL_STORAGE }, 1);
+                } else {
+                    //step2
+                    openAlbum();
+                }            
+                break;
+        }
+
+    }
+```
+
+## 播放多媒体  TODO
+
+# android 网络技术  todo
+
 
 
 # sdk tools
@@ -841,3 +1481,9 @@ $adb devices -l
 List of devices attached
 022AUM7N38080574       device product:P6-C00 model:HUAWEI_P6_C00 device:hwp6-c00 transport_id:2
 ``` 
+
+
+# JetPack 
+
+[JetPack ](https://developer.android.google.cn/jetpack/docs/getting-started)不是一个库。更多的是Google的一个态度
+

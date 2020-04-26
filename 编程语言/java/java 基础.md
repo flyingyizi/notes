@@ -9,7 +9,7 @@
 
 
 1. 设置环境变量: JAVA_HOME
-2. 设置环境变量(后面有个.): CLASSPATH=.;%%JAVA_HOME%%\lib\dt.jar;%%JAVA_HOME%%\lib\tools.jar;  
+2. 设置环境变量(不推荐): CLASSPATH=.;%%JAVA_HOME%%\lib\dt.jar;%%JAVA_HOME%%\lib\tools.jar;  
 3. 设置环境变量: 追加PATH=%%JAVA_HOME%%\bin;%%JAVA_HOME%%\jre\bin;  
 
 [groovy教程](https://www.w3cschool.cn/groovy/)
@@ -62,6 +62,16 @@ Hello world.
 
 c:\home\mydemo\helloWord\src\main\java\helloWord>
 ```
+
+或我们将程序打包了生成了jar文件(主程序所在package是com.example.d)，那可以
+
+```sh
+$dir
+2020/04/16  16:38             7,216 gradletest.jar
+$java -cp .\gradletest.jar  com.example.d.App
+Hello world.
+```
+
 
 ## java 基础语法
 
@@ -283,46 +293,20 @@ try{
    - 如果你想实现多重继承，那么你必须使用接口。由于Java不支持多继承，子类不能够继承多个类，但可以实现多个接口。因此你就可以使用接口来解决它。
    - 如果基本功能在不断改变，那么就需要使用抽象类。如果不断改变基本功能并且使用接口，那么就需要改变所有实现了该接口的类。
 
-### Java 泛型
+对下面代码，正确理解应该是你创建了一个匿名内部类，并且这个类实现了对应的interface。其中@Override注解的作用是告知编译器需要检查使用了正确方法名字。参见[Can you instantiate an interface in Java?](https://www.remwebdevelopment.com/blog/can-you-instantiate-an-interface-in-java-373.html)
 
-在严格的泛型代码里，带泛型声明的类(e.g " `public class Apple <T> {}`")总应该带着类型参数。但为了与老的Java 代码保持一致，也允许在使用带泛型声明的类时不指定实际的类型参数。如果没有为这个泛型类指定实际的类型参数，则该类型参数被称作raw type （原始类型），默认是声明该类型参数时指定的第一个上限类型。
-
-例如对" `public class Apple <T> {}`", "new Apple()"使用时，类型参数会默认为Object。
-
-例如对" `public class Apple <T extends Number> {}`", "new Apple()"使用时，类型参数会默认为Number。
-
-当把一个具有泛型信息的对象赋给另一个没有泛型信息的变量时，所有在尖括号之间的类型信息都
-将被扔掉。比如一个List<String>类型被转换为List ， 则该List 对集合元素的类型检查变成了类型参数的上限(即Object).下面程序示范了这种擦除。
-
-对类似定义的泛型类，在使用时如果没有传入实际的类型参数T，那系统会将`Apple<T>`类中的T当作Object类型处理。
-
-
-
-语法举例
 
 ```java
-public static <T extends Comparable<T>> T maximum(T x, T y, T z)
-   {                     
-      T max = x; // 假设x是初始最大值
-      if ( y.compareTo( max ) > 0 ){
-         max = y; //y 更大
-      }
+public interface MyInterface{
+  public void myMethod();
+}
+MyInterface myInterface = new MyInterface(){
+  @Override
+  public void myMethod(){
+    //some code goes here...
+  }
+};
 ```
-
-类型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等所有List<具体类型实参>的父类。
-
-```java
-public static void getData(List<?> data) {
-      System.out.println("data :" + data.get(0));
-   }
-```
-
-`<? extends T>和<? super T>`的区别
-   
-   -  `<? extends T>`表示该通配符所代表的类型是T类型的子类。
-   -  `<? super T>`表示该通配符所代表的类型是T类型的父类。
-
-
 
 ### java软引用、弱引用
 
@@ -360,48 +344,6 @@ public void addBitmapToCache(String path) {
     }
 ```
 
-### lambda表达式
-
-Lambda 表达式支持将代码块作为方法参数，
-
-Java 8 专门为函数式接口提供了`@FunctionalInterface` 注解，该注解通常放在接口定义前面，该注解程序功能没有任何作用， 它用于告诉编译器执行史严格检查一检查该接口必须是函数式接口， 否则编译器就会报错．
-
-所谓函数式接口，当然首先是一个接口，然后就是在这个接口里面只能有一个抽象方法。这种类型的接口也称为SAM接口，即Single Abstract Method interfaces
-
-函数式特点
-
-   - 接口有且仅有一个抽象方法
-   - 允许定义静态方法
-   - 允许定义默认方法
-   - 允许java.lang.Object中的public方法
-   - @FunctionalInterface注解不是必须的，如果一个接口符合"函数式接口"定义，那么加不加该注解都没有影响。加上该注解能够更好地让编译器进行检查。如果编写的不是函数式接口，但是加上了@FunctionalInterface，那么编译器会报错
-
-函数式接口定义举例
-
-```java
-    @FunctionalInterface
-    interface GreetingService 
-    {
-        void sayMessage(String message);
-        //默认方式不是抽象方法，因此合法
-        default void doSomeMoreWork1(){System.out.println("call by default method ");}
-    }
-    public static void main(final String[] args) throws IOException {
-        // Employee emp = new Employee("name");
-        // emp.printEmployee();
-        GreetingService greetService1 = message -> System.out.println("Hello " + message);
-        greetService1.sayMessage("message");
-        greetService1.doSomeMoreWork1();
-    }
-}
-```
-
-Runnable 是java内置提供的函数式接口
-```java
-        Runnable r = () -> {
-            System.out.println("x");
-        }
-```
 
 ### 源文件声明规则
 
@@ -503,15 +445,180 @@ dependencies {
 }
 ```
 
-## 与C++配合
 
-加载文件和动态链接库主要对native 方法有用，对于一些特殊的功能（如访问操作系统底层硬件设备等） Java 程序元法实现，必须借助C 语言来完成，此时需要使用C 语言为Java 方法提供实现。其实现步骤如下：
-- Java 程序中声明native 修饰的方法， 类似于abstract 方法，只有方法签名，没有实现．编译该Java 程序，生成一个class 文件．
-- 用javah 编译第1 步生成的class 文件，将产生一个h 文件。
-- 写一个.cpp 文件实现native 方法，这一步需要包含第2 步产生的. h 文件（这个.h文件中又包含了JDK 带的jni.h 文件），
-- 将第3 步的.cpp 文件编译成动态链接库文件。
-- 在Java中用System 类的loadLibrary..()方法或Runtime 类的loadLibrary..()方法加载
-- 第4 步产生的动态链接库文件， Java 程序中就可以调用这个native 方法了。
+## 函数式编程
+
+
+### lambda表达式
+
+Lambda表达式的写法如下，它只需要写出方法定义：
+```java
+//参数是(s1, s2), -> { ... }表示方法体
+(s1, s2) -> {
+    return s1.compareTo(s2);
+}
+```
+
+Lambda 表达式支持将代码块作为方法参数，
+
+### FunctionalInterface单方法接口
+
+Java 8 专门为函数式接口提供了`@FunctionalInterface` 注解，该注解通常放在接口定义前面，该注解程序功能没有任何作用， 它用于告诉编译器执行史严格检查一检查该接口必须是函数式接口， 否则编译器就会报错．
+
+所谓函数式接口，当然首先是一个接口，然后就是在这个接口里面只能有一个抽象方法。这种类型的接口也称为SAM接口，即Single Abstract Method interfaces
+
+
+函数式特点
+
+   - 接口有且仅有一个抽象方法
+   - 允许定义静态方法
+   - 允许定义默认方法
+   - 允许java.lang.Object中的public方法
+   - @FunctionalInterface注解不是必须的，如果一个接口符合"函数式接口"定义，那么加不加该注解都没有影响。加上该注解能够更好地让编译器进行检查。如果编写的不是函数式接口，但是加上了@FunctionalInterface，那么编译器会报错
+
+函数式接口定义举例
+
+对functional interface赋值，可以是lambda表达式，也可以是直接传入方法引用。
+
+- lambda表达式赋值
+ 
+```java
+    @FunctionalInterface
+    interface GreetingService 
+    {
+        void sayMessage(String message);
+        //默认方式不是抽象方法，因此合法
+        default void doSomeMoreWork1(){System.out.println("call by default method ");}
+    }
+    public static void main(final String[] args) throws IOException {
+        // Employee emp = new Employee("name");
+        // emp.printEmployee();
+        GreetingService greetService1 = message -> System.out.println("Hello " + message);
+        greetService1.sayMessage("message");
+        greetService1.doSomeMoreWork1();
+    }
+}
+```
+
+- 方法引用赋值
+
+```java
+public class App {
+    public static void main(String[] args) {
+        String[] array = new String[] { "Apple", "Orange", "Banana", "Lemon" };
+        // 方法引用赋值
+        Arrays.sort(array, App::cmp);
+        System.out.println(String.join(", ", array));
+
+    }
+
+    static int cmp(String s1, String s2)  {
+        return s1.compareTo(s2);
+    }
+}
+
+```
+
+Runnable 是java内置提供的函数式接口
+
+```java
+@FunctionalInterface
+public interface Runnable {
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see     java.lang.Thread#run()
+     */
+    public abstract void run();
+}
+```
+
+```java
+        Runnable r = () -> {
+            System.out.println("x");
+        }
+```
+
+
+
+## Java 泛型
+
+在严格的泛型代码里，带泛型声明的类(e.g " `public class Apple <T> {}`")总应该带着类型参数。但为了与老的Java 代码保持一致，也允许在使用带泛型声明的类时不指定实际的类型参数。如果没有为这个泛型类指定实际的类型参数，则该类型参数被称作raw type （原始类型），默认是声明该类型参数时指定的第一个上限类型。
+
+例如对" `public class Apple <T> {}`", "new Apple()"使用时，类型参数会默认为Object。
+
+例如对" `public class Apple <T extends Number> {}`", "new Apple()"使用时，类型参数会默认为Number。
+
+当把一个具有泛型信息的对象赋给另一个没有泛型信息的变量时，所有在尖括号之间的类型信息都
+将被扔掉。比如一个List<String>类型被转换为List ， 则该List 对集合元素的类型检查变成了类型参数的上限(即Object).下面程序示范了这种擦除。
+
+对类似定义的泛型类，在使用时如果没有传入实际的类型参数T，那系统会将`Apple<T>`类中的T当作Object类型处理。
+
+参见[Java 泛型方法和构造函数](https://www.w3cschool.cn/java/java-generic-methods-constructors.html)
+
+语法举例
+
+```java
+public static <T extends Comparable<T>> T maximum(T x, T y, T z)
+   {                     
+      T max = x; // 假设x是初始最大值
+      if ( y.compareTo( max ) > 0 ){
+         max = y; //y 更大
+      }
+```
+
+### 泛型参数
+
+类型通配符一般是使用?代替具体的类型参数。例如 List<?> 在逻辑上是List<String>,List<Integer> 等所有List<具体类型实参>的父类。
+
+```java
+public static void getData(List<?> data) {
+      System.out.println("data :" + data.get(0));
+   }
+```
+
+`<? extends T>和<? super T>`的区别
+   
+   -  `<? extends T>`表示该通配符所代表的类型是T类型的子类。
+   -  `<? super T>`表示该通配符所代表的类型是T类型的父类。
+
+
+### 泛型method
+
+下面是泛型method的表示方法，说明见[文档](https://docs.oracle.com/javase/tutorial/java/generics/methods.html)
+
+```java
+public static <K, V> HashMultimap<K, V> create() {
+    return new HashMultimap<>();
+  }
+//使用 
+//Multimap<Integer, Integer> map = HashMultimap.<Integer, Integer>create();  
+```
+
+另一个例子
+
+```java
+public class Util {
+    public static <K, V> boolean compare(Pair<K, V> p1, Pair<K, V> p2) {
+        return ...;
+    }
+}
+
+public class Pair<K, V> {
+...
+}
+// 使用
+//Pair<Integer, String> p1 = new Pair<>(1, "apple");
+//Pair<Integer, String> p2 = new Pair<>(2, "pear");
+//boolean same = Util.<Integer, String>compare(p1, p2);
+```
+
 
 ## 正则
 
@@ -692,6 +799,74 @@ class Person {
 
 ## java 调用native动态库
 
+### JNI方式
+
+加载文件和动态链接库主要对native 方法有用，对于一些特殊的功能（如访问操作系统底层硬件设备等） Java 程序元法实现，必须借助C 语言来完成，此时需要使用C 语言为Java 方法提供实现。其实现步骤如下：
+
+- Java 程序中声明native 修饰的方法， 类似于abstract 方法，只有方法签名，没有实现．编译该Java 程序，生成一个class 文件．
+
+```sh
+$javac HelloWorld.java  
+```
+
+- 用javah 编译第1 步生成的class 文件，将产生一个h 文件。
+
+```sh
+$javah -jni HelloWorld  
+#得到HelloWorld.h文件
+```
+
+- 写一个.cpp 文件实现native 方法，这一步需要包含第2 步产生的. h 文件（这个.h文件中又包含了JDK 带的jni.h 文件），
+
+```sh
+$vi HelloWorldImpl.cpp
+```
+
+- 将第3 步的.cpp 文件编译成动态链接库文件。
+
+```sh
+$cl/LD D:\JNI\HelloWorldImpl.cpp 
+#得到HelloWorldImpl.dll
+```
+
+- 在Java中用System 类的loadLibrary..()方法或Runtime 类的loadLibrary..()方法加载
+- 第4 步产生的动态链接库文件， Java 程序中就可以调用这个native 方法了。
+
+附1： HelloWorld.java 文件
+
+```java
+public class HelloWorld {  
+    public native void displayHelloWorld();// java native方法申明  
+  
+    static {  
+        System.loadLibrary("HelloWorldImpl");// 装入动态链接库，"HelloWorldImpl"是要装入的动态链接库名称。  
+    }  
+  
+    public static void main(String[] args) {  
+        // TODO Auto-generated method stub  
+        HelloWorld helloWorld = new HelloWorld();  
+        helloWorld.displayHelloWorld();  
+    }  
+}  
+```
+
+附2：HelloWorldImpl.cpp 文件
+
+```cpp
+#include "HelloWorld.h"
+#include <stdio.h>
+#include <jni.h>
+
+JNIEXPORT void JNICALL Java_HelloWorld_displayHelloWorld
+  (JNIEnv *, jobject)
+ {
+    printf("Hello World!\n");
+    return;
+}
+```
+
+### JNA方式
+
 Java调用Native的动态库有两种方式，JNI和JNA，[JNA](https://github.com/java-native-access/jna)是Oracle最新推出的与Native交互的方式。
 
 [JNA Examples](https://www.eshayne.com/jnaex/index.html)
@@ -789,6 +964,8 @@ public class App {
 
 
 # gradle
+
+下面涉及到gradle代码样例的，均是在gradle 6.1.1版本下实验
 
 去看 <Android Gradle权威指南>
 
@@ -1124,16 +1301,117 @@ android {
 
 ## java gradle: jar打包
 
-如果通过gradle init生成的模板是适用application的。 没有jar设置。因此如果打包jar要运行，需要增加对应的信息，比如为manifest.mf中做些下面的准备。
+如果通过gradle init(具体命令可查看`gradle  help --task  init`)生成的模板是适用application的。 没有jar设置。因此如果打包jar要运行，需要增加对应的信息，比如为manifest.mf中做些下面的准备。
 
 ```groovy
+
 jar {
-      manifest {
-        attributes(
-          'Main-Class': 'helloWord.App'
-        )
-      }
+    manifest.attributes(
+        'Main-Class': 'com.example.netty.demo.App',
+        //'Class-Path': configurations.runtimeClasspath.files.collect { it.toURI().toString() }.join(' ')
+        'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
+    )
 }
 ```
 
+为了改变jar存放的位置，可以采用类似`files.collect { jarDir+"/$it.name" }.join(' ')`的语法，其中jarDir通过`$ gradle build -PjarDir="/opt/silly/path/"`传递进去。
+
+
+对上面这种填写了jar包中“META-INF/MANIFEST.MF”信息的jar包，执行时可以类似
+```sh
+C:\tuxueqing\gradletest\build\libs>dir
+2020/04/16  16:51             7,247 gradletest.jar
+
+C:\tuxueqing\gradletest\build\libs>java -jar gradletest.jar
+Hello world.
+```
+不然就要采用类似
+```java
+C:\tuxueqing\gradletest\build\libs>dir
+2020/04/16  16:51             7,247 gradletest.jar
+
+C:\tuxueqing\gradletest\build\libs>java -cp .\gradletest.jar  com.example.d.App
+```
+
 ## checkStyle & findBug & PMD 插件
+
+
+## cpp gradle
+
+参考 [Building native software](https://s0docs0gradle0org.icopy.site/current/userguide/native_software.html), [或](https://docs.gradle.org/current/userguide/native_software.html)
+
+- 添加msys2 gcc支持的例子。
+```groovy
+model {
+    toolChains {
+        visualCpp(VisualCpp) {
+            // Specify the installDir if Visual Studio cannot be located
+            // installDir "C:/Apps/Microsoft Visual Studio 10.0"
+        }
+        gcc(Gcc) {
+            // Uncomment to use a GCC install that is not in the PATH
+            // path "/usr/bin/gcc"
+            path "c:/Users/atmel/.konan/dependencies/msys2-mingw-w64-x86_64-clang-llvm-lld-compiler_rt-8.0.1/bin"
+        }
+        clang(Clang)
+    }
+}
+```
+
+# tool
+
+## jps
+
+显示当前所有java进程pid的命令
+
+```sh
+$ jps 
+
+11568 DeadlockProgram 
+15584 Jps 
+15636 
+```
+
+The first column is the local virtual machine identifier (Local VM ID, i.e. lvmid) for the running Java process. In the context of the local JVM, lvmid points to the PID of the Java process.
+
+
+[Windows下jps, jconsole无法查看本地java进程问题解决](https://my.oschina.net/shipley/blog/690359). 运行`System.out.println(System.getProperties());`
+
+简单描述解决方案就是：得到“java.io.tmpdir”属性值，这个属性值存放的是个目录名字。 确保当前用户对该目录有完全权限。
+
+相关参数
+
+
+```text
+-v  输出传递给JVM的参数 
+
+-l 参数输出应用程序main class的完整package名 或者 应用程序的jar文件完整路径名
+
+-m 参数 输出传递给main 方法的参数
+
+```
+
+## jstack
+
+[jvm 性能调优工具之 jstack](https://www.jianshu.com/p/025cb069cb69)
+
+[How to Read a Thread Dump](https://dzone.com/articles/how-to-read-a-thread-dump)
+
+[How to analyze Thread Dump](https://weekly-geekly.github.io/articles/427513/index.html)
+
+通常通过使用 jps 命令获取需要监控的进程的pid，然后使用 jstack -l pid 命令查看线程的堆栈信息。
+
+例如，如下方式获得dump信息
+
+```
+jstack -l 11568 > thread_dump.txt 
+```
+
+在linux下还有另外一种方式获得dump信息
+If you use JDK up to version 7, then you can use the Linux utility - kill with the -3 flag to generate a dump. Calling `kill -3` will send a SIGQUIT signal to the program.
+
+In our case, the call will be like this:
+```sh
+ kill -3 11568 
+ ```
+
