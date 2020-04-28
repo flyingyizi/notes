@@ -1415,3 +1415,48 @@ In our case, the call will be like this:
  kill -3 11568 
  ```
 
+## jmx
+
+JMX(Java Management Extensions)是一个为应用程序植入管理功能的框架
+
+[JMX超详细解读](https://www.cnblogs.com/dongguacai/p/5900507.html)
+
+```java
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+
+/**
+ * 下面使用JMX来查看一个普通的Java程序包含哪些线程
+ */
+public class MultiThread {
+
+    public static void main(String[] args) {
+        // 获取Java线程管理MXBean
+        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        // 不需要获取同步的monitor和synchronizer信息，仅仅获取线程和线程堆栈信息
+        ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
+        // 遍历线程信息，仅打印线程ID和线程名称信息
+        for (ThreadInfo threadInfo : threadInfos) {
+            System.out.println("[" + threadInfo.getThreadId() + "] " + threadInfo.getThreadName());
+        }
+    }
+}
+```
+
+## javap
+
+通过javap命令分析java汇编指令
+
+一般常用的是-v -l -c三个选项。
+
+- javap -v classxx，不仅会输出行号、本地变量表信息、反编译汇编代码，还会输出当前类用到的常量池等信息。
+- javap -l 会输出行号和本地变量表信息。
+- javap -c 会对当前class字节码进行反编译生成汇编代码。
+
+查看汇编代码时，需要知道里面的jvm指令，可以参考[官方文档](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-6.html)：
+
+另外通过jclasslib工具也可以看到上面这些信息，而且是可视化的，效果更好一些。例如在idea安装jclasslib插件，然后使用时直接选择 View --> Show Bytecode With jclasslib。
+
+[通过javap命令分析java汇编指令](https://www.jianshu.com/p/6a8997560b05)
+
