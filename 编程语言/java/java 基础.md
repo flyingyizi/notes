@@ -727,6 +727,77 @@ HashMap举例
         }
 ```
 
+## 类加载器
+
+系统会通过加载、连接、初始化三个步骤来对该类进行初始化。
+
+- 类加载:指的是将类的class 文件读入内存，并为之创建一个java.lang.Class 对象，也就是说， 当程序中使用任何类时，系统都会为之建立一个java. lang.Class 对象。
+
+- 类的连接：当类被加载之后，系统为之生成一个对应的Class 对象，接着将会进入连接阶段，连接阶段负责把类的二进制数据合并到JRE 中。类连接又可分为如下三个阶段。
+
+  - (I)验证： 验证阶段用于检验被加载的类是否有正确的内部结构，井和其他类协调一致。
+  - (2)准备：类准备阶段则负责为类的类变量分配内存，井设置默认初始值。
+  - (3)解析： 将类的二进制数据中的符号引用替换成直接引用。
+
+- 类的初始化: 在类的该阶段，虚拟机负责对类进行初始化，主要就是对类变量进行初始化。
+
+- 自定义的类加载器
+
+```java
+public class MyClassLoader extends ClassLoader {
+
+  public Class<?> loadData(String className,String filePath) throws Exception {
+    final Path path = Paths.get(filePath);
+
+    byte[] data = Files.readAllBytes(path);
+
+    if (data == null) {
+      return null;
+    }
+    return defineClass(className, data, 0, data.length);
+  }
+}
+```
+
+- 使用该自定义类加载器
+
+```java
+//演示用class
+public class Message {
+  public void send(){
+    System.out.println("send() is invoked");
+  }
+}
+
+public class App {
+    public static void main(String[] args) {
+        MyClassLoader classLoader = new MyClassLoader();//实例化自定义类加载器
+        Class<?> clazz= null;
+        try {
+            clazz = classLoader.loadData("com.example.helloWord.Message",
+                "C:\\home\\mydemo\\helloWord\\build\\classes\\java\\main\\com\\example\\helloWord\\Message.class");
+            Object obj = clazz.getDeclaredConstructor().newInstance();
+            Method method = clazz.getDeclaredMethod("send");
+            method.invoke(obj);
+
+            System.out.printf("class-loader:\n\t%s\n",clazz.getClassLoader());
+            System.out.printf("class-loader's parent:\n\t%s\n",clazz.getClassLoader().getParent());
+            System.out.printf("parent of the class-loader's parent:\n\t%s\n",clazz.getClassLoader().getParent().getParent());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+//输出：
+// send() is invoked
+// class-loader:
+// 	com.example.helloWord.MyClassLoader@4361bd48
+// class-loader's parent:
+// 	jdk.internal.loader.ClassLoaders$AppClassLoader@6d5380c2
+// parent of the class-loader's parent:
+// 	jdk.internal.loader.ClassLoaders$PlatformClassLoader@7a79be86
+```
 
 
 ## java 反射reflect
@@ -812,8 +883,8 @@ $javac HelloWorld.java
 - 用javah 编译第1 步生成的class 文件，将产生一个h 文件。
 
 ```sh
-$javah -jni HelloWorld  
 #得到HelloWorld.h文件
+$javah -jni HelloWorld  
 ```
 
 - 写一个.cpp 文件实现native 方法，这一步需要包含第2 步产生的. h 文件（这个.h文件中又包含了JDK 带的jni.h 文件），
@@ -825,8 +896,8 @@ $vi HelloWorldImpl.cpp
 - 将第3 步的.cpp 文件编译成动态链接库文件。
 
 ```sh
-$cl/LD D:\JNI\HelloWorldImpl.cpp 
 #得到HelloWorldImpl.dll
+$cl/LD D:\JNI\HelloWorldImpl.cpp 
 ```
 
 - 在Java中用System 类的loadLibrary..()方法或Runtime 类的loadLibrary..()方法加载
@@ -965,7 +1036,7 @@ public class App {
 
 # gradle
 
-下面涉及到gradle代码样例的，均是在gradle 6.1.1版本下实验
+下面涉及到gradle代码样例的，均是在gradle 6.1.1版本下实验。 groovy代码在类似idea环境，建议安装`Cucumber for Groovy `plugin, 这样查看groovy代码方便。
 
 去看 <Android Gradle权威指南>
 
@@ -991,6 +1062,8 @@ tasks.withType(JavaCompile) {
 
 设置 GRADLE_HOME 环境变量， 设置%GRADLE_HOME\bin% PATH 。运行`gradle -v` 查看输出是否正确验证安装成功。
 
+### 加速仓库访问
+
 加速仓库访问，在`~/init.gradle`中增加如下代理设置
 ```groovy
 allprojects { 
@@ -1012,6 +1085,7 @@ allprojects {
 } 
 ```
 
+### 指定脚本文件
 
 执行Gradle 命令的时候，会默认加载当前目录下的build.gradle 脚本文件。当然你也可以通过'- b' 参数指定想要加载执行的文件。
 
@@ -1039,9 +1113,22 @@ gradleVersion = '4.4.1'
 
 这样我们再执行`gradle wrapper` 的时候， 就会默认生成4.4.1 版本的wrapper 了，而不用使用--gradle-version 4.4.1 进行指定了。
 
+### 指定JDK
+
+- 方式一，如
+
+```sh
+#$gradle build -Dorg.gradle.java.home=/JDK_PATH
+$gradle clean build  -Dorg.gradle.java.home="C:\\prog\\Java\\jdk1.8.0_144" 
+```
+
+- 方式二，
+
+In gradle.properties in the .gradle directory in your HOME_DIRECTORY set org.gradle.java.home=/path_to_jdk_directory
+
 ## gradle 脚本基础
 
-### setting文件
+### setting.gradle文件
 
 setting文件用于初始化以及工程树的配置。设置文件的默认名字是`settings.gradle` ，放在根工程目录下。
 设置文件大多数的作用都是为了配置子工程。在Gradle 中多工程是通过工程树表示的，就相当于我们在Android Studio 看到的Project 和Modul e 概念一样。根工程相当于Android Studio 中的Project ，一个根工程可以有很多子工程， 也就是很多Module ，这样就和Android Studio 定义的Module 概念对应上了。 一个子工程只有在Settings 文件里配置了Gradle 才会识别，才会在构建的时候被包含进去
@@ -1053,9 +1140,29 @@ include ':example02'
 project (':example02').projectDir =new File(rootDir, 'chapter01/example02')
 ```
 
-### build文件
+### build.gradle文件
 
 每个Project 都会有一个Build 文件，该文件是该Project 构建的入口，可以在这里针对该Project 进行配置，比如配置版本， 需要哪些插件， 依赖哪些库等。
+
+- 配置依赖举例
+
+```groovy
+dependencies {
+  //for dependencies found in artifact repositories you can use
+  //the group:name:version notation
+  implementation 'commons-lang:commons-lang:2.6'
+  testImplementation 'org.mockito:mockito:1.9.0-rc1'
+
+  //map-style notation:
+  implementation group: 'com.google.code.guice', name: 'guice', version: '1.0'
+
+  //declaring arbitrary files as dependencies
+  implementation files('hibernate.jar', 'libs/spring.jar')
+
+  //putting all jars from 'libs' onto compile classpath
+  implementation fileTree('libs')
+}
+```
 
 ### projects与tasks
 在Gradle 中，可以有很多Project ，你可以定义创建一个P时ect 用于生成一个jar ，也可以定义另外一个Project 用于生成一个war 包，还可以定
@@ -1459,4 +1566,9 @@ public class MultiThread {
 另外通过jclasslib工具也可以看到上面这些信息，而且是可视化的，效果更好一些。例如在idea安装jclasslib插件，然后使用时直接选择 View --> Show Bytecode With jclasslib。
 
 [通过javap命令分析java汇编指令](https://www.jianshu.com/p/6a8997560b05)
+
+## jpackage（不可用）
+
+JDK14引入的打包工具，[Use jpackage to Create Native Java App Installers](https://www.devdungeon.com/content/use-jpackage-create-native-java-app-installers)里面有个简单介绍.  JDK14实操来看，还不可用，简单命令都会出错
+
 
