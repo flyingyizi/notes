@@ -6,7 +6,10 @@
 
 基本使用
 
-Java中的每一个对象都可以作为锁。具体表现为以下3种形式。
+在java中，每一个对象有且仅有一个同步锁。这也意味着，同步锁是依赖于对象而存在。
+当我们调用某对象的synchronized方法时，就获取了该对象的同步锁。例如，synchronized(obj)就获取了“obj这个对象”的同步锁。
+
+使用锁具体表现为以下3种形式。
 
 [Guide to the Synchronized Keyword in Java](https://www.baeldung.com/java-synchronized)
 
@@ -89,7 +92,6 @@ public void givenMultiThread_whenBlockSync() {
     assertEquals(1000, synchronizedBlocks.getCount());
 }
 ```
-
 
 现在我们介绍避免死锁的几个常见方法。
 
@@ -257,7 +259,8 @@ System.out.println("BusyThread interrupted is " + busyThread.isInterrupted());
 
 [Java多线程系列--“基础篇”08之 join()](https://www.cnblogs.com/skywang12345/p/3479275.html)
 
-join() 的作用：让“主线程”等待“子线程”结束之后才能继续运行。
+- join() 的作用：让“主线程”等待“子线程”结束之后才能继续运行。
+- yield()的作用是：暂停当前正在执行的线程对象，并执行其他线程。
 
 下面的例子，在Father主线程中，通过new Son()新建“子线程s”。接着通过s.start()启动“子线程s”，并且调用s.join()。在调用s.join()之后，Father主线程会一直等待，直到“子线程s”运行完毕；在“子线程s”运行完毕之后，Father主线程才能接着运行。 这也就是我们所说的“join()的作用，是让主线程会等待子线程结束之后才能继续运行”！
 
@@ -294,7 +297,68 @@ Object类中关于等待/唤醒的API详细信息如下：
 - wait(long timeout)    -- 让当前线程处于“等待(阻塞)状态”，“直到其他线程调用此对象的 notify() 方法或 notifyAll() 方法，或者超过指定的时间量”，当前线程被唤醒(进入“就绪状态”)。
 - wait(long timeout, int nanos)  -- 让当前线程处于“等待(阻塞)状态”，“直到其他线程调用此对象的 notify() 方法或 notifyAll() 方法，或者其他某个线程中断当前线程，或者已超过某个实际时间量”，当前线程被唤醒(进入“就绪状态”)。
 
+对下面的sample，
 
+```java
+class ThreadA extends Thread {
+  public ThreadA(String name) {
+    super(name);
+  }
+
+  @Override
+  public void run() {
+//    super.run();
+    synchronized (this) {
+      System.out.println(Thread.currentThread().getName() + " call notify()");
+      // 唤醒当前的wait线程
+      notify();
+    }
+
+  }
+
+}
+
+public class App {
+  public String getGreeting() {
+    return "Hello world.";
+  }
+
+  public static void main(String[] args) {
+
+    ThreadA t1 = new ThreadA("t1");
+
+    synchronized (t1) {
+      try {
+        // 启动“线程t1”
+        System.out.println(Thread.currentThread().getName() + " start t1");
+        t1.start();
+
+        // 主线程等待t1通过notify()唤醒。
+        System.out.println(Thread.currentThread().getName() + " wait()");
+        t1.wait();
+
+        System.out.println(Thread.currentThread().getName() + " continue");
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+  }
+}
+// 运行结果
+// main start t1
+// main wait()
+// t1 call notify()
+// main continue
+
+```
+
+结果说明： 注意，图中"主线程" 代表“主线程main”。"线程t1" 代表WaitTest中启动的“线程t1”。 而“锁” 代表“t1这个对象的同步锁”。
+
+- (01) “主线程main”通过 new ThreadA("t1") 新建“线程t1”。随后通过synchronized(t1)获取“t1对象的同步锁”。然后调用t1.start()启动“线程t1”。
+- (02) “主线程main”执行t1.wait() 释放“t1对象的锁”并且进入“等待(阻塞)状态”。等待t1对象上的线程通过notify() 或 notifyAll()将其唤醒。
+- (03) “线程t1”运行之后，通过synchronized(this)获取“当前对象的锁”；接着调用notify()唤醒“当前对象上的等待线程”，也就是唤醒“主线程main”。
+- (04) “线程t1”运行完毕之后，释放“当前对象的锁”。紧接着，“主线程main”获取“t1对象的锁”，然后接着运行。
 
 # 
 
