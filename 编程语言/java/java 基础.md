@@ -215,8 +215,6 @@ s[1][2] = new String("!");
 
 Calendar本身是个抽象类，程序只能创建Calendar 子类的实例， Java 本身提供了一个GregorianCalendar 类，一个代表格里高利日历的子类，它代表了通常所说的公历。
 
-
-
 [Java 格式化输出 printf 例子](https://www.runoob.com/w3cnote/java-printf-formate-demo.html)
 
 ```java
@@ -938,13 +936,40 @@ JNIEXPORT void JNICALL Java_HelloWorld_displayHelloWorld
 
 ### JNA方式
 
-Java调用Native的动态库有两种方式，JNI和JNA，[JNA](https://github.com/java-native-access/jna)是Oracle最新推出的与Native交互的方式。
+Java调用Native的动态库有两种方式，JNI和JNA，JNA是Oracle最新推出的与Native交互的方式。 在JNA开发时，有个好用工具[jnaerator](https://code.google.com/archive/p/jnaerator/)
+
+[JNA 官方文档](https://github.com/java-native-access/jna#using-the-library)
+
+[JNA 官方API文档](http://java-native-access.github.io/jna/3.5.1/javadoc/com/sun/jna/package-summary.html)
 
 [JNA Examples](https://www.eshayne.com/jnaex/index.html)
 
 ![JNA调用过程](image/JNA调用过程.png)
 
 注：JNA中，它提供了一个动态的C语言编写的转发器，可以自动实现Java和C的数据类型映射。
+
+
+[Default Type Mappings](https://github.com/java-native-access/jna/blob/master/www/Mappings.md)
+=====================
+
+Java primitive types (and their object equivalents) map directly to the native C type of the same size.
+
+|Native Type|Size            |Java Type   |Common Windows Types|
+|-------|--------------------|------------|-----------|
+|char   |8-bit integer       |byte        |BYTE, TCHAR|
+|short  |16-bit integer      |short       |WORD       |
+|wchar_t|16/32-bit character |char        |TCHAR      |
+|int    |32-bit integer      |int         |DWORD      |
+|int    |boolean value       |boolean     |BOOL       |
+|long   |32/64-bit integer   |NativeLong  |LONG       |
+|long long|64-bit integer    |long        |__int64    |
+|float  |32-bit FP           |float       |           |
+|double |64-bit FP           |double      |           |
+|char*  |C string            |String      |LPCSTR     |
+|void*  |pointer             |Pointer     |LPVOID, HANDLE, LP<i>XXX</i>|
+
+无符号类型映射与有符号类型映射相同。对C enum 映射为int
+
 
 ```groovy
 dependencies 
@@ -1031,7 +1056,7 @@ public class App {
 }
 ```
 
-将C头文件生成JNA接口，有个工具[java -jar jnaeratorStudio.jar](https://github.com/nativelibs4java/JNAerator)可以考虑使用。
+将C头文件生成JNA接口，有个工具[java -jar jnaeratorStudio.jar](https://github.com/nativelibs4java/JNAerator)可以考虑使用。[下载地址](https://repo1.maven.org/maven2/com/nativelibs4java/jnaerator/0.12/jnaerator-0.12.jar)
 
 
 # gradle

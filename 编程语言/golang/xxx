@@ -1,0 +1,17 @@
+
+```sh
+tu_xu@desktop MINGW64 ~
+$ pacman -Ss  curl
+。。。
+msys/libcurl 7.64.0-1 (libraries) [已安装: 7.58.0-1]
+    Multi-protocol file transfer library (runtime)
+msys/libcurl-devel 7.64.0-1 (development)
+    Libcurl headers and libraries
+
+tu_xu@desktop MINGW64 ~
+$ pacman -S  msys/libcurl-devel
+```
+
+
+
+

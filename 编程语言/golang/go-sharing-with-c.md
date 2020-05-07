@@ -9,9 +9,10 @@
 The latest Go 1.5 version is out. As part of the new features, Go compiler can compile packages as a shared libraries.
 
 It accepts -buildmode argument that determines how a package is compiled. These are the following options:
--  **archive**: Build the listed non-main packages into .a files. Packages named main are ignored.
--  **c-archive**: Build the listed main package, plus all packages it imports, into a C archive file.
--  **c-shared**: Build the listed main packages, plus all packages that they import, into C shared libraries.
+
+- **archive**: Build the listed non-main packages into .a files. Packages named main are ignored.
+- **c-archive**: Build the listed main package, plus all packages it imports, into a C archive file.
+- **c-shared**: Build the listed main packages, plus all packages that they import, into C shared libraries.
 - **shared**: Combine all the listed non-main packages into a single shared library.
 - **exe**: Build the listed main packages and everything they import into executables. Packages not named main are ignored.
 
@@ -41,13 +42,17 @@ func Sum(x, y int) int {
 }
 ```
 Before compile any shared library, the standard builtin packages should be installed as shared library. This will allow any other shared library to link with them.
+
 ```shell
 $ go install -buildmode=shared -linkshared std
 ```
+
 Then the calc package can be compiled as shared library linked to std libraries:
+
 ```shell
 $ go install -buildmode=shared -linkshared calc
 ```
+
 Due to a [issue](https://github.com/golang/go/issues/12236), building and installing shared library should be from $GOPATH/src. 经实践，这个问题在go1.9下未发现。
 
 Lets use the shared library *calc* in the *cashier* application:
@@ -64,16 +69,21 @@ func main() {
     fmt.Printf("Result: %d\n", calc.Sum(5, 10))
 }
 ```
+
 The application should be compiled and linked with calc library with the following command:
+
 ```shell
 $ go build -linkshared -o app cashier
 ```
+
 The output of executing the application is:
+
 ```shell
 $ ./app
 Cashier Application
 Result: 15
 ```
+
 *Note that this feature is available on linux/amd64 platform or when gccgo compiler is used.*
 
 ## Using shared Go library in C
@@ -118,6 +128,7 @@ $ go build -buildmode=c-archive -o nautilus.a nautilus.go
 ```
 
 As result the **GO** compiler will produce a static/dynamic **C** library **nautilus.a** and header file **nautilus.h**. The header file contains type definitions that marshall and unmarshall data between Go and C:
+
 ```c
 typedef signed char GoInt8;
 typedef unsigned char GoUint8;
@@ -161,6 +172,7 @@ The header file **nautilus.h** shoulde be imported from every **C** application 
 
 In the example below, the **SayHello** function is called with parameter of type GoString. It includes *char\** field and its length.
 ```c
+
 // filename: _wale.c
 #include "nautilus.h"
 #include <stdio.h>
@@ -173,17 +185,22 @@ int main() {
   return 0;
 }
 ```
+
 The _wale.c file is compiled with the following command:
+
 ```shell
 $ gcc -o _wale _wale.c nautilus.a
 ```
+
 Execution produce the following output:
+
 ```shell
 $ ./wale
 This is a C Application.
 Nautilus says: Hello, Jack!
 Nautilus says: Bye!
 ```
+
 ## Conclusion
 
 Sharing libraries between C and Go gives opportunity to build greater and better application by using the best from both worlds. This provides to a legacy system a modern language that can improve their maintainance costs and business needs. It maximize code reusability in the Go ecosystem.

@@ -1,24 +1,24 @@
 - [basic](#basic)
-- [C/C++环境准备](#cc%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87)
-    - [windows 10 bash](#windows-10-bash)
-    - [msys2](#msys2)
-    - [install clion](#install-clion)
-    - [关于命令行](#%E5%85%B3%E4%BA%8E%E5%91%BD%E4%BB%A4%E8%A1%8C)
-    - [cmake](#cmake)
-    - [atuomake makefile](#atuomake-makefile)
-- [c and cplusplus 编程语言](#c-and-cplusplus-%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80)
-    - [获取软件源码](#%E8%8E%B7%E5%8F%96%E8%BD%AF%E4%BB%B6%E6%BA%90%E7%A0%81)
-    - [常量](#%E5%B8%B8%E9%87%8F)
-    - [控制语句举例](#%E6%8E%A7%E5%88%B6%E8%AF%AD%E5%8F%A5%E4%B8%BE%E4%BE%8B)
-    - [变量作用域](#%E5%8F%98%E9%87%8F%E4%BD%9C%E7%94%A8%E5%9F%9F)
-    - [数组array](#%E6%95%B0%E7%BB%84array)
-    - [指针](#%E6%8C%87%E9%92%88)
-- [mingw gcc常用命令](#mingw-gcc%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4)
-- [java 环境准备](#java-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87)
-    - [install maven](#install-maven)
-    - [maven 安装](#maven-%E5%AE%89%E8%A3%85)
-    - [java 安装](#java-%E5%AE%89%E8%A3%85)
-    - [install IntelliJ IDEA Ultimate v2017.3.5](#install-intellij-idea-ultimate-v201735)
+- [C/C++环境准备](#cc%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+  - [windows 10 bash](#windows-10-bash)
+  - [msys2](#msys2)
+  - [install clionclion](#install-clionclion)
+  - [关于命令行](#%e5%85%b3%e4%ba%8e%e5%91%bd%e4%bb%a4%e8%a1%8c)
+  - [cmake](#cmake)
+  - [atuomake makefile](#atuomake-makefile)
+- [c and cplusplus 编程语言](#c-and-cplusplus-%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80)
+  - [获取软件源码](#%e8%8e%b7%e5%8f%96%e8%bd%af%e4%bb%b6%e6%ba%90%e7%a0%81)
+  - [常量](#%e5%b8%b8%e9%87%8f)
+  - [控制语句举例](#%e6%8e%a7%e5%88%b6%e8%af%ad%e5%8f%a5%e4%b8%be%e4%be%8b)
+  - [变量作用域](#%e5%8f%98%e9%87%8f%e4%bd%9c%e7%94%a8%e5%9f%9f)
+  - [数组array](#%e6%95%b0%e7%bb%84array)
+  - [指针](#%e6%8c%87%e9%92%88)
+- [mingw gcc常用命令](#mingw-gcc%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4)
+- [java 环境准备](#java-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+  - [install maven](#install-maven)
+  - [maven 安装](#maven-%e5%ae%89%e8%a3%85)
+  - [java 安装](#java-%e5%ae%89%e8%a3%85)
+  - [install IntelliJ IDEA Ultimate v2017.3.5](#install-intellij-idea-ultimate-v201735)
 
 
 
@@ -52,13 +52,16 @@ search "window 10 bash"
 
 - [[ 给 MSYS2 添加中科大的源]](https://www.cnblogs.com/findumars/p/6546088.html)
   - mirrorlist.msys
+  
   ```txt
   Server = http://mirrors.ustc.edu.cn/msys2/msys/$arch/
   Server = http://repo.msys2.org/msys/$arch
   Server = http://downloads.sourceforge.net/project/msys2/REPOS/MSYS2/$arch
   Server = http://www2.futureware.at/~nickoe/msys2-mirror/msys/$arch/
   ```
+  
   - mirrorlist.mingw64
+  
   ```txt
   Server = http://mirrors.ustc.edu.cn/msys2/mingw/x86_64/
   Server = http://repo.msys2.org/mingw/x86_64
@@ -66,14 +69,15 @@ search "window 10 bash"
   Server = http://www2.futureware.at/~nickoe/msys2-mirror/x86_64/
   Server = http://mirror.bit.edu.cn/msys2/REPOS/
   ```
+  
   - mirrorlist.mingw32
+  
   ```txt
   Server = http://mirrors.ustc.edu.cn/msys2/mingw/i686/
   Server = http://repo.msys2.org/mingw/i686
   Server = http://downloads.sourceforge.net/project/msys2/REPOS/MINGW/i686
   Server = http://www2.futureware.at/~nickoe/msys2-mirror/i686/
   ```
-
 
 - 更新MSYS2系统环境
   - 运行msys2_shell.bat
@@ -453,6 +457,7 @@ int demo(int a,double b, double* c){
 
 
 # mingw gcc常用命令
+
 - [[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)
     ```shell
     g++ -fdump-class-hierarchy -c source_file.cpp
@@ -465,9 +470,11 @@ int demo(int a,double b, double* c){
 - Include Path for use with MinGW Compilers 
 
   [[Include Path for use with MinGW Compilers]](http://www.mingw.org/wiki/includepathhowto)
+
     ```shell
     gcc -v -c source_file.cpp
     ```
+
 - 编译vs使用的lib库
 
     - 生成lib
