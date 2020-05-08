@@ -39,7 +39,10 @@ dependencies {
 
 
 ## kotlin
+- [kotlin-full-stack-application-demo](https://github.com/Kotlin/kotlin-full-stack-application-demo)
+
 - https://github.com/Kotlin/KEEP/tree/master/proposals
+
 - [Building and Testing a Parser With ANTLR and Kotlin](https://dzone.com/articles/building-and-testing-a-parser-with-antlr-and-kotli-1)
 
 - 对Kotlin语言, `if`是expression表达式，不是statement语句. 它们之间的差异在于表达式是有值value的，能作为其他表达式的一部分。对java所有的控制结构都是语句. 对Kotlin, 在控制结构中，除了循环loops ( for , do , and do / while ) ，其他的都是表达式。
