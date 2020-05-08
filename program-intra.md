@@ -14,6 +14,11 @@
   - [数组array](#%e6%95%b0%e7%bb%84array)
   - [指针](#%e6%8c%87%e9%92%88)
 - [mingw gcc常用命令](#mingw-gcc%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4)
+    - [[[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)](#dump-class-layout)
+    - [get asm code](#get-asm-code)
+    - [Include Path for use with MinGW Compilers](#include-path-for-use-with-mingw-compilers)
+    - [生成share library](#%e7%94%9f%e6%88%90share-library)
+    - [编译vs使用的lib库](#%e7%bc%96%e8%af%91vs%e4%bd%bf%e7%94%a8%e7%9a%84lib%e5%ba%93)
 - [java 环境准备](#java-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
   - [install maven](#install-maven)
   - [maven 安装](#maven-%e5%ae%89%e8%a3%85)
@@ -458,16 +463,16 @@ int demo(int a,double b, double* c){
 
 # mingw gcc常用命令
 
-- [[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)
+### [[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)
     ```shell
     g++ -fdump-class-hierarchy -c source_file.cpp
     ```
-- get asm code
+### get asm code
     ```shell
     gcc -S source_file.cpp
     ```
 
-- Include Path for use with MinGW Compilers 
+### Include Path for use with MinGW Compilers 
 
   [[Include Path for use with MinGW Compilers]](http://www.mingw.org/wiki/includepathhowto)
 
@@ -475,7 +480,16 @@ int demo(int a,double b, double* c){
     gcc -v -c source_file.cpp
     ```
 
-- 编译vs使用的lib库
+### 生成share library
+
+```sh
+$mingw32-gcc -m32 -c mydll.c
+#再连接成dll：
+$mingw32-gcc -m32 -shared - mydll.dll mydll.o
+```
+
+
+### 编译vs使用的lib库
 
     - 生成lib
     ```shell
