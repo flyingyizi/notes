@@ -1,11 +1,25 @@
 
-# openresty 安装与运行
+部署一般采用： https----nginx-----http------主机
+
+这种部署方式相比主机直接对外提供https服务的效率更高
+
+# linux openresty 安装与运行
 
 ## linux安装openresty
 
 [OpenResty® Linux 包](http://openresty.org/cn/linux-packages.html)
 
 [运行openresty](http://openresty.org/cn/getting-started.html)
+
+### [nginx]查看安装了哪些模块
+
+```sh
+$ 2>&1 nginx -V | tr ' '  '\n'|grep ssl
+--with-http_ssl_module
+--with-mail_ssl_module
+```
+
+如果是安装的openresty，那要通过`openresty -V`查看，或`aptitude search openresty`看下相关的模块安装情况。
 
 ## NGINX重启/升级。。
 
@@ -22,11 +36,28 @@
 - WINCH  从容关闭工作进程
 
 例如
+
 ```sh
 $kill -HUP `cat /usr/local/openresty/nginx/nginx.pid`
 ```
 
+例如建立下面的crontab执行脚本实现日志的定时切割
+
+```sh
+#!/bin/bash
+#这个脚本须在每天的00:00 运行
+# nginx 志文件的存放珞径
+logs_path="/data1/logs"
+mkdir -p ${logs_path}$(date -d "yestaday"＋"%Y")/${date -d  "yestaday"＋"%m"}/ 
+
+mv $(logs_path}access.log ${1ogs_path}$(date -d "yestaday"＋"%Y")/$(date -d "yestaday"＋"%m")/access_$(date -d "yestaday"＋"%Y%m%d").log
+
+kill -HUP `cat /usr/local/openresty/nginx/nginx.pid`
+```
+
 ### 使用systemctl来管理openresty
+
+对Ubuntu，对应配置文件是“/lib/systemd/system/openresty.service”
 
 ```sh
 #查看openresty状态
@@ -52,7 +83,7 @@ systemctl disable openresty.service
 ```
 
 
-##  docker安装与运行
+#  docker安装与运行
 
 下载镜像：
 atmel@atmel-virtual-machine:~$ docker image ls
@@ -86,56 +117,6 @@ nginx: configuration file /usr/local/openresty/nginx/conf/nginx.conf test is suc
 
 ## 配置
 
-### 日志位置
-/usr/local/openresty/nginx/logs # ls
-access.log  error.log   nginx.pid
-
-```text
-atmel@atmel-virtual-machine:~$ tail -f ~/docker_build/openresy/logs/access.log 
-192.168.1.226 - - [29/Nov/2017:13:25:11 +0000] "GET / HTTP/1.1" 200 558 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
-192.168.1.226 - - [29/Nov/2017:13:25:11 +0000] "GET /favicon.ico HTTP/1.1" 404 175 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
-192.168.1.226 - - [29/Nov/2017:13:25:11 +0000] "GET /favicon.ico HTTP/1.1" 404 175 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
-192.168.1.226 - - [29/Nov/2017:13:31:49 +0000] "GET /v2/ HTTP/1.1" 200 31 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
-192.168.1.226 - - [29/Nov/2017:13:33:41 +0000] "GET /v3/ HTTP/1.1" 200 31 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
-```
-
-### 静态htm位置
-
-进入容器后查看conf的结果：
-/usr/local/openresty/nginx/html # ls
-50x.html    index.html
-
-
-### 配置文件位置：
-进入容器后查看conf的结果：
-/usr/local/openresty/nginx/conf # ls
-fastcgi.conf            fastcgi_params.default  mime.types              nginx.conf.default      uwsgi_params
-fastcgi.conf.default    koi-utf                 mime.types.default      scgi_params             uwsgi_params.default
-fastcgi_params          koi-win                 nginx.conf              scgi_params.default     win-utf
-
-
-```text
-配置文件：
-worker_processes  1;
-error_log logs/error.log;
-events {
-    worker_connections 1024;
-}
-http {
-    server {
-        listen 80;
-        location / {
-            default_type text/html;
-            content_by_lua '
-                ngx.say("<p>hello, world</p>")
-            ';
-        }
-    }
-}
-```
-
-
-
 ### nginx日志文件配置与切割
 
 涉及到的nginx指令主要就是两条：log_format, access_log. 前者用于设置日志格式；后者用户设置日志文件的存放路径/格式/缓存大小。。两条指令在配置文件的位置可以在http{...}之间,也可以是 server{...}之间。
@@ -161,6 +142,7 @@ $ unzip nginx-http-sysguard-master.zip
 
 先安装依赖软件，然后在编译代码，编译时使用--perfix选项指定 OpenResty 的安装目录，--with-luajit 选项激活 LuaJIT 组件。
 
+```sh
 $ yum -y install gcc make gmake openssl-devel pcre-devel readline-devel zlib-devel
 
 $ wget http://openresty.org/download/ngx_openresty-1.2.7.6.tar.gz
@@ -168,13 +150,62 @@ $ tar zvxf ngx_openresty-1.2.7.6.tar.gz
 $ cd ngx_openresty-1.2.7.6
 $ ./configure --with-luajit --with-http_stub_status_module --add-module=/opt/nginx-http-sysguard-master/
 $ gmake && gmake install
+```
 
 创建软连接：
 
+```sh
 $ ln -s /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx
+```
 
-# openresty 上传服务器
+# windows openresty记录
 
+## 安装
+
+从[官网](http://openresty.org/cn/download.html)下载windows版本，解压即可。以下假设安装在“C:\prog\openresty”
+
+```text
+C:\prog\openresty>tree
+├─conf
+├─fastcgi_temp
+├─html
+├─include
+│  └─luajit-2.1
+├─logs
+├─lua
+│  
+├─lualib
+...
+
+```
+
+## 启动、关闭、重启
+
+  nginx在windows下，涉及到路径的录入注意路径的写法，必须采用反斜杠“/”这种方式，例如“nginx -p c:/prog/openresty”，如果路径采用“\\”方式，从实践看有不行。在nginx.conf中类似设置root时也需要采用这种路径的写法
+
+- 启动
+
+    ```cmd
+    C:\prog\openresty>start nginx -p c:/prog/openresty
+    ```
+
+- 查看进程情况
+
+    ```cmd
+    C:\prog\openresty>tasklist /fi "imagename eq nginx.exe"
+    ```
+
+- 结束
+
+    ```cmd
+    C:\prog\openresty>nginx -s stop
+    ```
+
+- 重新加载
+
+    ```cmd
+    C:\prog\openresty>nginx -s reload
+    ```
 
 
 # wrk 安装与运行

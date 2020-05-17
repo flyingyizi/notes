@@ -13,7 +13,7 @@ Type :help for help, :quit for quit
 >>>
 ```
 
-java application项目变更为java+kotlin项目
+## java application项目变更为java+kotlin项目
 
 ```groovy
 // 1.新增kotlin plugin
@@ -61,9 +61,9 @@ var answer = 42
 answer = "no answer" // error
 ```
 
-- Note that the modifier public disappeared during the conversion from Java to Kotlin. In Kotlin, public is the default visibility, so you can omit it.
+- 在kotlin，如果没有modifier，这代表modifier就是 public.
 
-- Custom accessors This section shows you how to write a custom implementation of a property accessor. Suppose you declare a rectangle that can say whether it’s a square. You don’t need to store that information as a separate field, because you can check whether the height is equal to the width on the go:
+- 下面演示了怎么写个属性访问方法:
 
 ```kotlin
 class Rectangle(val height: Int, val width: Int)
@@ -353,3 +353,9 @@ foo { println("hello") }        // Uses both default values bar = 0 and baz = 1
 
 ### TODO infix
 
+ Infix 函数   ：   给Int 定义扩展` infix fun Int.shl( x:Int ):Int {…} —>` 调用 1 shl 2 ，等同于1.shl(2)
+
+
+# Collections
+
+![](images/collections-diagram.png)

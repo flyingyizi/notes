@@ -1,0 +1,443 @@
+
+
+书籍内容见《实战Nginx.取代Apache的高性能Web服务》 第三章
+
+跟Apache 一样， Nginx 也可以配置多种类型的虚拟主机： 一是基于IP 的虚拟主机，二是基于域名的虚拟主机，三是基于端口的虚拟主机。一个虚拟主机对应配置文件中的一个server{}
+
+
+- 对“http {...}”中可以用的指令见原书“13.1 HTTP的核心模块”章节
+
+- 测试配置文件：当修改了配置文件，建议首先使用“-t、-T”测试下配置文件
+
+```sh
+atmel@mail:~$ sudo /usr/local/openresty/nginx/sbin/nginx -t -c /usr/local/openresty/nginx/conf/nginx.conf
+[sudo] password for atmel: 
+nginx: the configuration file /usr/local/openresty/nginx/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/openresty/nginx/conf/nginx.conf test is successful
+atmel@mail:~$ 
+```
+
+```sh
+atmel@mail:~$ /usr/local/openresty/nginx/sbin/nginx -h
+nginx version: openresty/1.15.8.3
+Usage: nginx [-?hvVtTq] [-s signal] [-c filename] [-p prefix] [-g directives]
+
+Options:
+  -?,-h         : this help
+  -v            : show version and exit
+  -V            : show version and configure options then exit
+  -t            : test configuration and exit
+  -T            : test configuration, dump it and exit
+  -q            : suppress non-error messages during configuration testing
+  -s signal     : send signal to a master process: stop, quit, reopen, reload
+  -p prefix     : set prefix path (default: /usr/local/openresty/nginx/)
+  -c filename   : set configuration file (default: conf/nginx.conf)
+  -g directives : set global directives out of configuration file
+```
+
+## 典型配置文件
+```conf
+
+# 使用的用户和组，用户和组之间用空格隔开，如果不设置这表示不限制
+#user  nobody;
+
+# 指定工作进程数量，一般设置为cpu总核数量的2倍，例如四核cpu这设置8
+worker_processes  8;
+
+# 指定错误日志存放路径，错误日志的记录级别可选：[debug|info|notice|warn|error|crit]
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+# 指定pid存放路径
+#pid        logs/nginx.pid;
+
+# 指定文件描述符数量
+#work_rlimit_nofile 51200
+
+events {
+    # 使用的网络I/O类型，LINUX推荐使用epool，freebsd推荐kqueue
+    use epoll;
+    # 允许连接数
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # 设置使用的字符集，如果一个网站有多种字符集，不要随便设置，应让程序员在html代码中通过meta设置
+    #charset  gb2312
+
+    # 与日志相关的指令主要两条：log_format与access_log。它们的位置可在http{...},也可以在server{...}
+
+    #log_format指令格式是“log_format name format [format ...]” .log_format指令有
+    #个默认无需设置的combined日志格式设置。注意name是不能重复的
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    # access_log指令指定日志文件存放路径 “access_log path [formatname [buffer-size | off]]”
+    # 其中path 表示日志文件的存放路径， formatname 表示使用log_format 指令设置的日志格式的名称，
+    # 如果不想记录日志可以使用"access_log off"关闭日志记录
+    # buffer=size 表示设置内存缓冲区的大小
+    #access_log  logs/access.log  main;
+
+    # 当打开日志后，用来设置经常被使用的日志文件描述符缓存
+    # open_log_file_cache max=N [inactive=time] [min_uses=N] [valid=time] | off
+    #open_log_file_cache max=lOOO inactive=20s min_uses=2 valid:lm;
+
+    # 设置客户端能够上传的最大文件大小
+    client_max_body_size   1024m;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    # 开启gzip压缩
+    #gzip  on;
+    #gzip_min_length 1k;
+    #gzip_http_version 1.1;
+    #gzip_comp_level 2;
+    #gzip_types  text/plain application/x-javascript text/css application/xml;
+    #gzip_vary on;
+
+    # 语法： expires [time|epoch|max|off], 作用域： http. server, location
+    # 使用本指令可以控制Hπp 应答中的"Expires"和“ Cache-Control ”的Header 头信息（起到控制页面缓存的作用）
+    #expires 30d;
+
+    # 虚拟主机配置
+    server {
+        #监听的IP与端口 例如 192.168.0.1:80
+        listen       8989;
+        #主机名称列表，以空格分开。指令见“13.1.42 server name 指令”章节，它如果是正则表达式，这是以“~”开头的
+        server_name  localhost;
+
+        #charset koi8-r;
+        #访问日志文件存放路径
+        #access_log  logs/host.access.log  main;
+        
+        # 自动列目录功能，前提条件是当前目录下不存在用index 指令设置的默认首页文件。如果须
+        # 要在某一虚拟主机的location /｛……｝目录控制中配置自动列目录，需要配置autoindex on;
+        location / {
+           # 基于根目录"/path/to/app_a/static"的，也就是说"/"指的就是"/path/to/app_a/static/"，
+           # 而"/images/"指的就是"/path/to/app_a/static/images/"
+           # 例如，如果我们的URI是/images/some/path/abc.html，那么nginx返回的文件就是
+           # “/path/to/app_a/static/images/some/path/abc.html”
+            root   /path/to/app_a/static;
+            # 开启自动列表目录
+            autoindex on;
+            # 设定索引时文件大小的单位(B 、KB 、MB 或GB)
+            autoindex_exact_size off;
+            # 开启以本地时间来显示文件时间的功能。默认为关（ GMT 时间）。
+            autoindex_localtime on;
+            charset utf-8;
+            #index  index.html index.htm;
+
+            # 采用基于HTIP 基本身份验证的用户名和密码登录方式，来保护你的虚拟主机或目录。
+            # auth_basic该指令用于指定弹出的用户名和密码登录框中提示的名称
+            auth_basic "home";
+            #auth_basic_user_file指令用于设置htpasswd 密码文件的名称
+            auth_basic_user_file httppasswd;
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+    server {
+        listen       8080;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        # 语法： location [=|~|~*|^~]   /uri/ { ... }
+        # 对待匹配的“uri”，可能是字符串，也可能是正则。
+        # "~"表示区分大小写的匹配，"~*"表示不区分大小写的匹配。先匹配字符串再匹配正则
+        # "="表示进行精确匹配，如果找到匹配的uri这停止查询
+        # "^~"表示禁止匹配到字符串后，再去检查正则
+        location / {
+            root   /mnt/toshiba;
+            charset utf-8;
+            index  index.html index.htm;
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+
+            # html网页文件存放的目录
+            root   /data0/htdocs/html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+             # 默认首页文件，顺序从左到右，如果找不到index.html，这尝试查找index.htm作为首页文件
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+}
+
+```
+
+# 举例
+
+## 采用基于HTIP 基本身份验证登录虚拟主机举例
+
+例如
+
+```conf
+    location / {
+        root   /mnt;
+        # 开启自动列表目录
+        autoindex on;
+        # 设定索引时文件大小的单位(B 、KB 、MB 或GB)
+        autoindex_exact_size off;
+        # 开启以本地时间来显示文件时间的功能。默认为关（ GMT 时间）。
+        autoindex_localtime on;
+        charset utf-8;
+        #index  index.html index.htm;
+        # 采用基于HTIP 基本身份验证的用户名和密码登录方式，来保护你的虚拟主机或目录。
+        # auth_basic该指令用于指定弹出的用户名和密码登录框中提示的名称
+        auth_basic "home";
+        #auth_basic_user_file指令用于设置htpasswd 密码文件的名称
+        auth_basic_user_file httppasswd;
+    }
+```
+
+其中密码文件采用每行都是“用户名:密码”的方式记录，密码可以采用下面的指令生成：
+
+- 首先生成pw.pl 脚本
+
+```sh
+#!/usr/bin/perl
+#
+use strict;
+my $pw=$ARGV[0];
+
+print crypt($pw,$pw)."\n";
+```
+
+- 按照下面的方式得到密码
+
+"pw.pl" [New] 6L, 75C written                       
+```sh
+$ chmod +x pw.pl 
+$ ./pw.pl testpasswd
+tek4edTZE898g
+$
+```
+
+## location指令举例
+
+```conf
+ # 语法： location [=|~|~*|^~]   /uri/ { ... }
+ # 对待匹配的“uri”，可能是字符串，也可能是正则。
+ # "~"表示区分大小写的匹配，"~*"表示不区分大小写的匹配。先匹配字符串再匹配正则
+ # "="表示进行精确匹配，如果找到匹配的uri这停止查询
+ # "^~"表示禁止匹配到字符串后，再去检查正则
+
+#补充解释
+#完全匹配(=)
+#无正则普通匹配(^~)（^ 表示“非”，~ 表示“正则”，字符意思是：不要继续匹配正则）
+#正则表达式匹配(~或者~*)
+#普通匹配
+
+```
+
+
+### 无正则普通匹配(^~)
+
+同时表明该规则优先级高于“~”正则规则
+
+配置：
+
+```conf
+    location ~ /abcefg {
+         return 399;
+       }
+    location ~ /abc {
+         return 400;
+       }
+    location ^~ /abc {
+         return 501;
+    }
+```
+
+执行结果是如下，
+
+```sh
+atmel@atmel-PC MINGW64 ~
+$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abcefg
+501
+
+atmel@atmel-PC MINGW64 ~
+$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abc
+501
+
+atmel@atmel-PC MINGW64 ~
+$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abc/efg
+501
+```
+
+
+## 基于IP配置多个虚拟主机
+
+```conf
+
+...
+
+http {
+
+    ....
+
+    # 虚拟主机A配置
+    server {
+        listen       192.168.0.1:80;
+        server_name  192.168.0.1;
+
+        location / {
+            root   /mnt/html;
+            index  index.html index.htm;
+        }
+    }
+    # 虚拟主机B配置
+    server {
+        listen       192.168.0.2:80;
+        server_name  192.168.0.2;
+
+        location / {
+            root   /mnt/toshiba/html;
+            index  index.html index.htm;
+        }
+    }
+    # 虚拟主机C配置
+    server {
+        listen       192.168.0.3:80;
+        server_name  192.168.0.3;
+
+        location / {
+            root   /mnt/tohonda/html;
+            index  index.html index.htm;
+        }
+    }
+
+
+}
+
+```
+
+## 基于域名配置多个虚拟主机
+
+```conf
+
+...
+
+http {
+
+    ....
+
+    # 虚拟主机A配置
+    server {
+        listen       80;
+        server_name  www.aaa.yourdomain.com;
+
+        location / {
+            root   /mnt/html;
+            index  index.html index.htm;
+        }
+    }
+    # 虚拟主机B配置
+    server {
+        listen       80;
+        server_name  www.bbb.yourdomain.com;
+
+        location / {
+            root   /mnt/toshiba/html;
+            index  index.html index.htm;
+        }
+    }
+    # 虚拟主机C配置
+    server {
+        listen       80;
+        server_name  www.ccc.yourdomain.com;
+
+        location / {
+            root   /mnt/tohonda/html;
+            index  index.html index.htm;
+        }
+    }
+
+
+}
+
+```
