@@ -7,10 +7,20 @@
 
 从oracle下载[jdk](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html),如果需要帐号,可以使用[开放帐号](http://bugmenot.com/view/oracle.com)
 
-
 1. 设置环境变量: JAVA_HOME
 2. 设置环境变量(不推荐): CLASSPATH=.;%%JAVA_HOME%%\lib\dt.jar;%%JAVA_HOME%%\lib\tools.jar;  
 3. 设置环境变量: 追加PATH=%%JAVA_HOME%%\bin;%%JAVA_HOME%%\jre\bin;  
+
+
+另外，如果是在Ubuntu，可以考虑直接采用下面的PPA存储库的方式安装Oracle Java，不需要按照前面描述的先下载、再安装，再设置环境变量
+
+```sh
+$sudo apt-get update
+# 如果没有add-apt-repository，执行下面指令安装它
+$sudo apt -y install software-properties-common dirmngr apt-transport-https lsb-release ca-certificates
+$sudo add-apt-repository ppa:linuxuprising/java
+$sudo apt -y install oracle-java14-installer
+```
 
 [groovy教程](https://www.w3cschool.cn/groovy/)
 
@@ -899,7 +909,7 @@ tasks.withType(JavaCompile) {
 
 ### 加速仓库访问
 
-加速仓库访问，在`~/init.gradle`中增加如下代理设置
+加速仓库访问，在`~/.gradle/init.gradle`中增加如下代理设置
 ```groovy
 allprojects { 
     repositories {

@@ -35,7 +35,7 @@ Options:
   -g directives : set global directives out of configuration file
 ```
 
-## 典型配置文件
+# 典型配置文件
 ```conf
 
 # 使用的用户和组，用户和组之间用空格隔开，如果不设置这表示不限制
@@ -116,6 +116,9 @@ http {
         #主机名称列表，以空格分开。指令见“13.1.42 server name 指令”章节，它如果是正则表达式，这是以“~”开头的
         server_name  localhost;
 
+        #关闭（显示）Nginx 版本号。
+        server_tokens off;      
+
         #charset koi8-r;
         #访问日志文件存放路径
         #access_log  logs/host.access.log  main;
@@ -168,7 +171,7 @@ http {
         # "="表示进行精确匹配，如果找到匹配的uri这停止查询
         # "^~"表示禁止匹配到字符串后，再去检查正则
         location / {
-            root   /mnt/toshiba;
+            alias   /mnt/toshiba;
             charset utf-8;
             index  index.html index.htm;
         }
@@ -250,6 +253,40 @@ http {
 ```
 
 # 举例
+
+## 
+
+## Nginx指定路径时，root与alias区别在哪？
+
+root与alias路径匹配主要区别在于nginx如何解释location后面的uri，这会使两者分别以不同的方式将请求映射到服务器文件上，alias是一个目录别名的定义，root则是最上层目录的定义。
+
+- root的处理结果是：root路径＋location路径
+
+- alias的处理结果是：使用alias路径替换location路径
+
+1.root路径配置实例: 用户访问www.xuliangwei.com/image/test.gif，实际上Nginx会上/code/image/目录下找去找test.gif文件
+
+```conf
+server {
+ listen 80;
+ server_name www.xuliangwei.com;
+ location /image/ {
+ root /code;
+ }
+}
+```
+
+2.alias配置实例: 用户访问www.xuliangwei.com/image/test.gif，实际上Nginx会上/code/目录下找去找test.gif文件。
+
+```conf
+server {
+ listen 80;
+ server_name www.xuliangwei.com;
+ location /image/ {
+ alias /code;
+ }
+}
+```
 
 ## 采用基于HTIP 基本身份验证登录虚拟主机举例
 
@@ -441,3 +478,62 @@ http {
 }
 
 ```
+
+## 构建https server
+
+生成私钥与证书
+
+```sh
+$openssl genpkey -algorithm RSA -out keya.pem -pkeyopt rsa_keygen_bits:4096
+$openssl req -new -key keya.pem -out cert.csr  -utf8 -subj "/C=CN/ST=shanghai/L=shanghai/O=zzz/OU=zzz/CN=localhost"
+$openssl x509 -req -days 3650 -in cert.csr  -signkey keya.pem -out newcertb.crt
+```
+
+配置nginx
+
+```conf
+    server {
+        listen       443 ssl;
+        server_name  localhost;
+
+        ssl_certificate C:/tuxueqing/gotest/newcertb.crt;
+        ssl_certificate_key C:/tuxueqing/gotest/keya.pem;
+        ssl_session_cache   shared:mySSLShare:10m;     
+        ...   
+```
+
+上面的例子使用的是私钥密码没有加密的方式，如果私钥密码加密了。那启动、重启时需要输入私钥密码。为了面输入，可以将私钥密码放置在“ssl_password_file”指令指示的文件中，具体细节参见 [Secure Distribution of SSL Private Keys with NGINX](https://www.nginx.com/blog/secure-distribution-ssl-private-keys-nginx/)
+
+具体操作见下面演示
+
+```sh
+# 给私钥密码加密，命名keya_withsecure.pem
+$openssl rsa -aes256 -in keya.pem -out keya_withsecure.pem
+writing RSA key
+Enter PEM pass phrase:  这里输入私钥加密密码如123456
+Verifying - Enter PEM pass phrase:
+
+#将私钥密码放入一个文件keyfile.txt
+$ touch keyfile.txt
+$ echo 123456 > keyfile.txt
+$ cat keyfile.txt
+123456
+```
+
+改写nginx.conf
+
+```conf
+    server {
+        listen       443 ssl;
+        server_name  localhost;
+        
+        ssl_certificate C:/tuxueqing/gotest/newcertb.crt;
+        #更改私钥文件为私钥密码加密的keya_withsecure.pem
+        ssl_certificate_key C:/tuxueqing/gotest/keya_withsecure.pem;
+        #新增指示私钥加密密码文件
+        ssl_password_file C:/tuxueqing/gotest/keyfile.txt;
+        ssl_session_cache   shared:mySSLShare:10m;      
+        ...  
+```
+
+最后reload nginx完成。

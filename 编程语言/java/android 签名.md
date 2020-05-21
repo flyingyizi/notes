@@ -1,6 +1,12 @@
 
+# 密钥库生成
 
-## 命令行方式生成签名文件
+基于android studio开发环境，证书生成有几个途径：
+
+- 手工命令行生成
+- androidStudio界面方式生成签名文件
+
+## 手工命令行方式生成密钥库
 
 %JAVA_HOME%\bin\keytool.exe
 
@@ -46,14 +52,22 @@ C:/MyApplication>
 ```
 依次输入口令、确认口令并记住，这个口令会在签名apk时用到。
 
-## androidStudio界面方式生成签名文件
+最新版AS会有类似下面的警告提示,即将jks格式建议变换为PKCS12格式：
+
+```text
+Warning:
+JKS 密钥库使用专用格式。建议使用 "keytool -importkeystore -srckeystore C:\Users\atmel\AndroidStudioProjects\recyclerViewDemo\myApp.keystore.jks -destkeystore C:\Users\atmel\AndroidStudioProjects\recyclerViewDemo\myApp.keystore.jks -deststoretype pkcs12" 迁移到行业标准格式 PKCS12。
+```
+
+## androidStudio界面方式生成密钥库
 
 as菜单栏 ：bulid-->“Generate Signed APK”--> "Create New..."
 
+# 使用密钥库进行apk签名
 
 ## 配置gradle让APP自动签名
 
-as菜单栏 ：file-->“project  structure”--> "signing config"
+as菜单栏 ：file-->“project  structure”--> "modules "--> "signing config"
 
 然后自动更新app的build.gradle，新增类似下面内容
 ```groovy

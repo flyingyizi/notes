@@ -1,5 +1,8 @@
 
 ## apt 管理命令
+
+重点命令： dpkg -L 查看安装包安装到哪里了
+
 |||
 |--|--|
 |apt-cache search           |--(package 搜索包) |

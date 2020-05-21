@@ -26,45 +26,7 @@ Java IO方式有哪些?
 
 - java7的NIO2：引入了异步非阻塞IO方式
 
-## file/path
 
-根据最新指导，应优先使用java.nio.file.Path，而不是使用java.io.File。
-
-[Java文件IO操作应该抛弃File拥抱Paths和Files](https://www.cnblogs.com/digdeep/p/4478734.html)
-
-```java
-        // 创建文件
-        final Path path = Paths.get("c:\\abc");
-        try {
-            if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {                
-                Files.createFile(path);                
-            }
-        } catch (final IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-        }
-
-        //写文件
-        try {
-            var writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
-            writer.write("测试写文件");
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        //读取文件
-        try {
-            BufferedReader read = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-            String str;
-            while ((str=read.readLine())!=null) {
-                System.out.println(str);
-            }            
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-```
 
 ## java网络NIO
 

@@ -3,6 +3,8 @@
 
 这种部署方式相比主机直接对外提供https服务的效率更高
 
+[nginx常见典型故障](https://www.cnblogs.com/johnnyblog/p/11479217.html)
+
 # linux openresty 安装与运行
 
 ## linux安装openresty
@@ -61,25 +63,25 @@ kill -HUP `cat /usr/local/openresty/nginx/nginx.pid`
 
 ```sh
 #查看openresty状态
-systemctl status openresty.service
+$sudo systemctl status openresty.service
 
 #启动openresty
-systemctl start openresty.service
+$sudo systemctl start openresty.service
 
 #设置openresty开机自启动
-systemctl enable openresty.service
+$sudo systemctl enable openresty.service
 
 #重启openresty
-systemctl restart openresty.service
+$sudo systemctl restart openresty.service
 
-#
-systemctl reload openresty.service
+#reload configuration
+$sudo systemctl reload openresty.service
 
 #停止openresty
-systemctl stop openresty.service
+$sudo systemctl stop openresty.service
 
 #取消openresty开机自启动
-systemctl disable openresty.service
+$sudo systemctl disable openresty.service
 ```
 
 

@@ -92,6 +92,7 @@ enum class Color(
 
 # kotlin 语言
 
+本节内容来自学习[官网 reference](https://kotlinlang.org/docs/reference)记录
 
 ### String templates
 
@@ -112,6 +113,7 @@ val s2 = "${s1.replace("is", "was")}, but now is $a"
     ```kotlin
     var a: String = "abc" // Regular initialization means non-null by default
     a = null // compilation error
+    error: null can not be a value of a non-null type String
     ```
 
   - nullablie string 的写法
