@@ -4,6 +4,43 @@
 
 收集文件类相关code snippet。
 
+
+### 内容目录
+
+- [2-基本操作](#2-基本操作)
+  - [2.1-打开、创建文件](#21-打开创建文件)
+  - [2.2-Truncate文件](#22-truncate文件)
+  - [2.3-得到文件信息](#23-得到文件信息)
+  - [2.4-重命名和移动](#24-重命名和移动)
+  - [2.5 删除文件](#25-删除文件)
+  - [2.7-检查文件是否存在](#27-检查文件是否存在)
+  - [2.8-检查读写权限](#28-检查读写权限)
+  - [2.9-改变权限、拥有者、时间戳](#29-改变权限拥有者时间戳)
+  - [2.10-硬链接和软链接](#210-硬链接和软链接)
+  - [2.91-遍历目录](#291-遍历目录)
+- [3-读写](#3-读写)
+  - [3.1-复制文件](#31-复制文件)
+  - [3.2-跳转到文件指定位置(Seek)](#32-跳转到文件指定位置seek)
+  - [3.3-写文件](#33-写文件)
+  - [3.4-快写文件](#34-快写文件)
+  - [3.5-使用缓存写](#35-使用缓存写)
+  - [3.6 读取最多N个字节](#36-读取最多n个字节)
+  - [3.7 读取正好N个字节](#37-读取正好n个字节)
+  - [3.9 读取全部字节](#39-读取全部字节)
+  - [3.11 使用缓存读](#311-使用缓存读)
+  - [3.12 使用 scanner](#312-使用-scanner)
+- [4 压缩](#4-压缩)
+  - [4.1 打包(zip) 文件](#41-打包zip-文件)
+  - [4.2 抽取(unzip) 文件](#42-抽取unzip-文件)
+  - [4.3 压缩文件](#43-压缩文件)
+  - [4.4 解压缩文件](#44-解压缩文件)
+  - [5 其它](#5-其它)
+  - [5.1 临时文件和目录](#51-临时文件和目录)
+  - [5.2 通过HTTP下载文件 TODO](#52-通过http下载文件-todo)
+  - [5.3 哈希和摘要 TODO](#53-哈希和摘要-todo)
+
+
+
 下面的java代码优先使用nio 方法。涉及以下package
 
 ```java
@@ -46,28 +83,42 @@ import java.util.zip.GZIPOutputStream;
 import java.util.Scanner;
 ```
 
-# 2基本操作
+# 2-基本操作
 
-## 2.1 打开、创建文件
+## 2.1-打开、创建文件
 
 ```go
-//CreateFile 如果存在则可读写打开，如果不存在则创建
-func (my *MyFile) CreateFile(path string) (f *os.File) {
-	//判断文件是否存在
-	_, err := os.Stat(path)
-	if err != nil {
-		if os.IsExist(err) {
-			f, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0)
-		} else {
-			f, err = os.Create(path)
-		}
+///CreateFile 如果文件或目录存在则可读打开
+//当不存在时，默认认为分隔符结尾的是目录，否则认为是文件，按照该规则进行新建。
+func (my *MyFile) func CreateFile(path string) (f *os.File, err error) {
 
-		if err != nil {
-			f = nil
+	//规范分隔符
+	path = filepath.FromSlash(path)
+
+	//判断文件是否存在
+	_, err = os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+
+			// 判断如果是separtor结尾，则认为是目录
+			// 该判断要求之前代码不能做filepath.Clean处理，因为它会将最后的分隔符去除
+			t := []rune(path)
+			if t[len(t)-1] == filepath.Separator {
+				if err = os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+					return
+				}
+				f, err = os.Open(path)
+			} else {
+				f, err = os.Create(path)
+			}
 		}
+	} else {
+		f, err = os.Open(path)
 	}
 	return
 }
+
+
 ```
 
 ```java
@@ -89,7 +140,7 @@ public class MyFile {
 }	
 ```
 
-## 2.2 Truncate文件
+## 2.2-Truncate文件
 
 ```go
 func Truncate(newSize int)() {
@@ -115,7 +166,7 @@ public class MyFile {
 }
 ```
 
-## 2.3 得到文件信息
+## 2.3-得到文件信息
 
 ```go
 func GetFileInfo(path string) {
@@ -149,7 +200,7 @@ func GetFileInfo(path string) {
     }
 ```
 
-## 2.4 重命名和移动
+## 2.4-重命名和移动
 
 ```go
 func (my *MyFile) Move(source, target string) {
@@ -182,11 +233,11 @@ func (my *MyFile)  Remove(path string) {
         Files.delete(path);
 ```
 
-## 2.7 检查文件是否存在
+## 2.7-检查文件是否存在
 
 见2.1
 
-## 2.8 检查读写权限
+## 2.8-检查读写权限
 
 ```go
 func (my *MyFile) TestRW(path string)  {
@@ -223,7 +274,7 @@ func (my *MyFile) TestRW(path string)  {
     }
 ```
 
-## 2.9 改变权限、拥有者、时间戳
+## 2.9-改变权限、拥有者、时间戳
 
 ```go
 func main() {
@@ -293,7 +344,7 @@ func main() {
     }
 ```
 
-## 2.10 硬链接和软链接
+## 2.10-硬链接和软链接
 
 ```go
 func main() {
@@ -343,7 +394,7 @@ func main() {
 
 
 
-## 遍历目录
+## 2.91-遍历目录
 
 ```go
 
@@ -394,7 +445,8 @@ func (my *MyFile) findJavaVisitor(path string, f os.FileInfo, err error) error {
 	}
 	if f.IsDir() {
 		return nil
-	}
+    }
+    
 
     //收集后缀为java、go的文件
 	_, filename := filepath.Split(path)
@@ -450,9 +502,9 @@ public class MyFile {
 
 
 
-# 3 读写
+# 3-读写
 
-## 3.1 复制文件
+## 3.1-复制文件
 
 ```go
 func main() {
@@ -496,7 +548,7 @@ func main() {
     }
 ```
 
-## 3.2 跳转到文件指定位置(Seek)
+## 3.2-跳转到文件指定位置(Seek)
 
 ```go
 func main() {
@@ -551,7 +603,7 @@ func main() {
     }
 ```
 
-## 3.3 写文件
+## 3.3-写文件
 
 ```go
 func main() {
@@ -575,7 +627,7 @@ func main() {
 }
 ```
 
-## 3.4 快写文件
+## 3.4-快写文件
 ioutil包有一个非常有用的方法WriteFile()可以处理创建／打开文件、写字节slice和关闭文件一系列的操作。如果你需要简洁快速地写字节slice到文件中，你可以使用它。
 
 ```go
@@ -592,7 +644,7 @@ func main() {
 //    public static Path write(Path path, byte[] bytes, OpenOption... options)
 ```
 
-## 3.5 使用缓存写
+## 3.5-使用缓存写
 
 ```go
 func main() {
@@ -1335,4 +1387,14 @@ func main() {
 ## 5.2 通过HTTP下载文件 TODO
 
 ## 5.3 哈希和摘要 TODO
+
+```go
+//
+// 计算Hash
+fmt.Printf("crc32: %x\n\n", crc32.ChecksumIEEE(data))
+fmt.Printf("Md5: %x\n\n", md5.Sum(data))
+fmt.Printf("Sha1: %x\n\n", sha1.Sum(data))
+fmt.Printf("Sha256: %x\n\n", sha256.Sum256(data))
+fmt.Printf("Sha512: %x\n\n", sha512.Sum512(data))
+```
 

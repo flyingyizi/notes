@@ -44,13 +44,55 @@ aptitude search rsync
     ./rsync start　#启动　
     ./rsync start　#关闭
 
+#或
+$sudo systemctl status/start/stop rsync.service
+
 #可在　/etc/default 路径下的rsync文件中将其改为自启动
 　　将 RSYNC_ENABLE=true 
 ```
 
-编写配置文件
+## 编写配置文件
 
 主要是`/etc/rsyncd.conf`的书写,[参考1](https://blog.51cto.com/6226963/1560355),[参考2](https://www.cnblogs.com/felixzh/p/4950049.html)
+
+默认是没有配置文件的，查看rsync服务的状态时，会提示需要新建`/etc/rsyncd.conf `
+
+```sh
+atmel:/etc/default$sudo systemctl status rsync.service
+* rsync.service - fast remote file copy program daemon
+   Loaded: loaded (/lib/systemd/system/rsync.service; enabled; vendor preset: enabled)
+   Active: inactive (dead)
+Condition: start condition failed at Sun 2020-05-24 06:49:15 CST; 10s ago
+           `- ConditionPathExists=/etc/rsyncd.conf was not met
+```
+
+通过查看安装包的情况，知道在`examples/rsyncd.conf`下面有一个范例，因此配置文件从它开始是合适的。
+
+```sh
+atmel:/etc/default$dpkg -L rsync
+/.
+/etc
+/etc/default
+/etc/default/rsync
+...
+/usr/share/doc/rsync/examples
+/usr/share/doc/rsync/examples/logrotate.conf.rsync
+/usr/share/doc/rsync/examples/rsyncd.conf
+...
+```
+
+下面是配置文件中的一个模块举例,这里需要特别注意的是secrets file的权限模式必须是600. 并且该文件的内容是“username:passwd”模式
+
+```text
+[common]
+path = /home/user/input
+comment = Web content
+read only = no
+write only = yes
+list = no
+auth users = upload
+secrets file = /home/user/test/rsync/etc/test.pass
+```
 
 例如下面是服务侧运行后查看服务侧module的结果
 ```shell

@@ -6,17 +6,24 @@ nginx有两种重定向方式，一个是反向代理，另外一个就是rewrit
 
 ## 7.1什么是nginx 的rewrite规则
 
-Rewrite主要的功能就是实现URL的重写，Nginx的Rewrite规则采用PCRE(Perl Compatible Regular Expressions)Perl兼容正则表达式的语法进行规则匹配，如果您需要Nginx的Rewrite功能，在编译Nginx之前，须要编译安装PCRE库。
+Rewrite主要的功能就是实现URL的重写，Nginx的Rewrite规则采用PCRE(Perl Compatible Regular Expressions)Perl兼容正则表达式的语法进行规则匹配，如果您需要Nginx的Rewrite功能，在编译Nginx之前，须要编译安装PCRE库。如果是安装的编译好的openresty，这个一般是会自动安装的，如下面命令显示
 
-正则表达式（英文：Regular Expression）在计算机科学中，是指一个用来描述或匹配一系列符合某个句法规则的字符串的单个字符串。最初的正则表达式出现于理论计算机科学的自动控制理论和形式化语言理论中。在这些领域中有对计算（自动控制）的模型和对形式化语言描述与分类的研究。20世纪40年代，WarrenMu11h与WalterPitts将神经系统中的神经元描
-述成小而简单的自动控制元。20世纪50年代，数学家斯蒂芬·科尔·克莱尼利用称之为正则集合的数学符号来描述此模型“肯·汤普逊将此符号系统引入编辑器QED,然后是Unix上的编辑器，并最终引入grep。自此，正则表达式被广泛使用于各种Unix或类似Unix的工具，例如Perl.
+```sh
+atmel:~$aptitude search pcre
+....
+p   lua-rex-pcre       - Perl regular expressions library for the Lua language                            
+                                                 
+i A openresty-pcre     - Perl-compatible regular expression library for use by OpenResty ONLY             
+...
+``` 
 
-通过Rewrite规则，可以实现规范的URL、根据变量来做URL转向及选择配置。例如，些使用MVC框架的程序只有一个入口，可以通过Rewnte来实现。一些动态URL地址须要伪装成静态HTML,便于搜索引擎抓取，也需要Rewri忙来处理·一些由于目录结构、域名变化的旧URL,须要跳转到新的URL上，也可通过Rewrite来处理。
+正则表达式（英文：Regular Expression）在计算机科学中，是指一个用来描述或匹配一系列符合某个句法规则的字符串的单个字符串。先是此符号系统被引入编辑器QED,然后是Unix上的编辑器，并最终引入grep。自此，正则表达式被广泛使用于各种Unix或类似Unix的工具，例如Perl.
 
-# 7．2NginxRewrite规则相关指令
+通过Rewrite规则，可以实现规范的URL、根据变量来做URL转向及选择配置。例如，些使用MVC框架的程序只有一个入口，可以通过Rewnte来实现。一些动态URL地址须要伪装成静态HTML,便于搜索引擎抓取，也需要Rewrite忙来处理·一些由于目录结构、域名变化的旧URL,须要跳转到新的URL上，也可通过Rewrite来处理。
 
+# 7．2Nginx  Rewrite规则相关指令
 
-## rewrite
+## rewrite指令
 
 基本用法是 rewrite patten replace flag
 

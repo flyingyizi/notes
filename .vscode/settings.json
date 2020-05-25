@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\tools\\Anaconda3\\python.exe",
+    "python.pythonPath": "C:\\prog\\Anaconda3\\envs\\myenv\\python.exe",
     "files.associations": {
         "io.h": "c",
         "arduino.h": "c",
