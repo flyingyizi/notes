@@ -9,6 +9,9 @@
 
 - [2-基本操作](#2-基本操作)
   - [2.1-打开创建文件](#21-打开创建文件)
+    - [golang代码：](#golang代码)
+    - [java代码：](#java代码)
+    - [python代码：](#python代码)
   - [2.2-Truncate文件](#22-truncate文件)
   - [2.3-得到文件信息](#23-得到文件信息)
   - [2.4-重命名和移动](#24-重命名和移动)
@@ -22,8 +25,15 @@
   - [3.1-复制文件](#31-复制文件)
   - [3.2-跳转到文件指定位置(Seek)](#32-跳转到文件指定位置seek)
   - [3.3-写文件](#33-写文件)
+    - [golang代码：](#golang代码-1)
   - [3.4-快写文件](#34-快写文件)
+    - [golang代码：](#golang代码-2)
+    - [java代码：](#java代码-1)
+    - [python代码：](#python代码-1)
   - [3.5-使用缓存写](#35-使用缓存写)
+    - [golang代码：](#golang代码-3)
+    - [java代码：](#java代码-2)
+    - [python代码：](#python代码-2)
   - [3.6-读取最多N个字节](#36-读取最多n个字节)
   - [3.7-读取正好N个字节](#37-读取正好n个字节)
   - [3.9-读取全部字节](#39-读取全部字节)
@@ -40,6 +50,13 @@
   - [5.2-通过HTTP下载文件 TODO](#52-通过http下载文件-todo)
   - [5.3-哈希和摘要](#53-哈希和摘要)
   - [5.91-计算花费时间](#591-计算花费时间)
+  - [5.92- json序列化与反序列](#592--json序列化与反序列)
+    - [5.92.1-golang代码](#5921-golang代码)
+    - [5.92.3-python代码](#5923-python代码)
+      - [自定义数据结构](#自定义数据结构)
+      - [内置数据结构](#内置数据结构)
+  - [5.93-命令行todo](#593-命令行todo)
+    - [python代码](#python代码-3)
 
 
 
@@ -89,7 +106,7 @@ import java.util.Scanner;
 
 ## 2.1-打开创建文件
 
-- golang代码：
+### golang代码：
 
     ```go
     ///CreateFile 如果文件或目录存在则可读打开
@@ -125,7 +142,7 @@ import java.util.Scanner;
 
     ```
 
-- java代码：
+### java代码：
 
     ```java
     public class MyFile {
@@ -146,7 +163,7 @@ import java.util.Scanner;
     }	
     ```
 
-- python代码：
+### python代码：
   
     注意打开文件open中buffering的用法参见 [3.5 使用缓存写](#35-使用缓存写)中对buffering的说明
 
@@ -242,7 +259,7 @@ import java.util.Scanner;
 
 ## 2.3-得到文件信息
 
-- golang代码：
+### golang代码：
 
     ```go
     func GetFileInfo(path string) {
@@ -261,7 +278,7 @@ import java.util.Scanner;
     }
     ```
 
-- java代码：
+### java代码：
 
     ```java
         void GetFileInfo(final Path path) throws IOException {
@@ -278,7 +295,7 @@ import java.util.Scanner;
         }
     ```
 
-- python代码:
+### python代码:
 
     ```python
     import os
@@ -937,7 +954,7 @@ public class MyFile {
 
 ## 3.3-写文件
 
-golang代码：
+### golang代码：
 
 ```go
 func main() {
@@ -963,7 +980,7 @@ func main() {
 
 ## 3.4-快写文件
 
-golang代码：
+### golang代码：
 
     ioutil包有一个非常有用的方法WriteFile()可以处理创建／打开文件、写字节slice和关闭文件一系列的操作。如果你需要简洁快速地写字节slice到文件中，你可以使用它。
 
@@ -976,14 +993,14 @@ func main() {
 }
 ```
 
-- java代码：
+### java代码：
 
     ```java
     //java可以采用下面的类似方法
     //    public static Path write(Path path, byte[] bytes, OpenOption... options)
     ```
 
-- python代码：
+### python代码：
 
     使用`Path.write_bytes(data)`，与`Path.write_text(data, encoding=None, errors=None)`
     ```python
@@ -1005,7 +1022,7 @@ func main() {
 
 ## 3.5-使用缓存写
 
-- golang代码：
+### golang代码：
 
     ```go
     func main() {
@@ -1071,7 +1088,7 @@ func main() {
     }
     ```
 
-- java代码：
+### java代码：
 
     ```java
         //注意这里的例子是字符文件，如果是二进制文件，需要使用类似Files.newInputStream
@@ -1091,7 +1108,9 @@ func main() {
         }
     ```
 
-- python代码：
+### python代码：
+
+    通常下面的方式就足够好了. 也可以使用`from io import StringIO`,与`from io import BytesIO`，但没有必要。它们应该用在纯内存操作str，bytes的场景。
 
     ```python
     def  WriteFileWithBuffer(Pathstr : str) :
@@ -1106,6 +1125,7 @@ func main() {
         
         更详细内容见 https://docs.python.org/3/library/io.html
         '''
+        from pathlib import Path
         p = Path(pathstr)
         # 设置 buffer size 为 1024
         f = p.open(mode='wb',buffering=1024)
@@ -1303,7 +1323,7 @@ java代码：
 
     见[how-to-read-a-large-file-line-by-line](https://stackoverflow.com/questions/8009882/how-to-read-a-large-file-line-by-line)
 
-    通常下面的方式就足够好了
+    通常下面的方式就足够好了. 也可以使用`from io import StringIO`,与`from io import BytesIO`，但没有必要。它们应该用在纯内存操作str，bytes的场景。
 
     ```python
     #memory for loop iterates through the f file object line by line. 
@@ -1942,6 +1962,8 @@ java代码：
 
 ## 5.1-临时文件和目录
 
+临时文件，文件夹在类似测试场景用的比较多。生产业务场景应该比较少。
+
 - golang代码：
 
     对golang，ioutil提供了两个函数: TempDir() 和 TempFile()。使用完毕后，调用者负责删除这些临时文件和文件夹。
@@ -2053,6 +2075,7 @@ java代码：
 
 - golang代码：
 
+    
     ```go
     //
     // 计算Hash
@@ -2061,6 +2084,29 @@ java代码：
     fmt.Printf("Sha1: %x\n\n", sha1.Sum(data))
     fmt.Printf("Sha256: %x\n\n", sha256.Sum256(data))
     fmt.Printf("Sha512: %x\n\n", sha512.Sum512(data))
+    ```
+
+    如果hash后还希望base64下，那采用“encoding/base64”标准库即可
+    ```go
+    import (
+        "encoding/base64"
+        "fmt"
+    )
+
+    func main() {
+        s := "Hello World!"
+        b := []byte(s)
+
+        sEnc := base64.StdEncoding.EncodeToString(b)
+        fmt.Printf("enc=[%s]\n", sEnc)
+
+        sDec, err := base64.StdEncoding.DecodeString(sEnc)
+        if err != nil {
+            fmt.Printf("base64 decode failure, error=[%v]\n", err)
+        } else {
+            fmt.Printf("dec=[%s]\n", sDec)
+        }
+    }
     ```
 
 - java代码:
@@ -2079,6 +2125,12 @@ java代码：
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
     }
+    ```
+
+    通常hash后，还会有base64编码的需求，如果有这方面需求可以采用
+    ```java
+    import java.util.Base64;
+    final String outx=Base64.getEncoder().encodeToString("src".getBytes()) ;
     ```
 
 - python代码:
@@ -2101,9 +2153,23 @@ java代码：
     >>>Sha512:  9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043
     ```
 
+    如果需要base64编码，可以采用
+
+    ```python
+    #由于标准的Base64编码后可能出现字符+和/，在URL中就不能直接作为参数，所以又
+    # 有一种"url safe"的base64编码，其实就是把字符+和/分别变成-和_：
+    import base64
+    >>> base64.b64encode(b'i\xb7\x1d\xfb\xef\xff')
+    b'abcd++//'
+    >>> base64.urlsafe_b64encode(b'i\xb7\x1d\xfb\xef\xff')
+    b'abcd--__'
+    >>> base64.urlsafe_b64decode('abcd--__')
+    b'i\xb7\x1d\xfb\xef\xff'
+    ```
+
 ## 5.91-计算花费时间
 
-- golang代码：
+### golang代码：
 
     ```go
     t1 := time.Now() // get current time
@@ -2112,7 +2178,7 @@ java代码：
     fmt.Println("App elapsed: ", elapsed)
     ```
 
-- java代码
+### java代码
 
     ```java
     long t1=System.currentTimeMillis();
@@ -2121,7 +2187,7 @@ java代码：
     System.out.println("App elapsed: ", elapsed)
     ```
 
-- python代码
+### python代码
 
     ```python
     #可以使用类似datetime.datetime.now()，time.time()，不能使用time.clock()
@@ -2132,3 +2198,276 @@ java代码：
     elapsed = time.time() - t1
     print("App elapsed: ", elapsed)
     ```
+
+## 5.92- json序列化与反序列
+
+### 5.92.1-golang代码
+
+golang要支持序列化、反序列，条件是struct中对field定义了tags
+
+    ```golang
+    import (
+        "encoding/json"
+        "fmt"
+        "reflect"
+    )
+
+    /***
+    *omitempty 关键字表示这条信息如果没有提供，在序列化成
+    *json 的时候就不要包含其默认值。为了避免正常默认值（如int的0）被忽略掉，
+    *对有这种需求的字段应采用指针
+    *
+    */
+
+    //Person 演示结构
+    type Person struct {
+        Name string `json:"name,omitempty"`
+        Age  int    `json:"age,omitempty"`
+        Sex  string `json:"sex,omitempty"`
+
+        Next *Person `json:"next,omitempty"`
+    }
+
+    //Marshal 序列化， entry为输入，str是输出
+    func Marshal(entry *Person) (str []byte, err error) {
+
+        str, err = json.Marshal(entry) //json序列化
+        if err != nil {
+            panic(err)
+        }
+
+        fmt.Println("序列化后的字符串:", string(str))
+        return
+    }
+
+    //Unmarshal 反序列化
+    func Unmarshal(str []byte) (p *Person, err error) {
+
+        //反序列化
+        var person Person
+        err = json.Unmarshal(str, &person)
+        if err != nil {
+            panic(err)
+        }
+
+        for p := &person; p != nil; p = p.Next {
+            fmt.Println("反序列化回来:", p, reflect.TypeOf(p))
+        }
+
+        p = &person
+        return
+    }
+    ```
+
+    下面是调用举例：
+    
+   ```golang
+    m1 := x.Person{"name1", 1, "male", nil}
+    m2 := x.Person{"name2", 2, "male", &m1}
+
+    str, _ := x.Marshal(&m2)
+    _, _ = x.Unmarshal(str)
+
+    //output:
+    //序列化后的字符串: {"name":"name2","age":2,"sex":"male","next":{"name":"name1","age":1,"sex":"male"}}
+    //反序列化回来: &{name2 2 male 0xc000066540} *myjosn.Person
+    //反序列化回来: &{name1 1 male <nil>} *myjosn.Person
+   ```
+
+### 5.92.3-python代码
+
+[网站](https://pynative.com/python-json/)上有关python json的专题比较多，有时间可以看看。
+
+python能能实现json序列化的是`import json`模块，使用的概述如下
+
+|要实现的功能	                                | 可以使用的api |
+|----------------------------------------------|--------------|
+|将Python数据类型转换为（json）字符串	         | json.dumps() |
+|将json字符串转换为Python数据类型	             | json.loads() |
+|将Python数据类型以json形式保存到本地磁盘        |  json.dump()  |
+|将本地磁盘文件中的json数据转换为Python数据类型	  | json.load()  |
+
+注意，json.dumps()方法会默认将其中unicode码以ascii编码的方式输入到string。这导致如果不干预会在生成json的文件中中文类都变成unicode ascii字符，为避免这个问题，需要在json.dumps()方法中加入一个参数，并把`ensure_ascii`值设置为False（默认为True）
+
+判断json格式是否正确，
+
+```python
+def validateJSON(jsonData):
+    try:
+        json.loads(jsonData)
+    except ValueError as err:
+        return False
+    return True
+```
+
+#### 自定义数据结构
+
+在下面这个例子中，演示了自定义class，datetime两种数据结构的处理。在其中通过注释申明的要求必须要遵守，否则无法实现反序列化。只要遵循要求，定义的两个CustomEncoder，CustomDecoder是可以一般化使用的。
+
+```python
+import json
+from datetime import datetime
+
+# Person 演示结构
+class Person(object):
+    # 参数名字必须与filed名字完全一样，因为在后面的编解码中利用了dict解引用来构造重新生成对象
+    def __init__(self, Name: str, Age: int, Sex: str, Ts):
+        self.Name = Name
+        self.Age = Age
+        self.Sex = Sex
+        self.Ts = Ts
+
+    # 供解释器读取，方便调试
+    # def __repr__(self):
+    #     return '[name: {}, age: {}, sex: {}，ts: {}]'.format(
+    #         self.Name, self.Age, self.Sex, self.Ts)
+
+# 定义编码类 CustomEncoder 并重写实例的 default 函数对特殊类型进行处理，
+# 其余类型继续使用父类的解析。
+class CustomEncoder(json.JSONEncoder):
+    def default(self, x):
+        # 保存类信息，模块信息以便后面反序列时重新生成对象
+        if isinstance(x, Person):
+            d = {}
+            d['__class__'] = x.__class__.__name__
+            d['__module__'] = x.__module__
+            # 合并
+            d.update(x.__dict__)
+            return d
+
+        elif isinstance(x, datetime):
+            return int(x.timestamp())
+
+        return super().default(self, x)
+
+#定义反序列化CustomDecoder
+class CustomDecoder(json.JSONDecoder):
+    def __init__(self):
+        json.JSONDecoder.__init__(self, object_hook=self.dict2obj)
+
+    def dict2obj(self, d):
+        if '__class__' in d:
+            class_name = d.pop('__class__')
+            module_name = d.pop('__module__')
+            module = __import__(module_name)
+            class_ = getattr(module, class_name)
+            args = dict(
+                ( key, value) for key, value in d.items())
+            instance = class_(**args)
+        else:
+            instance = d
+        return instance
+
+
+person = Person('Tom', 19, "male", datetime.now())
+
+#序列化为r
+r=json.dumps(person, cls=CustomEncoder)
+#反序列化为y
+y=json.loads(r, cls=CustomDecoder)
+
+print("序列化结果：",r)
+print("反序列结果：name:{},age:{},sex:{},ts:{}".format(y.Name,y.Age,y.Sex,y.Ts))
+
+#输出是:
+# 序列化结果： {"__class__": "Person", "__module__": "__main__", "Name": "Tom", "Age": 19, "Sex": "male", "Ts": 1590866184}
+# 反序列结果：name:Tom,age:19,sex:male,ts:1590866184
+
+```
+
+
+#### 内置数据结构
+
+对python内置数据结构`list, dict`直接支持，对`tuple， set`不支持。其中集合是完全不支持。对元组是在序列化的时候不会保存，会序列化为list。
+
+下面是序列号与反序列化内部数据结构的例子
+
+```python
+# 序列化 dict to json
+r:str=json.dumps(
+    {
+        'a': 'str',
+        'c': True,
+        'e': 10,
+        'b': 11.1,
+        'f': [1, 2, 3],
+        'g': (4, 5, 6)
+    },
+    ensure_ascii=False,
+    # sort_keys=True,
+    # indent=4,
+    separators=(',', ':'))
+In [27]: r
+Out[27]: '{"a":"str","c":true,"e":10,"b":11.1,"f":[1,2,3],"g":[4,5,6]}'
+
+# 反序列化
+y=json.loads(r)
+#输出 {'c': True, 'e': 10, 'a': 'str', 'g': [4, 5, 6], 'd': None, 'f': [1, 2, 3], 'b': 11.1}
+```
+
+下面是一个从文件中反序列的例子
+
+```python
+with open("mix.json",encoding='utf-8')  as f:
+    import json
+    result=json.load(f)
+```
+
+## 5.93-命令行todo
+
+
+
+### python代码
+
+下面演示的是使用optparse解析命令行
+```python
+import optparse
+def parse_args():
+    usage = """usage: %prog [options] poetry-file
+
+This is the Slow Poetry Server, blocking edition.
+Run it like this:
+
+  python slowpoetry.py <path-to-poetry-file>
+
+If you are in the base directory of the twisted-intro package,
+you could run it like this:
+
+  python blocking-server/slowpoetry.py poetry/ecstasy.txt
+
+to serve up John Donne's Ecstasy, which I know you want to do.
+"""
+
+    parser = optparse.OptionParser(usage)
+
+    help = "The port to listen on. Default to a random available port."
+    parser.add_option('--port', type='int', help=help)
+
+    help = "The interface to listen on. Default is localhost."
+    parser.add_option('--iface', help=help, default='localhost')
+
+    help = "The number of seconds between sending bytes."
+    parser.add_option('--delay', type='float', help=help, default=.7)
+
+    help = "The number of bytes to send at a time."
+    parser.add_option('--num-bytes', type='int', help=help, default=10)
+
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error('Provide exactly one poetry file.')
+
+    poetry_file = args[0]
+
+    if not os.path.exists(args[0]):
+        parser.error('No such file: %s' % poetry_file)
+
+    return options, poetry_file
+
+def main():
+    options, poetry_file= parse_args()
+
+    print(options.iface, options.port or 0)
+
+    ...
+```

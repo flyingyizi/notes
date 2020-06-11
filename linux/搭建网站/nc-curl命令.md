@@ -1,9 +1,151 @@
 
 
+## nc-ncat命令
 
+nc（netcat）可以取代telent。 Nc缺乏加密和身份验证的能力，容易被人嗅探，发生中间人劫持，所以更安全的是使用NCAT，Ncat包含于nmap工具中.
+
+[Netcat详解](http://www.seotest.cn/jishu/45208.html)
+[ netcat 使用 && ncat ssl加密传输](https://blog.csdn.net/qq_40636259/article/details/95754192)
+
+Ubuntu上默认安装的是netcat-openbsd,而不是经典的netcat-traditional. 在msys也通过`pacman -S netcat`可以安装netcat,
+
+建议使用ncat
+
+```shell
+#安装ncat
+$sudo apt-get -y install nmap
+#安装traditional nc
+$sudo apt-get -y install netcat-traditional 
+#设置默认的nc,选择/bin/nc.traditional:
+$sudo update-alternatives --config nc
+
+#查看nc.traditional
+$nc.traditional -h
+[v1.10-41.1]
+connect to somewhere:   nc [-options] hostname port[s] [ports] ... 
+listen for inbound:     nc -l -p port [-options] [hostname] [port]
+options:
+        -c shell commands  as ‘-e’; use /bin/sh to exec [dangerous!!]
+        -e filename        程序重定向 [危险!!]，program to exec after connect [dangerous!!]
+        -b                 allow broadcasts
+        -g gateway         源路由跳跃点，source-routing hop point[s], up to 8
+        -G num             源路由指示器source-routing pointer: 4, 8, 12, ...
+        -h                 this cruft
+        -i secs            延时设置,端口扫描时使用，delay interval for lines sent, ports scanned
+        -k                 set keepalive option on socket
+        -l                 监听入站信息，listen mode, for inbound connects
+        -n                 以数字形式表示的IP地址，numeric-only IP addresses, no DNS
+        -o file            二进制记录，hex dump of traffic
+        -p port            打开本地端口local port number
+        -r                 随机本地和远程的端口randomize local and remote ports
+        -q secs            quit after EOF on stdin and delay of secs
+        -s addr            本地源地址local source address
+        -T tos             set Type Of Service
+        -t                 以TELNET的形式应答入站请求answer TELNET negotiation
+        -u                 UDP模式，UDP mode
+        -v                 显示详细信息 [使用=vv获取更详细的信息]verbose [use twice to be more verbose]
+        -w secs            连接超时设置timeout for connects and final net reads
+        -C                 Send CRLF as line-ending
+        -z                 I/O 模式 [扫描时使用]，zero-I/O mode [used for scanning]
+
+#查看ncat命令
+$ncat --help
+Ncat 7.60 ( https://nmap.org/ncat )
+Usage: ncat [options] [hostname] [port]
+
+Options taking a time assume seconds. Append 'ms' for milliseconds,
+'s' for seconds, 'm' for minutes, or 'h' for hours (e.g. 500ms).
+  -4                         Use IPv4 only
+  -6                         Use IPv6 only
+  -U, --unixsock             Use Unix domain sockets only
+  -C, --crlf                 Use CRLF for EOL sequence
+  -c, --sh-exec <command>    Executes the given command via /bin/sh
+  -e, --exec <command>       Executes the given command
+      --lua-exec <filename>  Executes the given Lua script
+  -g hop1[,hop2,...]         Loose source routing hop points (8 max)
+  -G <n>                     Loose source routing hop pointer (4, 8, 12, ...)
+  -m, --max-conns <n>        Maximum <n> simultaneous connections
+  -h, --help                 Display this help screen
+  -d, --delay <time>         Wait between read/writes
+  -o, --output <filename>    Dump session data to a file
+  -x, --hex-dump <filename>  Dump session data as hex to a file
+  -i, --idle-timeout <time>  Idle read/write timeout
+  -p, --source-port port     Specify source port to use
+  -s, --source addr          Specify source address to use (doesnt affect -l)
+  -l, --listen               Bind and listen for incoming connections
+  -k, --keep-open            Accept multiple connections in listen mode
+  -n, --nodns                Do not resolve hostnames via DNS
+  -t, --telnet               Answer Telnet negotiations
+  -u, --udp                  Use UDP instead of default TCP
+      --sctp                 Use SCTP instead of default TCP
+  -v, --verbose              Set verbosity level (can be used several times)
+  -w, --wait <time>          Connect timeout
+  -z                         Zero-I/O mode, report connection status only
+      --append-output        Append rather than clobber specified output files
+      --send-only            Only send data, ignoring received; quit on EOF
+      --recv-only            Only receive data, never send anything
+      --allow                Allow only given hosts to connect to Ncat
+      --allowfile            A file of hosts allowed to connect to Ncat
+      --deny                 Deny given hosts from connecting to Ncat
+      --denyfile             A file of hosts denied from connecting to Ncat
+      --broker               Enable Ncat s connection brokering mode
+      --chat                 Start a simple Ncat chat server
+      --proxy <addr[:port]>  Specify address of host to proxy through
+      --proxy-type <type>    Specify proxy type ("http" or "socks4" or "socks5")
+      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      --ssl                  Connect or listen with SSL
+      --ssl-cert             Specify SSL certificate file (PEM) for listening
+      --ssl-key              Specify SSL private key (PEM) for listening
+      --ssl-verify           Verify trust and domain name of certificates
+      --ssl-trustfile        PEM file containing trusted SSL certificates
+      --ssl-ciphers          Cipherlist containing SSL ciphers to use
+      --ssl-alpn             ALPN protocol list to use.
+      --version              Display Ncat s version information and exit
+
+See the ncat(1) manpage for full options, descriptions and usage examples
+atmel:~$
+```
+
+### 端口扫描
+
+tcp扫描`nc -z`,udp扫描`nc-uz`, 常跟参数`-nv`以取得详细信息以及省略dns解析
+
+```shell
+#功能：扫描地址127.0.0.1上的500-505端口
+$nc -nvz 127.0.0.1 500-505
+```
+
+一旦通过扫描发现端口状态时open，那可以继续查看该端口的banner信息
+
+```shell
+atmel:~$nc -nv *.*.*.* 22 
+(UNKNOWN) [*.*.*.*] 22 (ssh) open
+SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.3
+```
+
+### 连接服务器端口
+
+nc [服务器地址] [端口]
+如：
+nc 127.0.0.1 502
+功能：连接到127.0.0.1上的502端口(TCP)
+
+
+连接成功后，可以发送数据到服务端，也可接收来自服务端的数据。
+
+### 发送文件
+
+nc [服务器地址] [端口] < [文件名]
+如：
+nc 127.0.0.1 502 < test
+功能：向127.0.0.1上的502端口(TCP)发送test文件
+
+
+
+## curl命令
 curl 是一种命令行工具，作用是发出网络请求，然后获取数据，显示在"标准输出"（stdout）上面。它支持多种协议，下面列举其常用功能。
 
-## 一、查看网页源码
+### 1.查看网页源码
 直接在 curl 命令后加上网址，就可以看到网页源码。以网址 www.sina.com为例（选择该网址，主要因为它的网页代码较短）。
 
 ```html
@@ -19,10 +161,11 @@ $ curl www.sina.com
 
 如果要把这个网页保存下来，可以使用 -o 参数：
 
+```shell
 $ curl -o [文件名] www.sina.com
+```
 
-
-## 二、自动跳转
+### 2.自动跳转
 有的网址是自动跳转的。使用 -L 参数，curl 就会跳转到新的网址。
 
 ```sh
@@ -31,7 +174,7 @@ $ curl -L www.sina.com
 
 键入上面的命令，结果自动跳转为 www.sina.com.cn。
 
-## 三、显示头信息
+### 3.显示头信息
 
 -i 参数可以显示 http response 的头信息，连同网页代码一起。-I 参数则只显示 http response 的头信息。
 
@@ -57,7 +200,7 @@ X-Cache: HIT from xd33-83.sina.com.cn
 </html>
 ```
 
-## 四、显示通信过程
+### 4.显示通信过程
 
 -v 参数可以显示一次 http 通信的整个过程，包括端口连接和 http request 头信息。
 
@@ -108,18 +251,21 @@ $ curl --trace-ascii output.txt www.sina.com
 
 运行后，打开 output.txt 文件查看。
 
-## 五、发送表单信息
+### 5.发送表单信息
 发送表单信息有 GET 和 POST 两种方法。GET 方法相对简单，只要把数据附在网址后面就行。
 
-$ curl example.com/form.cgi?data=xxx
-POST 方法必须把数据和网址分开，curl 就要用到 --data 或者 -d 参数。
+```shell
+#get方法
+$curl example.com/form.cgi?data=xxx
 
-$ curl -X POST --data "data=xxx" example.com/form.cgi
-如果你的数据没有经过表单编码，还可以让 curl 为你编码，参数是 --data-urlencode。
+#POST 方法必须把数据和网址分开，curl 就要用到 --data 或者 -d 参数。
+$curl -X POST --data "data=xxx" example.com/form.cgi
 
-$ curl -X POST--data-urlencode "date=April 1" example.com/form.cgi
+#如果你的数据没有经过表单编码，还可以让 curl 为你编码，参数是 --data-urlencode。
+$curl -X POST--data-urlencode "date=April 1" example.com/form.cgi
+```
 
-## 六、HTTP动词
+### 6.HTTP动词
 
 curl 默认的 HTTP 动词是 GET，使用 -X 参数可以支持其他动词。
 
@@ -128,7 +274,7 @@ $ curl -X POST www.example.com
 $ curl -X DELETE www.example.com
 ```
 
-## 七、User Agent字段
+### 7.User Agent字段
 
 这个字段是用来表示客户端的设备信息。服务器有时会根据这个字段，针对不同设备，返回不同格式的网页，比如手机版和桌面版。
 浏览器的 User Agent 是：
@@ -138,18 +284,19 @@ curl 可以这样模拟：
 
 $ curl --user-agent "[User Agent]" [URL]
 
-## 八、cookie
+### 8.cookie
 使用 --cookie 参数，可以让 curl 发送 cookie。
 
 $ curl --cookie "name=xxx" www.example.com
+
 至于具体的 cookie 的值，可以从 http response 头信息的 Set-Cookie 字段中得到。
 
-## 九、增加头信息
+### 9.增加头信息
 有时需要在 http request 之中，自行增加一个头信息。--header 参数就可以起到这个作用。
 
 $ curl --header "Content-Type:application/json" http://example.com
 
-## 十、HTTP认证
+### 10.HTTP认证
 有些网域需要 HTTP 认证，这时 curl 需要用到 --user 或者 -u 参数。
 
 ```sh
@@ -325,7 +472,7 @@ Options: (H) means HTTP/HTTPS only, (F) means FTP only
  -q                 If used as the first parameter disables .curlrc
  ```
 
- ## 使用-w查看响应吗
+ ### 11.使用-w查看响应吗
 
  用curl命令获取http://baidu.com网站的响应码
 

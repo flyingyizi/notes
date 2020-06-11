@@ -92,13 +92,15 @@ server 192.168.1.16:80 weight=l max_fails=2 fail_timeout=30s;
 
 ngx_http_proxy_module 模块允许将请求传递给另外一台服务器
 
-配置举例
+配置举例,用户访问 `http://localhost:80`，则反向代理到 `https://localhost:8000`
 
 ```conf
-location / {
-    proxy_pass       http://localhost:8000;
-    proxy_set_header Host      $host;
-    proxy_set_header X-Real-IP $remote_addr;
+server {
+    listen 80;
+    location / {
+        proxy_pass       http://localhost:8000;
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
 }
 ```
 

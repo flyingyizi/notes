@@ -9,10 +9,9 @@ nginx有两种重定向方式，一个是反向代理，另外一个就是rewrit
 Rewrite主要的功能就是实现URL的重写，Nginx的Rewrite规则采用PCRE(Perl Compatible Regular Expressions)Perl兼容正则表达式的语法进行规则匹配，如果您需要Nginx的Rewrite功能，在编译Nginx之前，须要编译安装PCRE库。如果是安装的编译好的openresty，这个一般是会自动安装的，如下面命令显示
 
 ```sh
-atmel:~$aptitude search pcre
+~$aptitude search pcre
 ....
 p   lua-rex-pcre       - Perl regular expressions library for the Lua language                            
-                                                 
 i A openresty-pcre     - Perl-compatible regular expression library for use by OpenResty ONLY             
 ...
 ``` 
@@ -25,7 +24,7 @@ i A openresty-pcre     - Perl-compatible regular expression library for use by O
 
 ## rewrite指令
 
-基本用法是 rewrite patten replace flag
+基本用法是 `rewrite patten replace flag`
 
 patten是正则表达式，与patten匹配的URL会被改写为replace，flag可选
 
@@ -34,7 +33,7 @@ rewrite 指令的最后一项参数为flag 标记，支持的flag 标记有：
 - last： 停止当前这个请求，并根据rewrite匹配的规则重新发起一个请求。新请求又从第一阶段开始执行…
 - break：相对last，break并不会重新发起一个请求，只是跳过当前的rewrite阶段，并执行本请求后续的执行阶段…
 - • redirect一返回302 临时重定向，浏览器地址栏会显示跳转后的URL 地址：
-- • permanen「一返回到l 永久重定向，浏览器地址栏会显示跳转后的URL 地址。
+- • permanent 返回301 永久重定向，浏览器地址栏会显示跳转后的URL 地址。
 
 在以上的标记中， last 和break 用来实现URI 重写，浏览器地址栏的URL 地址不变，但在服务器端访问的路径发生了变化。redirect 和permanent 用来实现URL 跳转，浏览器地址栏会显示跳转后的URL 地址。
 

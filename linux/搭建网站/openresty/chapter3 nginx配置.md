@@ -42,7 +42,10 @@ Options:
 #user  nobody;
 
 # 指定工作进程数量，一般设置为cpu总核数量的2倍，例如四核cpu这设置8
+#usually equal to number of CPUs you have. run command 
+#"grep processor /proc/cpuinfo | wc -l" to find it
 worker_processes  8;
+worker_cpu_affinity auto;
 
 # 指定错误日志存放路径，错误日志的记录级别可选：[debug|info|notice|warn|error|crit]
 #error_log  logs/error.log;
@@ -68,7 +71,19 @@ http {
     default_type  application/octet-stream;
 
     # 设置使用的字符集，如果一个网站有多种字符集，不要随便设置，应让程序员在html代码中通过meta设置
-    #charset  gb2312
+    ##charset  gb2312
+
+    # 这个将为打开文件指定缓存，默认是没有启用的，max 指定缓存数量，
+    # 建议和打开文件数一致，inactive 是指经过多长时间文件没被请求后删除缓存。
+    ##open_file_cache max=204800 inactive=20s;
+
+    # open_file_cache 指令中的inactive 参数时间内文件的最少使用次数，
+    # 如果超过这个数字，文件描述符一直是在缓存中打开的，如上例，如果有一个
+    # 文件在inactive 时间内一次没被使用，它将被移除。
+    ##open_file_cache_min_uses 1;
+    
+    # 这个是指多长时间检查一次缓存的有效信息
+    ##open_file_cache_valid 30s;
 
     # 与日志相关的指令主要两条：log_format与access_log。它们的位置可在http{...},也可以在server{...}
 
@@ -98,12 +113,12 @@ http {
     keepalive_timeout  65;
 
     # 开启gzip压缩
-    #gzip  on;
-    #gzip_min_length 1k;
-    #gzip_http_version 1.1;
-    #gzip_comp_level 2;
-    #gzip_types  text/plain application/x-javascript text/css application/xml;
-    #gzip_vary on;
+    ##gzip  on;
+    ##gzip_min_length 1k;
+    ##gzip_http_version 1.1;
+    ##gzip_comp_level 2;
+    ##gzip_types  text/plain application/x-javascript text/css application/xml;
+    ##gzip_vary on;
 
     # 语法： expires [time|epoch|max|off], 作用域： http. server, location
     # 使用本指令可以控制Hπp 应答中的"Expires"和“ Cache-Control ”的Header 头信息（起到控制页面缓存的作用）
@@ -126,6 +141,9 @@ http {
         # 自动列目录功能，前提条件是当前目录下不存在用index 指令设置的默认首页文件。如果须
         # 要在某一虚拟主机的location /｛……｝目录控制中配置自动列目录，需要配置autoindex on;
         location / {
+            # 只允许内部调用,例如对数据库，对内部函数api接口
+            #internal;
+
            # 基于根目录"/path/to/app_a/static"的，也就是说"/"指的就是"/path/to/app_a/static/"，
            # 而"/images/"指的就是"/path/to/app_a/static/images/"
            # 例如，如果我们的URI是/images/some/path/abc.html，那么nginx返回的文件就是
@@ -252,6 +270,48 @@ http {
 
 ```
 
+## location指令说明
+
+```conf
+ # 语法： location [=|~|~*|^~]   /uri/ { ... }
+ # 对待匹配的“uri”，可能是字符串，也可能是正则。
+
+ # 修饰符的解释：
+ # "~"表示区分大小写的匹配，"~*"表示不区分大小写的匹配。先匹配字符串再匹配正则
+ # "="表示进行精确匹配，如果找到匹配的uri这停止查询
+ # "^~"表示禁止匹配到字符串后，再去检查正则
+
+#修饰符补充解释
+#完全匹配(=)
+#无正则的普通匹配(^~)（^ 表示“非”，~ 表示“正则”，字符意思是：不要继续匹配正则）,就是一种前缀匹配
+#正则表达式匹配(~或者~*)
+#不带任何修饰符代表普通匹配，也表示前缀匹配，
+
+```
+匹配顺序
+
+- 首先精确匹配 =
+- 其次前缀匹配 `^~`
+- 其次是按文件中顺序的正则匹配
+- 然后匹配不带任何修饰的前缀匹配。
+- 最后是交给 `/` 通用匹配
+- 当有匹配成功时候，停止匹配，按当前匹配规则处理请求
+
+基于商品的匹配顺序，建议配置文件中按照下面的顺序书写
+
+```conf
+# 直接匹配网站根，通过域名访问网站首页比较频繁,可以起到加速效果
+location = / {...}
+
+# 第二个必选规则是处理静态文件
+location ^~ /static/ {...} #前缀匹配
+location ~* \.(gif|jpg|jpeg|png|css|js|ico)$ {...} #后缀匹配
+
+## 第三个规则就是通用规则，用来转发动态请求到后端应用服务器
+location / {...}
+```
+
+
 # 举例
 
 ## 
@@ -334,25 +394,8 @@ tek4edTZE898g
 $
 ```
 
-## location指令举例
 
-```conf
- # 语法： location [=|~|~*|^~]   /uri/ { ... }
- # 对待匹配的“uri”，可能是字符串，也可能是正则。
- # "~"表示区分大小写的匹配，"~*"表示不区分大小写的匹配。先匹配字符串再匹配正则
- # "="表示进行精确匹配，如果找到匹配的uri这停止查询
- # "^~"表示禁止匹配到字符串后，再去检查正则
-
-#补充解释
-#完全匹配(=)
-#无正则普通匹配(^~)（^ 表示“非”，~ 表示“正则”，字符意思是：不要继续匹配正则）
-#正则表达式匹配(~或者~*)
-#普通匹配
-
-```
-
-
-### 无正则普通匹配(^~)
+## location无正则普通匹配(^~)
 
 同时表明该规则优先级高于“~”正则规则
 
@@ -373,16 +416,13 @@ $
 执行结果是如下，
 
 ```sh
-atmel@atmel-PC MINGW64 ~
-$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abcefg
+$curl -I -s -w "%{http_code}\n" -o /dev/null  http://服务器ip/abcefg
 501
 
-atmel@atmel-PC MINGW64 ~
-$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abc
+$curl -I -s -w "%{http_code}\n" -o /dev/null  http://服务器ip/abc
 501
 
-atmel@atmel-PC MINGW64 ~
-$ curl -I -s -w "%{http_code}\n" -o /dev/null  http://117.89.128.137:8989/abc/efg
+$curl -I -s -w "%{http_code}\n" -o /dev/null  http://服务器ip/abc/efg
 501
 ```
 

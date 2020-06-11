@@ -271,7 +271,7 @@ document.querySelector("h1").textContent = 'what'
 
 比如在console中输入下面的代码看有咩有选择到的
 
-- 采用css selector语法
+#### 采用css selector语法
 
 ```js
 document.querySelectorAll(".wrap .leftDiv > .demo")
@@ -279,7 +279,9 @@ document.querySelectorAll(".wrap .leftDiv > .demo")
 $(".wrap .leftDiv > .demo")
 ```
 
-- 采用xpath语法
+#### 采用xpath语法
+
+XPath 使用路径表达式在 XML 文档中进行导航
 
 这个使用"`$x(path)`"方式
 

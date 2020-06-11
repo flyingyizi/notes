@@ -122,7 +122,7 @@ vscode 中快捷片段：`link:favicon`,`meta:kw`,`meta:desc`
 
 对选择器优先使用类名选择器，因为它可以同时选择多个元素，更加灵活。像id选择器，一般是给js使用的。
 
-- id选择器
+#### id选择器
 
 ```text
 #选择器名(id) {
@@ -144,7 +144,7 @@ vscode 中快捷片段：`link:favicon`,`meta:kw`,`meta:desc`
     <div id="id1" >1</div>
 ```
 
-- 类名选择器
+#### 类名选择器
 
 ```text
 .选择器名(类名) {
@@ -168,13 +168,34 @@ vscode 中快捷片段：`link:favicon`,`meta:kw`,`meta:desc`
     <div class="class1" >1</div>
 ```
 
-- 标签名选择器
+#### 标签名选择器
 
 ```text
 选择器名(标签名) {
     属性名:属性值;
     属性名:属性值;
 }
+```
+
+例如下面的例子对标签dv制定css样式
+```html
+    <style>
+        div 
+        {
+            border:1px  solid yellow;
+        }
+    </style>
+</head>
+
+```
+
+#### 属性选择器
+
+
+例如，为了将同时有 href 和 title 属性的 HTML 超链接的文本设置为红色，可以这样写：
+
+```css
+a[href][title] {color:red;}
 ```
 
 ### 加强的后代、子代选择器
@@ -197,6 +218,7 @@ vscode 中快捷片段：`link:favicon`,`meta:kw`,`meta:desc`
 #wrap p {
     ...
 }
+```
 
 ### css样式重置
 
