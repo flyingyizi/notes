@@ -44,6 +44,10 @@
   - [3.4创建用户并赋远程权限](#34创建用户并赋远程权限)
     - [3.4.1.方式1](#341方式1)
     - [3.4.1.方式2](#341方式2)
+  - [3.5 修改mysql数据位置](#35-修改mysql数据位置)
+    - [step1，查看当前数据位置,关闭服务器,备份](#step1查看当前数据位置关闭服务器备份)
+    - [step2, 修改配置](#step2-修改配置)
+    - [3.6 远程访问mysql的几个要点](#36-远程访问mysql的几个要点)
 - [4-安装vsftpd](#4-安装vsftpd)
   - [4.1安装](#41安装)
   - [4.2配置vsftpd。](#42配置vsftpd)
@@ -592,9 +596,86 @@ mysql>> mysql> select host ,user  from user;
 执行以下命令，为用户wordpressuser赋予数据库wordpress上的所有权限
 
 ```sql
-mysql>> GRANT all privileges ON wordpress to `wordpressuser`@`localhost`;
+mysql>> GRANT all privileges ON wordpress.* to `wordpressuser`@`localhost`;
 Query OK, 0 rows affected (0.00 sec)
 ```
+
+## 3.5 修改mysql数据位置
+
+假设将mysql数据库位置由默认位置更改为`/u01/mydata/`路径下，需要下面的两个步骤
+
+### step1，查看当前数据位置,关闭服务器,备份
+
+```shell
+#查看当前位置
+$sudo mysql -u root -p
+#When prompted, supply the MySQL root password. Then from the MySQL prompt, select the data directory:
+>>>select @@datadir;
+Output
++-----------------+
+| @@datadir       |
++-----------------+
+| /var/lib/mysql/ |
++-----------------+
+1 row in set (0.00 sec)
+>>>quit
+#关闭mysql服务器
+$sudo systemctl stop mysql
+#确认关闭正常
+$sudo systemctl status mysql
+#copy the existing database directory to the new location with rsync
+$sudo rsync -av /var/lib/mysql /u01/mydata
+#备份
+$sudo mv /var/lib/mysql /var/lib/mysql.bak
+```
+
+### step2, 修改配置
+
+```shell
+#更改datadir为新路径
+$sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+. . .
+datadir=/u01/mydata/mysql
+. . .
+
+#在默认路径与新路径间建立一个别名
+$sudo vi /etc/apparmor.d/tunables/alias
+. . .
+alias /var/lib/mysql/ -> /mnt/volume-nyc1-01/mysql/,
+. . .
+```
+
+### 3.6 远程访问mysql的几个要点
+
+
+对需要远程访问的用户，需要确保`host`是`%`或确定ip，前者是通配含义，任何主机都可以登陆过来，后者是指定ip的客户端才可以登陆过来,例如，下面的 `t0,t2`两个用户是可以远程登陆的。
+
+  ```shell
+  mysql> SELECT User,Host FROM mysql.user;
+  +------------------+-----------+
+  | User             | Host      |
+  +------------------+-----------+
+  | t0               | %         |
+  | t1               | localhost |
+  | t2               | 10.0.53.1 |
+  +------------------+-----------+
+  #下面的命令是将t1用户更改为可以远程登陆
+  mysql>RENAME USER 't1'@'localhost' TO 't1'@'%';
+  mysql>FLUSH PRIVILEGES;
+  ```
+
+在os层面，也要确保访问mysql的端口`3306`是开放的。这牵涉到以下几个方面
+
+-  MySQL config
+
+  对mysql配置，是否约束了只能特定客户端访问？ 这可以通过查找mysql配置文件中是否存在`bind-address = xxxx`来确认，如果这个配置不存在那说明没有约束，如果存在类似`bind-address = 127.0.0.1`那说明约束了只有服务器本地才可以访问
+
+- 防火墙
+
+  通过`sudo ufw status`可以查看是否开启了防火墙，如果开启了防火墙，确保通过`sudo ufw allow mysql`与`sudo service ufw restart`开放mysql
+
+
+
 
 # 4-安装vsftpd
 
