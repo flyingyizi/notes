@@ -13,10 +13,12 @@
     - [ipython 历史命令](#ipython-历史命令)
   - [其他](#其他)
     - [ipython命令行输出重定向到文件](#ipython命令行输出重定向到文件)
+    - [ipython启动时执行](#ipython启动时执行)
 
 
 # IPython提示与技巧
 
+[官方介绍](https://ipython.org/ipython-doc/dev/interactive/tutorial.html)
 
 IPython用户手册包含关于使用IPython的大量信息，但是，为了帮你你更快的入门，这里快速介绍三个有用的功能：历史，魔法函数，别称和tab完成。
 与Unix Shell相似，IPython支持命令历史。按上下键在之前输入的命令间切换：
@@ -116,10 +118,11 @@ alias d ls -F    : Works if 'alias' not a python name
 
 ### ipython命令行输出重定向到文件
 
-编写下面的函数
+编写下面的函数，
 
 ```python
 import sys
+@contextmanager
 class redirect_output(object):
     """context manager for reditrecting stdout/err to files"""
     def __init__(self, stdout='', stderr=''):
@@ -148,3 +151,10 @@ class redirect_output(object):
 with redirect_output("my_output.txt"):
     %run my_script.py
 ```
+
+### ipython启动时执行
+
+Startup Files
+If you want some code to be run at the beginning of every IPython session, the easiest way is to add Python (.py) or IPython (.ipy) scripts to your profile_default/startup/ directory. Files here will be executed as soon as the IPython shell is constructed, before any other code or scripts you have specified. The files will be run in order of their names, so you can control the ordering with prefixes, like 10-myimports.py.
+
+该目录位于：`~/.ipython/profile_default`

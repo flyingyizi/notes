@@ -2,7 +2,7 @@
 
 ![scrapy架构图](./images/scrapy_architecture_02.png)
 
-![博客](https://www.cnblogs.com/my8100/tag/scrapy/)
+[博客](https://www.cnblogs.com/my8100/tag/scrapy/)
 
 [自动批量关注微信公众号（非逆向）](https://blog.csdn.net/wnma3mz/article/details/105448808)
 
@@ -1329,6 +1329,10 @@ DOWNLOAD_DELAY = 3
 
 [Python爬虫代理IP池(proxy pool)](https://github.com/jhao104/proxy_pool)
 
+#### 一行js代码识别Selenium+Webdriver及其应对方案
+
+https://www.cnblogs.com/xieqiankun/p/hide-webdriver.html
+
 # scrapy配置参数
 
 系统默认配置项列表，可以在"scrapy\settings\default_settings.py"中查看到，也可以查看项目中的"scrapy.cfg"，但一般这里面比较少。
@@ -1338,8 +1342,20 @@ DOWNLOAD_DELAY = 3
 ![重要的配置参数](#images/EssentialSettings.png)
 
 
+#### CLOSESPIDER_TIMEOUT
+
+使用这个配置来配合定时的去crontab中执行了定时任务，避免定时拉起时，原来的任务还没有结束
+
+#### CLOSESPIDER_ERRORCOUNT
+
+#### CLOSESPIDER_ITEMCOUNT
+
+#### CLOSESPIDER_PAGECOUNT
+
 
 ### logging for analysis
+
+### closing
 
 
 #### LOG_LEVEL
@@ -1409,15 +1425,6 @@ DOWNLOAD_DELAY = 3
 
 #### DNSCACHE_ENABLED
 
-### closing
-
-#### CLOSESPIDER_ERRORCOUNT
-
-#### CLOSESPIDER_ITEMCOUNT
-
-#### CLOSESPIDER_PAGECOUNT
-
-#### CLOSESPIDER_TIMEOUT
 
 ### http cache
 
@@ -1451,7 +1458,9 @@ DOWNLOAD_DELAY = 3
 #### FILES_URLS_FIELD
 #### FILES_RESULT_FIELD
 
-# gpai 抓取记录
+# 抓取记录
+
+## gpai 抓取记录
 
 ### 链接预分析
 
@@ -1534,7 +1543,7 @@ item_preferred_buyers=body.css(sel).get()
 
 
 
-# cchere抓取记录
+## cchere抓取记录
 
 ### article链接预分析
 
@@ -1660,6 +1669,90 @@ $scrapy view https://www.talkcc.net/thread/4519373
   </h4>
   ```
 
+## 人民法院诉讼资产网抓取记录 selenium
+
+```python
+from importlib import import_module
+driver_name='chrome'
+webdriver_base_path = f'selenium.webdriver.{driver_name}'
+driver_klass_module = import_module(f'{webdriver_base_path}.webdriver')
+driver_klass = getattr(driver_klass_module, 'WebDriver')
+driver_options_module = import_module(f'{webdriver_base_path}.options')
+driver_options_klass = getattr(driver_options_module, 'Options')
+driver_options = driver_options_klass()
+driver_options.add_argument('blink-settings=imagesEnabled=false')
+driver_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+
+from shutil import which
+driver_kwargs = {
+          'executable_path': which('chromedriver'),
+           f'{driver_name}_options': driver_options,
+          
+}
+driver = driver_klass(**driver_kwargs)
+
+
+from scrapy.http.response.html import HtmlResponse
+body = str.encode(driver.page_source)
+response = HtmlResponse(
+            driver.current_url,
+            body=body,
+            encoding='utf-8'
+        )
+import html2text
+h = html2text.HTML2Text()
+
+driver.get('https://www1.rmfysszc.gov.cn/Handle/110654.shtml')
+
+sel = '#Title *::text'
+item_title = response.css(sel).get()
+# 获取标的视频介绍
+item_video = None
+# 竞买须知
+sel = '#jmxz'
+item_atten = response.css(sel).get()
+item_atten = h.handle(item_atten)
+# 竞买公告
+sel = '#pmgg'
+item_notice = response.css(sel).get()
+item_notice = h.handle(item_notice)
+# 获取标的物介绍
+sel = '#bdjs11 table'
+item_intro = response.css(sel).get()
+item_intro = self.h.handle(item_intro)
+# 获取状态
+sel = '#time1 *::text'
+item_state = response.css(sel).getall()
+item_state = ' '.join(item_state).strip()
+# 获取标的附件
+sel = '#pmgg a'
+sels = response.css(sel)
+item_attachs = dict()
+for i in sels:
+    title = i.css('a::text').get()
+    href = i.css('a::attr("href")').get()
+    item_attachs[title] = href    
+sel = '#bdjs11 table a'
+sels = response.css(sel)
+for i in sels:
+    title = i.css('a::text').get()
+    href = i.css('a::attr("href")').get()
+    item_attachs[title] = href
+    
+    
+# 获取图片
+sel = '#bdjs11 img'
+item_images: list = response.css(sel+'::attr(src)').getall()
+# 获取优先购买人信息
+sel = '#yxgmq .yxq'
+item_preferred_buyers = response.css(sel).get()
+item_preferred_buyers = self.h.handle(item_preferred_buyers)
+
+# 获取竞买记录
+sel = '#jjjl1'
+item_rec = response.css(sel).get()
+item_rec = self.h.handle(item_rec)
+```
 
 # 下载器中间件
 
@@ -1701,6 +1794,11 @@ DOWNLOADER_MIDDLEWARES = {
 ```python
 # 支持In : webdriver.Chrome  webdriver.Firefox  webdriver.Edge webdriver.FirefoxOptions 。。。
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 #键盘支持
 from selenium.webdriver.common.keys import Keys
 
@@ -1714,6 +1812,87 @@ elem.send_keys("pycon") #键盘输入
 elem.send_keys(Keys.RETURN) #键盘输入回车,
 driver.close()  #关闭标签页，如果要关闭整个浏览器，使用driver.quit()
 ```
+
+下面是一个更复杂些，也更灵活些的代码，切换drver_name为`chrome`，切换为`firefox`...
+
+```python
+from importlib import import_module
+driver_name='chrome'
+webdriver_base_path = f'selenium.webdriver.{driver_name}'
+driver_klass_module = import_module(f'{webdriver_base_path}.webdriver')
+driver_klass = getattr(driver_klass_module, 'WebDriver')
+driver_options_module = import_module(f'{webdriver_base_path}.options')
+driver_options_klass = getattr(driver_options_module, 'Options')
+driver_options = driver_options_klass()
+#仅chrome支持
+driver_options.add_argument('blink-settings=imagesEnabled=false')
+driver_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+
+from shutil import which
+driver_kwargs = {
+          'executable_path': which('chromedriver'),
+           f'{driver_name}_options': driver_options,
+          
+}
+driver = driver_klass(**driver_kwargs)
+
+
+from scrapy.http.response.html import HtmlResponse
+body = str.encode(driver.page_source)
+response = HtmlResponse(
+            driver.current_url,
+            body=body,
+            encoding='utf-8'
+        )
+import html2text
+h = html2text.HTML2Text()
+
+driver.get('https://www1.rmfysszc.gov.cn/Handle/110654.shtml')
+
+sel = '#Title *::text'
+item_title = response.css(sel).get()
+# 获取标的视频介绍
+item_video = None
+```
+
+### 驱动下载
+
+#### geckodriver
+[WebDriver for Firefox 文档](https://firefox-source-docs.mozilla.org/testing/geckodriver/), [WebDriver for Firefox 下载路径](https://github.com/mozilla/geckodriver),需要将`geckodriver`放置在PATH可执行路径中
+
+firefox 命令行参数完整列表，见[Command_Line_Options官网](https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options)
+
+#### chromedriver
+[WebDriver for Chrome 下载路径 ](https://sites.google.com/a/chromium.org/chromedriver/downloads)  下载的驱动需要与chrome的版本对应，可以通过`chrome://version/`查找chrome安装路径与chrome版本.需要将`chromedriver.exe`放置在PATH可执行路径中
+
+参数说明：https://peter.sh/experiments/chromium-command-line-switches/
+
+[selenium+python配置chrome浏览器的选项](https://www.jianshu.com/p/e49463ecd68b)
+
+[chrome-flags-for-tools.md#--enable-automation](https://github.com/GoogleChrome/chrome-launcher/blob/master/docs/chrome-flags-for-tools.md#--enable-automation)
+
+##### 几个重要的argument
+
+启动参数 作用
+-  –user-agent="" 设置请求头的User-Agent
+-  –window-size=1366,768 设置浏览器分辨率（窗口大小）
+-  –headless 无界面运行（无窗口）
+-  –start-maximized 最大化运行（全屏窗口）
+-  –incognito 隐身模式（无痕模式）
+
+例如 `options.AddArgument("–incognito");//启动无痕/隐私模式`
+
+#### msedgedriver
+
+在edge浏览器通过`edge://version/`查看edge版本以及命令行，注意下载的驱动需要和edge版本保持一致。
+
+[msedgedriver.exe下载路径 ](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/)
+Use WebDriver (Chromium) for test automation
+#### safari
+
+Safari : https://webkit.org/blog/6900/webdriver-support-in-safari-10/
+
+
 
 ## 
 
@@ -1822,6 +2001,10 @@ driver.find_elements(By.XPATH, '//button')
 
 更多见[Frequently Asked Questions](https://github.com/SeleniumHQ/selenium/wiki/Frequently-Asked-Questions)
 
+#### Scrapy - Reactor not Restartable [duplicate]
+
+https://stackoverflow.com/questions/41495052/scrapy-reactor-not-restartable
+
 #### 403问题TODO
 
 https://stackoverflow.com/questions/33225947/can-a-website-detect-when-you-are-using-selenium-with-chromedriver
@@ -1866,9 +2049,6 @@ driver.quit()
 
 [Selenium with Python中文翻译文档](https://selenium-python-zh.readthedocs.io/en/latest/index.html)
 
-[WebDriver for Firefox 下载路径](https://firefox-source-docs.mozilla.org/testing/geckodriver/), [related github](https://github.com/mozilla/geckodriver),需要将geckodriver放置在PATH可执行路径中
-
-[WebDriver for Chrome 下载路径 ](https://sites.google.com/a/chromium.org/chromedriver/downloads)  通过`chrome://version/`查找chrome安装路径与chrome版本.需要将`chromedriver.exe`放置在PATH可执行路径中
 
         time.sleep(4)
         # 通过断言页面是否存在某些关键字来确定页面按照预期加载
@@ -1905,3 +2085,10 @@ class ProductSpider(scrapy.Spider):
 
         self.driver.close()
 ```
+
+## 微信
+
+### 准备微信个人订阅号
+
+登陆和注册链接，[微信公众平台](https://mp.weixin.qq.com/)， 打开微信公众平台官网：https://mp.weixin.qq.com/ 右上角点击“立即​注册”
+

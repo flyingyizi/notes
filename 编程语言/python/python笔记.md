@@ -75,12 +75,14 @@ pip 20.1.1 from /usr/local/lib/python3.9/site-packages/pip (python 3.9)
 
 #### 1.1.5.1-源码安装python中模块举例
 
+##### Twisted 安装
+
 以python中的Twisted为例
 
 先上[pypi官网](https://pypi.org/project/Twisted/)下载Twisted源码，然后通过`python setup.py install`指令进行安装
 
     ```sh
-    $wget https://files.pythonhosted.org/packages/4a/b4/4973c7ccb5be2ec0abc779b7d5f9d5f24b17b0349e23240cfc9dc3bd83cc/Twisted-20.3.0.tar.bz2
+    $wget https://files.pythonhosted.org/packages/4a/b4/4973c7ccb5be2ec0abc779b7d5f9d5f24b17b0349e23240cfc9dc3bd83cc/Twisted-20.3.0.tar.bz2 --no-check-certificate
     $tar -xjvf Twisted-20.3.0.tar.bz2 
     $cd Twisted-20.3.0/
     $sudo python3 setup.py  install
@@ -265,6 +267,8 @@ conda search beautifulsoup4
 
 ## 2.1-基础数据结构
 
+涉及到使用`len`取长度的，需要记住它不支持`None`, 因此典型使用常常是 `if o and len(o) >= xx `
+
 ### 2.1.1-取切片
 
 sytax:  `L[start:end:step] # start through not past stop, by step`
@@ -408,6 +412,16 @@ else:
 
 ```
 
+#### 带条件for
+
+例子1：
+
+```python
+#随机获取指定数量
+sample_keys = random.sample(list(all_sets), maxnum)
+#
+samples = {k: v for k, v in all_sets.items()  if k in sample_keys}
+```
 
 ### 维护python库的搜索路径
 
@@ -891,3 +905,19 @@ Python面向对象编程中，类中定义的方法可以是 @classmethod 装饰
 
 [Python 工匠：高效操作文件的三个建议](https://www.zlovezl.cn/articles/three-tips-on-writing-file-related-codes/)
 
+下面是一个完整的示例,else/finally是可选的
+
+```python
+try:
+     Normal execution block
+except A:
+     Exception A handle
+except B:
+     Exception B handle
+except:
+     Other exception handle
+else:
+     if no exception,get here
+finally:
+     print("不论是否有异常都会执行，finally")   
+```

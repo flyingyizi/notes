@@ -79,7 +79,12 @@ git restore HEAD  app/xx/xx/abc.java
 git remote -v
 ```
 
+### 放弃本地修改，强制拉取更新
 
+```shell
+git fetch --all
+git reset --hard origin/master
+```
 
 
 

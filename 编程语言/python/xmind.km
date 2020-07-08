@@ -1,0 +1,94 @@
+{
+    "root": {
+        "data": {
+            "id": "c3zor5mn2xs0",
+            "created": 1594053354633,
+            "text": "Crawler",
+            "note": "spidercls.from_crawler(...) --> spider\n\nengine.open_spider(...)触发\nengine.start(...)"
+        },
+        "children": [
+            {
+                "data": {
+                    "id": "c3zoscxix2o0",
+                    "created": 1594053448893,
+                    "text": "self.engine",
+                    "layout_mind_offset": {
+                        "x": -719,
+                        "y": 58
+                    },
+                    "note": "engine的open_spider(...)触发scheduler"
+                },
+                "children": [
+                    {
+                        "data": {
+                            "id": "c3zoxb1xjcg0",
+                            "created": 1594053836627,
+                            "text": "self.slot.scheduler",
+                            "layout_left_offset": {
+                                "x": -75,
+                                "y": 63
+                            },
+                            "note": "SCHEDULER配置'scrapy.core.scheduler.Scheduler'生成"
+                        },
+                        "children": [
+                            {
+                                "data": {
+                                    "id": "c3zp1m2ftcg0",
+                                    "created": 1594054174059,
+                                    "text": "open()"
+                                },
+                                "children": []
+                            }
+                        ]
+                    },
+                    {
+                        "data": {
+                            "id": "c3zoxkxtb8g0",
+                            "created": 1594053858147,
+                            "text": "self.downloader",
+                            "layout_left_offset": {
+                                "x": -63,
+                                "y": 61
+                            },
+                            "note": "DOWNLOADER 配置'scrapy.core.downloader.Downloader'生成"
+                        },
+                        "children": []
+                    },
+                    {
+                        "data": {
+                            "id": "c3zoy0ouctc0",
+                            "created": 1594053892432,
+                            "text": "self.scraper",
+                            "layout_left_offset": {
+                                "x": -79,
+                                "y": 59
+                            },
+                            "note": "Scraper类（scrapy.core.scraper import Scraper）生成"
+                        },
+                        "children": [
+                            {
+                                "data": {
+                                    "id": "c3zp2vk9cso0",
+                                    "created": 1594054273092,
+                                    "text": "open_spider(spider)"
+                                },
+                                "children": []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "data": {
+                    "id": "c3zorqddeoo0",
+                    "created": 1594053399785,
+                    "text": "self.spider"
+                },
+                "children": []
+            }
+        ]
+    },
+    "template": "default",
+    "theme": "fresh-blue",
+    "version": "1.4.43"
+}

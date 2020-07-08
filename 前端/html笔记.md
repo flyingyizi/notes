@@ -232,6 +232,24 @@ blockquote与cite：
 
 运用到了seo上，微数据是有特定属性名称的词汇表中特定的元素属性的数据，它是一种方便机器识别的数据
 
+### 以双斜杠//开头的URL的含义
+
+对这种url，需要在抓取后使用`response.urljoin()`补齐下scheme。
+
+在WEB网页中，有时会发现类似下面这种 url 写法
+`<img src="//image.studyofnet.com/upfileImages/20161008/20161008222856974.gif">`
+其中，img 中的url是以双斜杠`“//”`开头的。
+ 
+一、这种写法有特殊的用途
+
+1、它会判断当前的页面协议是http 还是 https 来决定请求 url 的协议。
+2、用于处理 网站使用的协议和 网页中请求的外网资源不一致的问题。
+3、这种写法，也使用于CSS，例如：`.omgomg { background: url(//image.studyofnet.com/upfileImages/20161008/20161008222856974.gif); }`
+ 
+二、应用场景
+1、对于同时支持HTTPS和HTTP的资源，引用的时候要把引用资源的URL里的协议头去掉，例如：`//image.studyofnet.com/upfileImages/20161008/20161008222856974.gif`，这样相当于相对路径，即浏览器会自动根据当前是HTTPS还是HTTP来给资源URL补上协议头的，可以达到无缝切换。
+2、对于站外的资源如果不支持HTTPS那就只能用iframe了。
+
 # vscode 相关
 
 对“*.html”文件，快速通过html模板生成html内容：
