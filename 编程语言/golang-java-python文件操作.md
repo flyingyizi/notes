@@ -14,6 +14,9 @@
     - [python代码：](#python代码)
   - [2.2-Truncate文件](#22-truncate文件)
   - [2.3-得到文件信息](#23-得到文件信息)
+    - [golang代码：](#golang代码-1)
+    - [java代码：](#java代码-1)
+    - [python代码:](#python代码-1)
   - [2.4-重命名和移动](#24-重命名和移动)
   - [2.5-删除文件](#25-删除文件)
   - [2.7-检查文件是否存在](#27-检查文件是否存在)
@@ -21,19 +24,22 @@
   - [2.9-改变权限拥有者时间戳](#29-改变权限拥有者时间戳)
   - [2.10-硬链接和软链接](#210-硬链接和软链接)
   - [2.91-遍历目录](#291-遍历目录)
+    - [golang代码：](#golang代码-2)
+    - [java代码：](#java代码-2)
+    - [python代码](#python代码-2)
 - [3-读写](#3-读写)
   - [3.1-复制文件](#31-复制文件)
   - [3.2-跳转到文件指定位置(Seek)](#32-跳转到文件指定位置seek)
   - [3.3-写文件](#33-写文件)
-    - [golang代码：](#golang代码-1)
-  - [3.4-快写文件](#34-快写文件)
-    - [golang代码：](#golang代码-2)
-    - [java代码：](#java代码-1)
-    - [python代码：](#python代码-1)
-  - [3.5-使用缓存写](#35-使用缓存写)
     - [golang代码：](#golang代码-3)
-    - [java代码：](#java代码-2)
-    - [python代码：](#python代码-2)
+  - [3.4-快写文件](#34-快写文件)
+    - [golang代码：](#golang代码-4)
+    - [java代码：](#java代码-3)
+    - [python代码：](#python代码-3)
+  - [3.5-使用缓存写](#35-使用缓存写)
+    - [golang代码：](#golang代码-5)
+    - [java代码：](#java代码-4)
+    - [python代码：](#python代码-4)
   - [3.6-读取最多N个字节](#36-读取最多n个字节)
   - [3.7-读取正好N个字节](#37-读取正好n个字节)
   - [3.9-读取全部字节](#39-读取全部字节)
@@ -49,14 +55,20 @@
   - [5.1-临时文件和目录](#51-临时文件和目录)
   - [5.2-通过HTTP下载文件 TODO](#52-通过http下载文件-todo)
   - [5.3-哈希和摘要](#53-哈希和摘要)
+    - [golang代码：](#golang代码-6)
+    - [java代码:](#java代码-5)
+    - [python代码:](#python代码-5)
   - [5.91-计算花费时间](#591-计算花费时间)
+    - [golang代码：](#golang代码-7)
+    - [java代码](#java代码-6)
+    - [python代码](#python代码-6)
   - [5.92- json序列化与反序列](#592--json序列化与反序列)
     - [5.92.1-golang代码](#5921-golang代码)
     - [5.92.3-python代码](#5923-python代码)
       - [自定义数据结构](#自定义数据结构)
       - [内置数据结构](#内置数据结构)
   - [5.93-命令行todo](#593-命令行todo)
-    - [python代码](#python代码-3)
+    - [python代码](#python代码-7)
 
 
 
@@ -672,7 +684,7 @@ def TestRW(pathstr : str) :
 
 ## 2.91-遍历目录
 
-golang代码：
+### golang代码：
 
 ```go
 
@@ -741,7 +753,7 @@ func (my *MyFile) findJavaVisitor(path string, f os.FileInfo, err error) error {
 
 ```
 
-java代码：
+### java代码：
 
 ```java
 public class MyFile {
@@ -780,7 +792,7 @@ public class MyFile {
 }
 ```
 
-- python代码
+### python代码
 
     ```python
     [见2.5](#25-删除文件) 中使用`for child in p.glob('*'):`

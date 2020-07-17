@@ -60,6 +60,19 @@ git add filename/目录
 git  commit -m  "comment"
 ```
 
+## 打标签
+
+[git tag的基本用法](https://www.jianshu.com/p/154d58451ef7)
+
+```sh
+#打标签
+git tag -a v0.0 -m "init version"
+#查看
+git show v0.0
+#删除tag
+git tag --delete v0.0
+```
+
 ### 撤销还没有提交的代码
 
 就是对编辑了，还没有通过`git add xxx`进行提交的可以通过该命令撤销

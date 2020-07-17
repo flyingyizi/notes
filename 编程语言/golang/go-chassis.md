@@ -34,7 +34,7 @@ Archaius为动态配置框架，可从各种不同的source中读取配置
 
 https://github.com/go-chassis/go-chassis-examples
 
-## Micro Service Definition微服务定义
+## 1. Micro Service Definition微服务定义
 
 编写文件名为`microservice.yaml`的文件， 参见[编写指导](https://docs.go-chassis.com/user-guides/microservice.html)
 
@@ -61,18 +61,18 @@ type MicServiceStruct struct {
 }
 ```
 
-## Registry注册发现配置
+## 2. Registry注册发现配置
 
 通过`chassis.yaml`和`microservice.yaml`文件进行配置,参见[编写指导](https://docs.go-chassis.com/user-guides/registry.html)。
 
 `chassis.yaml`中配置使用的注册中心类型、注册中心的地址信息。
 
 
-## Service Discovery服务发现配置
+## 3. Service Discovery服务发现配置
 
 服务发现的配置在`chassis.yaml`文件。 参见[编写指导](https://docs.go-chassis.com/user-guides/service-discovery.html)
 
-## Protocol Servers协议配置
+## 4. Protocol Servers协议配置
 
 配置在`chassis.yaml`文件。 参见[编写指导](https://docs.go-chassis.com/user-guides/protocols.html)
 
@@ -89,7 +89,7 @@ cse:
       listenAddress: 0.0.0.0:6000
 ```
 
-## Handler chain处理链
+## 5. Handler chain处理链
 处理链中包含一系列handler, 在一次调用中可以通过扩展调用链的方式来插入定制的逻辑处理
 
 ### Handler chain处理链配置
@@ -115,7 +115,7 @@ handler:
       highway: tracing-provider
 ```
 
-如果自定义编写了custom-handler，那结尾必须是`transport  handler`, 例如
+作为消费者，如果自定义编写了custom-handler，那结尾必须是`transport  handler`, 例如
 
 ```yaml
 handler:
@@ -216,7 +216,7 @@ basicauth.Use(&ba)
 
 
 
-## Invoker客户端请求服务端
+## 6. Invoker客户端请求服务端
 
 package: "github.com/go-chassis/go-chassis/core"
 
@@ -228,7 +228,7 @@ package: "github.com/go-chassis/go-chassis/core"
 
 用户可配置微服务的运行日志的相关属性，比如输出方式，日志级别，文件路径以及日志转储相关属性。日志配置文件为`lager.yaml`。 [参见日志文件配置说明](https://docs.go-chassis.com/user-guides/log.html)
 
-## 动态配置框架 Archaius
+## 7. 动态配置框架 Archaius
 
 
 Archaius为动态配置框架，可从各种不同的source中读取配置
@@ -341,6 +341,47 @@ demoPlugin2 := bootstrap.Func(func() error {
 bootstrap.InstallPlugin("plugin-name1", demoPlugin1)
 bootstrap.InstallPlugin("plugin-name2", demoPlugin2)
 ```
+
+## 8. loadbalance
+
+### Filter
+
+#### 配置
+
+系统默认只实现了Available Zone Filter， 它的配置见[官方文档](https://go-chassis.readthedocs.io/en/latest/user-guides/filter.html)
+
+#### 自定义Filter
+
+假如只有配置中心配置, go-chassis 框架加载Filter的逻辑位于`loadbalancer.BuildStrategy`，简单来说就是： 轮询配置“chassis.yaml中的serverListFilters”名单，从`loadbalancer.Filters`中获得对应的filter-func，并执行。
+
+系统默认提供了一个Filter，就是`loadbalancing.FilterAvailableZoneAffinity`, 自己实现自定义filter可以参照它来实现。
+
+```go
+package loadbalancer
+// Filter receive instances and criteria, it will filter instances based on criteria you defined,criteria is optional, you can give nil for it
+type Filter func(instances []*registry.MicroServiceInstance, criteria []*Criteria) []*registry.MicroServiceInstance
+
+// 它是由InstallFilter进行填充
+// Filters is a map of string and array of *registry.MicroServiceInstance
+var Filters = make(map[string]Filter)
+
+// InstallFilter install filter
+func InstallFilter(name string, f Filter) {
+	Filters[name] = f
+}
+```
+要实现自己的Filter，需要有以下动作：
+
+- 在业务代码中，实现filter 函数，该函数满足`loadbalancer.Filter`接口定义
+- 在业务代码中，通过`loadbalancer.InstallFilter(filter-name string, f Filter)` 注册该自定义filter
+- 在配置中声明启用该自定义filter，这里的filter-name需要与上一步的filter-name保持一致
+
+	```yaml
+	cse:
+	loadbalance:
+			serverListFilters: filter_name
+	```
+
 
 #  源码解读
 
