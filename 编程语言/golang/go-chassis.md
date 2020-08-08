@@ -32,7 +32,7 @@ Archaius为动态配置框架，可从各种不同的source中读取配置
 
 # 使用帮助
 
-https://github.com/go-chassis/go-chassis-examples
+[官方example](https://github.com/go-chassis/go-chassis-examples)
 
 ## 1. Micro Service Definition微服务定义
 
@@ -411,7 +411,7 @@ func main() {
 
 运行这个示例需要以下预先动作
 
-- 首先运行起sc： `go-chassis\scripts\ci\start_latest_sc.sh` . 如果sc运行在本机，那官方的rest示例不需要修改，否则对应修改下`go-chassis\examples\rest\{server,client}\conf\chassis.yaml`中registry地址配置
+- 首先运行起`sc`(service center)： `go-chassis\scripts\ci\start_latest_sc.sh` . 如果sc运行在本机，那官方的rest示例不需要修改，否则对应修改下`go-chassis\examples\rest\{server,client}\conf\chassis.yaml`中registry地址配置
 
 
 
