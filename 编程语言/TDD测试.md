@@ -10,161 +10,370 @@ Unity介绍
     源码下载：https://github.com/ThrowTheSwitch/Unity/downloads 
     github主页：https://github.com/ThrowTheSwitch/Unity
 
-## 使用TrueSTUDIO构建CppUTest
 
-下文中的“1。使用MinGW-w64安装CppUTest”，与“2。使用trueStudio安装 CppUTest”是二选一的，他们之间不存在谁依赖谁。
+# 嵌入式单元测试
 
-- 0。提前准备
+在嵌入式开发中对一些功能模块进行单元测试，可以使用类似cppUtest，googleTest单元测试框架。  通常在PC软件开发时，以下两个Eclipse插件是需要安装的
 
-    请安装TrueSTUDIO。    
+    |插件	| 描述 |
+    |-------|-----|
+    |C/C++ Unit Testing Support   |	在Eclipse中执行单元测试的基本插件。|
+    |CppUTest Eclipse Test Runner |	它是一个用于在上述插件上执行CppUTest的插件。|
+
+由于平时常用的IDE是stm32cubeIDE，发现这个IDE有特殊的地方，下面如果涉及到IDE，我们都是以该IDE为例进行说明
+
+## 目录建议
+
+测试目录建议
+
+```text
+└─tests
+    ├─fakes
+    ├─header_overrides
+    ├─makefiles
+    ├─mocks
+    ├─src
+    └─stubs
+```
+
+- 其中makefiles目录存放每个测试待测试source文件的makefile，
+- 其中“header_overrides”目录的组织按照原始include路径组织，例如对“`#include <stm32/xxxx.h>`”，那应该建立目录“`tests/header_overrides/stm32/xxxx.h`”
+
+## cppUTest
+
+### 构建cppUTest
+
+前提条件：
+- 已经安装mingw，具备pc gcc toolchain
+- 下载[CppUTest](https://github.com/cpputest/cpputest/releases/download/v3.8/cpputest-3.8.zip)
+
+方式1：
+
+- `cmake.exe  -G "MinGW Makefiles" ..`
+- `mingw32-make`
+- `mingw32-make install`
+
+or 方式2：
+
+如果采用stm32cubeIDE构建， 以下是操作所需步骤,假设下载cppUTest源码目录是`${CPPUTEST_SOURCE_DIR}`：
+
+- 新建基于pc gcc的c/c++项目
+- 在c/c++ building--settings 中引入include path"`${CPPUTEST_SOURCE_DIR}/include`"
+- 通过import 引入"`${CPPUTEST_SOURCE_DIR}/src/CppUTest`",与"`${CPPUTEST_SOURCE_DIR}/src/Platforms/Gcc`"
+
+    注：如果是编译libCppUTestExt.a,则import的内容需要更改为引入"`${CPPUTEST_SOURCE_DIR}/src/CppUTestExt`"
+
+后续使用`-I${CPPUTEST_HOME}/include`,`-L${CPPUTEST_HOME}/lib`, `-lCppUTest -lCppUTestExt` 
+
+### 使用CppUTest
+
+使用CppUTest建议方式通过自带发布的的`MakefileWorker.mk`
+
+以下是一个使用例子
+
+```Makefile
+CPPUTEST_WARNINGFLAGS = -Wno-float-conversion -Wno-sign-conversion -Wno-int-to-pointer-cast -Wno-unused-parameter -Wall -Wextra -Wshadow -Wswitch-default -Wswitch-enum -Wconversion -Wno-long-long
+CPPUTEST_CPPFLAGS += -DUSE_HAL_DRIVER -DSTM32F401xE
+
+#Set this to @ to keep the makefile quiet
+ifndef SILENCE
+	SILENCE = @
+endif
+
+COMPONENT_NAME = CppUTestALL
+CPPUTEST_HOME = D:/stm32/cpputest-latest
+
+# whether use CppUTestExt
+CPPUTEST_USE_EXTENSIONS = Y
+
+SRC_DIRS = \
+
+SRC_FILES = \
+
+
+TEST_SRC_DIRS = \
+
+INCLUDE_DIRS =\
+  $(CPPUTEST_HOME)/include\
+
+include $(CPPUTEST_HOME)/build/MakefileWorker.mk
+```
+
+### stm32cubeIDE使用cppUTest
+
+通过实践看（最新stm32cubeIDE版本1.3.0），stm32cubeIDE无法安装"`CppUTest Eclipse Test Runner`"，因此省略。
+
+
+## googleTest
+
+### 构建googleTest
+
+前提条件：
+- 已经安装mingw，具备pc gcc toolchain
+- 下载[ninja](https://github.com/ninja-build/ninja/releases/download/v1.10.1/ninja-win.zip)并加入%PATH%
+- 下载[googletest](https://github.com/google/googletest)
+
+在windows，很多介绍都是通过"`cmake.exe  -G "MinGW Makefiles" ..`"生成Makefile从而进行编译的，但我自己的实践一直各种问题，所以下面是通过`ninja`进行编译
+
+安装步骤：
+```shell
+$git clone https://github.com/google/googletest
+<googletest-dir>$mkdir build
+<googletest-dir>$cd build
+<googletest-dir/build>$cmake -G "Ninja" ..
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/prog/msys64/mingw32/bin/cc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/prog/msys64/mingw32/bin/c++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found PythonInterp: C:/prog/msys64/mingw32/bin/python.exe (found version "3.8
+.2")
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/stm32/googletest/build
+<googletest-dir/build>$ninja
+[8/8] Linking CXX static library lib\libgmock_main.a
+
+<googletest-dir/build>$dir /B lib
+libgmock.a
+libgmock_main.a
+libgtest.a
+libgtest_main.a
+```
+
+
+后续使用`-I<googletest-dir>/googletest/include`,`-L<googletest-dir/build>/build/lib`, `-lgtest -lpthread` 
+
+
+### 使用googleTest
+
+为了使用方便，写了通用mk，如下：
+
+Makefile文件，根据自身项目进行内容定制：
+
+```makefile
+#---------
+#
+# googleTest Examples Makefile
+#
+#----------
+
+GOOTESTEST_WARNINGFLAGS = -Wno-float-conversion -Wno-sign-conversion -Wno-int-to-pointer-cast -Wno-unused-parameter -Wall -Wextra -Wshadow -Wswitch-default -Wswitch-enum -Wconversion -Wno-long-long
+GOOTESTEST_FLAGS += -DUSE_HAL_DRIVER -DSTM32F401xE
+
+#Set this to @ to keep the makefile quiet
+ifndef SILENCE
+	SILENCE = @
+endif
+
+#--- Inputs ----#
+#   COMPONENT_NAME - the name of the thing being built
+COMPONENT_NAME = CppUTestALL
+
+LIBDIR=-LC:/tools/msys64/mingw64/lib/googletest
+
+# whether use CppUTestExt
+CPPUTEST_USE_EXTENSIONS = Y
+
+# src maybe .cpp or .c
+TEST_SRC_DIRS = \
+	../fakes/grbl  \
+	../fakes/grbl/custom_hal  \
+  ../fakes/Drivers/STM32F4xx_HAL_Driver/Src \
+	../src
+
+
+TEST_CSRC_FILES = \
+    ../../grbl/util.c \
+    ../../grbl/Settings.c \
+    ../../grbl/settings_flags.c \
+    ../../grbl/Nvm.c \
+    ../../grbl/custom_hal/eeprom.c \
+     ../../grbl/System.c 
+
+TEST_INCLUDE_DIRS =\
+  ../header_overrides\
+  ../../Inc \
+  ../../grbl \
+  ../../grbl/custom_hal \
+  ../../Drivers/CMSIS/Device/ST/STM32F4xx/Include \
+  ../../Drivers/CMSIS/Include \
+  ../../Drivers/STM32F4xx_HAL_Driver/Inc \
+  ../../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
+
+include ./Makefilegtestbase.mk
+```
+
+Makefilegtestbase.mk 文件：
+
+```Makefile
+# 必须定义VAR
+# COMPONENT_NAME:
+# TEST_SRC_DIRS， 或TEST_CSRC_FILES/TEST_CXXSRC_FILES：相关的source文件
+
+# 可重定义VAR
+# GOOTESTEST_WARNINGFLAGS：补充CFLAGS/CPPFLAGS定义
+# GOOTESTEST_FLAGS：补充CFLAGS/CPPFLAGS定义
+# GOOGLETEST_HOME： 如果没有定义，则从系统默认include，lib目录查找googletest include,lib，
+#                   否则使用${GOOGLETEST_HOME}/lib, ${GOOGLETEST_HOME}/include
+# LIBS：
+# LIBDIR：
+# SILENCE: 
+# GCC_PATH: 如果gcc不在系统PATH，则可以通过定义它查找gcc
+
+#######################################
+# binaries
+#######################################
+# The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
+# either it can be added to the PATH environment variable.
+ifdef GCC_PATH
+CC = $(GCC_PATH)/gcc
+CXX = $(GCC_PATH)/g++
+AS = $(GCC_PATH)/gcc -x assembler-with-cpp
+CP = $(GCC_PATH)/objcopy
+SZ = $(GCC_PATH)/size
+else
+CC = gcc
+CXX = g++
+AS = gcc -x assembler-with-cpp
+CP = objcopy
+SZ = size
+endif
+
+RM = rd /s /q  # -rm  -fR  $(TESTBUILD_DIR)
+
+######################################
+# building variables
+######################################
+# debug build?
+DEBUG = 1
+# optimization
+OPT = -Og
+
+
+#######################################
+# paths & target
+#######################################
+# Build path
+TESTBUILD_DIR = $(COMPONENT_NAME)_build
+TESTTARGET = $(COMPONENT_NAME)_tests
+
+######################################
+# source
+######################################
+# C sources
+C_SOURCES =  
+
+get_csrc_from_dir  = $(wildcard $1/*.c)
+get_csrc_from_dir_list = $(foreach dir, $1, $(call get_csrc_from_dir,$(dir)))
+TEST_CSRC = $(call get_csrc_from_dir_list, $(TEST_SRC_DIRS)) $(TEST_CSRC_FILES)
+C_SOURCES +=  ${TEST_CSRC}
+
+# C sources
+CXX_SOURCES =  
+
+get_cxxsrc_from_dir  = $(wildcard $1/*.cpp) $(wildcard $1/*.cc) 
+get_cxxsrc_from_dir_list = $(foreach dir, $1, $(call get_cxxsrc_from_dir,$(dir)))
+TEST_CXXSRC = $(call get_cxxsrc_from_dir_list, $(TEST_SRC_DIRS)) $(TEST_CXXSRC_FILES)
+CXX_SOURCES +=  ${TEST_CXXSRC}
+
+
  
-- 1。使用MinGW-w64安装CppUTest
+#######################################
+# CFLAGS
+#######################################
 
-    下载CppUTest指的是下载[CppUTest](https://github.com/cpputest/cpputest/releases/download/v3.8/cpputest-3.8.zip)。
-    在本文中，我们假设下载的文件已扩展到以下文件夹。`C\prog\cpputest-3.8`
+# C defines
+C_DEFS = 
 
-    使用MinGW-w64安装CppUTest. 先安装安装CppUTest需要“MinGW-w64”和“CMake.msi”，注意cmake是指在windows下安装，不是在mingw环境里面安装。
+# includes
+get_dirs_from_dirspec  = $(wildcard $1)
+INCLUDES_DIRS_EXPANDED = $(call get_dirs_from_dirspec, $(TEST_INCLUDE_DIRS))
+INCLUDES += $(foreach dir, $(INCLUDES_DIRS_EXPANDED), -I$(dir))
+ifdef GOOGLETEST_HOME
+INCLUDES += -I${GOOGLETEST_HOME}/include 
+endif
 
-    使用管理员权限启动命令提示符，为MinGW-w64  cpputest制作一个Makefile。命令是`cmake.exe  -G "MinGW Makefiles" ..`
 
-    ```shell
-    C:\prog\cpputest-3.8>C:\prog\cmake-3.8.0-rc2-win64-x64\bin\cmake.exe  -version
-    cmake version 3.8.0-rc2
+# compile gcc flags
+CFLAGS =  $(C_DEFS) $(INCLUDES) $(OPT) ${GOOTESTEST_FLAGS} ${GOOTESTEST_WARNINGFLAGS} -Wall -g 
+CPPFLAGS =  $(C_DEFS) $(INCLUDES) $(OPT) ${GOOTESTEST_FLAGS} ${GOOTESTEST_WARNINGFLAGS}  -Wall -g 
 
-    CMake suite maintained and supported by Kitware (kitware.com/cmake).
-    C:\prog\cpputest-3.8>cd cpputest_build
-    C:\prog\cpputest-3.8\cpputest_build>C:\prog\cmake-3.8.0-rc2-win64-x64\bin\cmake.exe  -G "MinGW Makefiles" ..
-    -- The C compiler identification is GNU 7.3.0
-    -- The CXX compiler identification is GNU 7.3.0
-    略
-    -- Configuring done
-    -- Generating done
-    -- Build files have been written to: C:/prog/cpputest-3.8/cpputest_build
-    ```
+# Generate dependency information
+CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+CPPFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
-    看到上面的结尾，就说明成功了。 接下来，构建CppUTest。命令是`mingw32-make`
 
-    ```shell
-    c:\prog\cpputest-3.8\cpputest_build>mingw32-make
-    Scanning dependencies of target CppUTest
-    [  1%] Building CXX object src/CppUTest/CMakeFiles/CppUTest.dir/CommandLineArguments.cpp.obj
+#######################################
+# LDFLAGS
+#######################################
+# libraries
+LIBS += -lgtest -lm -lpthread 
+ifdef GOOGLETEST_HOME
+LIBDIR += -L${GOOGLETEST_HOME}/lib
+endif
 
-    [ 70%] Built target CppUTestTests
-    Scanning dependencies of target CppUTestExtTests
-    [ 71%] Building CXX object tests/CppUTestExt/CMakeFiles/CppUTestExtTests.dir/AllTests.cpp.obj
-    略
-    [100%] Built target CppUTestExtTests
-    略
-    c:\prog\cpputest-3.8\cpputest_build>
-    ```
+LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(TESTBUILD_DIR)/$(TESTTARGET).map 
 
-    下一步安装CppUTest，命令是`mingw32-make install`
+# default action: build all
+all: $(TESTBUILD_DIR)/$(TESTTARGET) 
 
-    ```shell
-    c:\prog\cpputest-3.8\cpputest_build>mingw32-make install
-    [ 20%] Built target CppUTest
-    [ 36%] Built target CppUTestExt
-    [ 70%] Built target CppUTestTests
-    [100%] Built target CppUTestExtTests
-    Install the project...
-    -- Install configuration: "RelWithDebInfo"
-    略
-    -- Up-to-date: C:/Program Files (x86)/CppUTest/include/CppUTestExt/MockSupport.h
-    -- Installing: C:/Program Files (x86)/CppUTest/lib/libCppUTestExt.a
+#######################################
+# build the application
+#######################################
+# list of objects
+C_OBJECTS = $(addprefix $(TESTBUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
 
-    c:\prog\cpputest-3.8\cpputest_build>
-    ```
-    
-    看到上面的结果说明安装成功了。CppUTest头文件和库存储在文件夹`C:/Program Files (x86)/CppUTest`中。
+CXX_OBJECTS = $(addprefix $(TESTBUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
+vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 
-    最后，因为它稍后会有用环境变量，所以将已安装的UppUTest的路径(`C:/Program Files (x86)/CppUTest`)添加到环境变量`CPPUTEST_HOME`中。
 
-    ```shell
-    C:\Users\tu_xu>echo %CPPUTEST_HOME%
-    C:\Program Files (x86)\CppUTest
+$(TESTBUILD_DIR)/%.o: %.c Makefile | $(TESTBUILD_DIR) 
+	$(SILENCE)$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(TESTBUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(SILENCE)echo $(notdir $(<:.c=.o))
 
-    C:\Users\tu_xu>
-    ```
+$(TESTBUILD_DIR)/%.o: %.cpp Makefile | $(TESTBUILD_DIR) 
+	$(SILENCE)$(CXX) -c $(CPPFLAGS) -Wa,-a,-ad,-alms=$(TESTBUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+	@echo $(notdir $(<:.cpp=.o))
 
-- 2。使用trueStudio安装 CppUTest
-    
-    - 2-1。为CppUTest创建一个项目
-    首先，让我们为CppUTest创建一个项目。使用project name为CppUTest，static library with Atollic PC tools，只构建release。
+$(TESTBUILD_DIR)/$(TESTTARGET): $(C_OBJECTS) $(CXX_OBJECTS) Makefile
+	$(SILENCE)$(CXX) $(C_OBJECTS) $(CXX_OBJECTS)  $(LDFLAGS) -o $@
+	@echo linking...
 
-    - 2-2。导入CppUTest源代码。
+$(TESTBUILD_DIR):
+	mkdir $@		
 
-    项目完成后，导入CppUTest源代码。通过import  file system 选择以下目录导入到project。
-    ```text
-    c:\prog\cpputest-3.8\ include
-    c:\prog\cpputest-3.8\ src \ CppUTest
-    c:\prog\cpputest-3.8\ src \ Platforms \ Gcc
-    ```
-    - 2-3。更改CppUTest项目设置
+#######################################
+# clean up
+#######################################
+clean:
+	-${RM}  $(TESTBUILD_DIR)
+  
+#######################################
+# dependencies
+#######################################
+-include $(wildcard $(TESTBUILD_DIR)/*.d)
 
-    让我们为构建做必要的设置。
+# *** EOF ***
+```
 
-    右键单击“CppUTest”并从“属性”中打开项目设置屏幕。
 
-    打开后，在左侧菜单中选择“C / C ++ General”→“Path and Symbols”。
+### stm32cubeIDE使用cppUTest
 
-    在两个地方更改设置。 首先在“GNU C ++”includes tab中将“include”目录放进去（还记得前面将include加入了project中吧），其他的内容不要动；然后
-    在“GNU C ++” “source location tab ”中将“/ CppUTest / src”路径也加进去，（注：“/ CppUTest”从一开始就已注册，但没有问题。）。
+通过“help/ install new software”，在“--All Available Sites--”下搜索“Unit Testing”，安装“C/C++ Unit Testing Support”，安装完成后，将会在`run configuration， debug configuration`看到，它已经安装了test runner，其中就包括googletest runner，但遗憾的是不包含cpputest runner
 
-    - 2-4。构建CppUTest
 
-    让我们在更改设置后构建。右键单击“CppUTest”并单击“Build Project”。构建开始。如果“Build Finished”消息显示在“Console”中，并且“libCppUTest.a”在“Project Explorer”的“RELEASE”文件夹中创建，则构建成功。
+## 普通Eclipse说明
 
-    使用TrueSTUDIO构建CppUTest现已完成。接下来，让我们构建CppUMock。
-
-- 3。构建Cppumock
-    由于CppUMock构建方法与CppUTest相同，因此将简化说明。
-
-    - 3-1。为CppUMock创建一个项目
-    以与CppUTest相同的方式创建项目。项目名称为“CppUTestExt”。
-
-    - 3-2。导入CppUMock源代码
-    让我们导入CppUMock的源代码。导入以下文件夹。
-    
-    ```shell
-    c:\prog\cpputest-3.8\ include
-    c:\prog\cpputest-3.8\ src \ CppUTestExt
-    ```
-    
-    - 3-3。更改CppUMock项目设置
-    
-    与“CppUTest”一样，在“C / C ++ General”→“Path and Symbols”中，对“GNU C ++”includes tab 增加本project中的include。 另外在source location tab中增加`/CppUTestExt/src`
-
-    - 3-4。构建Cppumock
-
-    让我们在更改设置后构建。右键单击“CppUTestExt”并单击“Build Project”。如果在“Project Explorer”的“RELEASE”文件夹中创建“libCppUTestExt.a”，则构建成功。这样就完成了CppUTest和CppUMock的构建。
-
-- 4。使用CppUTest
-
-    - 4-1。环境
-    
-    在上面CppUTest，与Cppumock构建完成后，设置CppUTest以便于使用。具体来说，使用CppUTest时，需要头文件和库。通过将这些文件存储在同一位置并在环境变量中注册该位置的路径，您可以在以后轻松访问该环境。
-
-    使用环境变量“CPPUTEST_HOME”创建以下目录结构。
-
-    ```text
-    {CPPUTEST_HOME} $
-    ├include
-    │└....
-    └lib
-    　 ├LibCppUTest.A
-    　 └LibCppUTestExt.A
-    ``` 
-
-    例如，我重用了扩展CppUTest的文件夹。最初，头文件存储在以下文件夹中。
-    ```text
-    c:\prog\cpputest-3.8\ include
-    ``` 
-
-    因此，您只需创建`c:\prog\cpputest-3.8\ lib`文件夹并将库放在那里即可创建目录结构。最后，记得将`c:\prog\cpputest-3.8`内容添加到环境变量“CPPUTEST_HOME”。
-
-- 4-2。尝试单元测试
-    
-    完成所有准备工作后，让我们进行单元测试。
+从实践看，stm32cubeIDE并不能当作一个普通Eclipse对待，很多适合eclipse的操作，stm32cubeIDE找不到。 下面记录的是普通Eclipse按照测试相关插件的说明：
 
     在下面的文章中，开发环境不是“TrueSTUDIO”而是“Eclipse”，但“TrueSTUDIO”基于“Eclipse”，它的用法几乎相同。
     请注意，工具链中使用“Atollic PC Tool”代替“MinGW GCC”。
@@ -209,31 +418,3 @@ Unity介绍
 
     注： eclipse.exe就是"C:\prog\TrueSTUDIO for STM32 9.3.0"\ide\TrueSTUDIO.exe。因为TrueSTUDIO是基于eclipse的工具。
 
-    - 2。创建一个单元测试项目
-    2-1。创建一个项目
-    安装后，让我们创建一个用于单元测试的项目。创建一个名称为“ cpputest-demo”的项目。
-
-    2-2。更改项目设置
-    让我们更改设置，以便可以在创建的项目中使用CppUTest。右键单击“ cpputest-dmeo”，然后选择“属性”以打开项目设置屏幕。在项目设置屏幕的左侧菜单中选择“ C / C ++常规”→“路径和符号”。在三个地方更改设置。 
-
-    第一是将CppUTest头文件的位置添加到Includes。将以下两项添加到“包含”选项卡上的“GNU C ++”中。
-    
-    ```text
-    ${CPPUTEST_HOME}/include
-    ${CPPUTEST_HOME}/include/CppUTest
-    ```
-
-    第二指定CppUtest库。在“库”选项卡中指定以下库。
-
-    ```text
-    CppUTest
-    CppUTestExt
-    ```
-
-    第三指定CppUTest库的路径。在“库路径”选项卡上指定以下路径。
- 
-    ```text
-    ${CPPUTEST_HOME}/lib
-    ```
-
-- [搭配Atollic TrueSTUDIO尝试CppUTest](https://qiita.com/tk23ohtani/items/1f1cc4b9fa58a04f520c)
