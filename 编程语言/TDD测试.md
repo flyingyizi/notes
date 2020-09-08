@@ -118,40 +118,16 @@ include $(CPPUTEST_HOME)/build/MakefileWorker.mk
 在windows，很多介绍都是通过"`cmake.exe  -G "MinGW Makefiles" ..`"生成Makefile从而进行编译的，但我自己的实践一直各种问题，所以下面是通过`ninja`进行编译
 
 安装步骤：
-```shell
-$git clone https://github.com/google/googletest
-<googletest-dir>$mkdir build
-<googletest-dir>$cd build
-<googletest-dir/build>$cmake -G "Ninja" ..
--- The C compiler identification is GNU 9.3.0
--- The CXX compiler identification is GNU 9.3.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Check for working C compiler: C:/prog/msys64/mingw32/bin/cc.exe - skipped
--- Detecting C compile features
--- Detecting C compile features - done
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: C:/prog/msys64/mingw32/bin/c++.exe - skipped
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Found PythonInterp: C:/prog/msys64/mingw32/bin/python.exe (found version "3.8
-.2")
--- Configuring done
--- Generating done
--- Build files have been written to: D:/stm32/googletest/build
-<googletest-dir/build>$ninja
-[8/8] Linking CXX static library lib\libgmock_main.a
 
-<googletest-dir/build>$dir /B lib
-libgmock.a
-libgmock_main.a
-libgtest.a
-libgtest_main.a
+build googletest
+```shell
+$git clone https://github.com/google/googletest.git && cd googletest
+# $git checkout release-1.8.1
+$mkdir build && cd build && cmake -G Ninja -DCMAKE_INSTALL_PREFIX=Work/gtest ..   # -DCMAKE_BUILD_TYPE=Debug
+$ninja -j6 install
 ```
 
-
-后续使用`-I<googletest-dir>/googletest/include`,`-L<googletest-dir/build>/build/lib`, `-lgtest -lpthread` 
+后续使用`-I<Work-gtest-dir>/include`,`-L<Work-gtest-dir>/lib`, `-lgtest -lpthread` 
 
 
 ### 使用googleTest
