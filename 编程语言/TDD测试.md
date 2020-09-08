@@ -101,7 +101,9 @@ include $(CPPUTEST_HOME)/build/MakefileWorker.mk
 
 ### stm32cubeIDE使用cppUTest
 
-通过实践看（最新stm32cubeIDE版本1.3.0），stm32cubeIDE无法安装"`CppUTest Eclipse Test Runner`"，因此省略。
+不支持
+
+通过实践看（最新stm32cubeIDE版本1.3.0），stm32cubeIDE无法安装"`CppUTest Eclipse Test Runner`"。
 
 
 ## googleTest
@@ -365,13 +367,19 @@ clean:
 # *** EOF ***
 ```
 
+## IDE使用googleTest
 
 ### stm32cubeIDE使用cppUTest
+
+如果选择IDE采用“stm32cubeIDE”，则可以参考该节内容。
+
 
 通过“help/ install new software”，在“--All Available Sites--”下搜索“Unit Testing”，安装“C/C++ Unit Testing Support”，安装完成后，将会在`run configuration， debug configuration`看到，它已经安装了test runner，其中就包括googletest runner，但遗憾的是不包含cpputest runner
 
 
-## 普通Eclipse说明
+### 普通Eclipse说明
+
+如果选择IDE采用“TrueSTUDIO”，或普通“Eclipse”，则可以参考该节内容。
 
 从实践看，stm32cubeIDE并不能当作一个普通Eclipse对待，很多适合eclipse的操作，stm32cubeIDE找不到。 下面记录的是普通Eclipse按照测试相关插件的说明：
 
@@ -417,4 +425,73 @@ clean:
     复制后，重新启动Eclipse以激活插件。关闭Eclipse，启动命令提示符，移至Eclipse安装目录，然后执行以下命令。`eclipse.exe -clean`. Eclipse启动并激活CppUtest Eclipse Test Runner。
 
     注： eclipse.exe就是"C:\prog\TrueSTUDIO for STM32 9.3.0"\ide\TrueSTUDIO.exe。因为TrueSTUDIO是基于eclipse的工具。
+
+### vscode debug 配置
+
+如果选择IDE采用“vscode”，则可以参考该节内容。
+
+首先需要配置debug,配置文件是“launch.json”,[官方配置说明](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)
+
+全新环境情况下的debug配置：
+
+在最左侧toolbar上点击“run”，出现“run”配置界面，点击“to customize run and debug create a launch.json file”, 出现选择界面选择“c++ (gdb/lldb)”,从而新创建一个“launch.json”
+
+如果已经有“launch.json”，也可以在它基础上新增，具体操作是： 在“run”界面，选择下拉“add configuration...”，下面是一个“launch.json”例子：
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "iotlink-debug",
+            "request": "launch",
+            "name": "Launch Program",
+            "cwd": "${workspaceFolder}",
+            "initBreak": "main"
+        },
+        {
+            "name": "(gdb) 启动",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/makefiles4gtest/UTestALL_build/UTestALL_tests.exe",
+            "args": [],
+            ...            
+        }
+    ]
+}
+```
+
+这里需要特别提示： 对c/c++ UTEST， TEST程序往往是单独的，所以配置“launch.json”种的"program"是和正常程序调试是不同的，在上面例子中就是一个例子
+
+下面我们的例子是使用`googleTest Adapter`，
+
+首先从vscode  market 中搜索安装“googleTest Adapter”， 然后在".vscode/settings.json"中手工增加类似下面"`gtest-adapter.*`"的配置
+
+```json
+{
+    "editor.tokenColorCustomizations": {
+       ...
+    },
+    "gtest-adapter.debugConfig": [
+        "(gdb) 启动"
+    ],
+    "gtest-adapter.supportLocation": true,
+    "gtest-adapter.showRunOutput": true,
+    "gtest-adapter.clearRunOutput": true,    
+}
+```
+
+这个手工增加的配置也可以省略，而是通过“vscode 左侧工具栏上的TEST”按钮出现TEST界面后，通过点击“switch test configuration”选择后自动增加
+
+最终在TEST界面中将会看到UTEST的test case。
+
+
+# gdb 备忘
+
+- next命令用于单步执行，类似VC++中的step over。next的单步不会进入函数的内部，
+- 与next对应的step（缩写s）命令则在单步执行一个函数时，会进入其内部，类似VC++中的step into
 
