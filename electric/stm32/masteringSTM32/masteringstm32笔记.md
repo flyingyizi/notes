@@ -56,4 +56,62 @@ CooCox³ and System Workbench for STM32⁴ (shortened as SW4STM32) , Atollic tru
 [ST新一代烧写工具 STM32CubeProgrammer]
 
 
+# 7. Interrupts Management
+
+## 7.2 Enabling Interrupts
+
+mcu一旦启动，只有`Reset, NMI and Hard Fault exceptions`是使能的。其他的中断都需要通过`void HAL_NVIC_EnableIRQ(IRQn_Type IRQn);`开启中断。
+
+对应的disable是`void HAL_NVIC_DisableIRQ(IRQn_Type IRQn);`
+
+以GPIO EXTIXX中断为例， “7.2.2 Enabling Interrupts With CubeMX”章节介绍了可以自动生成哪些代码。
+
+## 7.3 Interrupt Lifecycle
+
+状态可以是：
+- 1. either be disabled (default behavior) or enabled;• we enable/disable it calling the HAL_NVIC_EnableIRQ()/HAL_NVIC_DisableIRQ() function;
+- 2. either be pending (a request is waiting to be served) or not pending;
+- 3. either be in an active (being served) or inactive state.
+
+# 8. Universal Asynchronous Serial Communications
+
+uart可以工作的模式：polling（blocking）, interrupt（no-blocking） and DMA mode.
+
+在“8.3.1 Installing a Serial Console in Windows”章节介绍了在集成环境安装serial terminal工具，如果集成工具是stm32cubeide，有些特殊，请按照下面步骤按照
+```text
+Go to menu Help -> Install New Software
+Select Work with -> All available sites
+In the search box type "terminal"
+When search is finished select "TM Terminal" and "TM Terminal Serial Extensions" and install them.
+
+Restart CubeIDE
+From menu Window -> Show View -> Other select "Terminal"
+
+Terminal window should appear in IDE.
+Click Open Terminal icon (or Shift+Alt+Ctrl+T) and set up your connection parameters.
+This is the result in my case:
+....
+```
+
+如果是vscode环境， 如果我们按照了IoT link，则已经自动按照了serial terminal工具了。在任务栏可以看到。
+
+## 8.4 UART Communication in Interrupt Mode
+
+在该模式下，通过"`HAL_UART_Transmit_IT`, `HAL_UART_Receive_IT`"进行数据
+
+The list of USART related interrupts：
+
+- Transmit Data Register Empty ：TXE
+- Clear To Send (CTS) flag ：CTS
+- Transmission Complete ：TC
+- Received Data Ready to be Read： RXNE
+- Overrun Error Detected： ORE
+- Idle Line Detected： IDLE
+- Parity Error： PE
+- Break Flag： LBD
+- Noise Flag, Overrun error and Framing，Error in multi buffer communication ： NF or ORE or FE EIE
+
+
+
+
 $(\frac{89}{2})^2 + 5^2 = $

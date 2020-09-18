@@ -102,3 +102,23 @@ mkdir -p ./stlib/FW && cp -r ${STDPERIPHV18}/STM32F4xx_StdPeriph_Driver/src  "$_
 mkdir -p ./user && cp -r ${STDPERIPHV18}/../Project/STM32F4xx_StdPeriph_Templates/stm32f4xx_*  "$_"
 ```
 
+# stm32cubeide 备忘
+
+## serial terminal工具
+
+https://community.st.com/s/question/0D50X0000BNv7IQ/does-stm32cubeide-offer-a-serial-terminal-this-functionality-was-available-in-the-atollic-truestudio-product
+
+```text
+Go to menu Help -> Install New Software
+Select Work with -> All available sites
+In the search box type "terminal"
+When search is finished select "TM Terminal" and "TM Terminal Serial Extensions" and install them.
+
+Restart CubeIDE
+From menu Window -> Show View -> Other select "Terminal"
+
+Terminal window should appear in IDE.
+Click Open Terminal icon (or Shift+Alt+Ctrl+T) and set up your connection parameters.
+This is the result in my case:
+....
+```

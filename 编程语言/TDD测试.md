@@ -123,7 +123,7 @@ build googletest
 ```shell
 $git clone https://github.com/google/googletest.git && cd googletest
 # $git checkout release-1.8.1
-$mkdir build && cd build && cmake -G Ninja -DCMAKE_INSTALL_PREFIX=Work/gtest ..   # -DCMAKE_BUILD_TYPE=Debug
+$mkdir build && cd build && cmake -G Ninja -DCMAKE_INSTALL_PREFIX=Work/gtest -Dgtest_disable_pthreads=OFF ..   #  -DCMAKE_BUILD_TYPE=Debug
 $ninja -j6 install
 ```
 
@@ -463,11 +463,59 @@ clean:
 
 这个手工增加的配置也可以省略，而是通过“vscode 左侧工具栏上的TEST”按钮出现TEST界面后，通过点击“switch test configuration”选择后自动增加
 
-最终在TEST界面中将会看到UTEST的test case。
+编译UTEST程序（e.g. `"${workspaceFolder}/tests/makefiles4gtest/UTestALL_build/UTestALL_tests.exe"`）,最终在TEST界面，刷新后将会看到UTEST的test case列表。
 
 
-# gdb 备忘
+# debug
+
+## gdb 备忘
 
 - next命令用于单步执行，类似VC++中的step over。next的单步不会进入函数的内部，
 - 与next对应的step（缩写s）命令则在单步执行一个函数时，会进入其内部，类似VC++中的step into
+
+## openocd
+
+https://stackoverflow.com/questions/42612329/executing-code-from-ram-in-stm32
+
+[OpenOCD User’s Guide](http://openocd.org/doc-release/html/index.html#SEC_Contents)
+
+```shell
+$openocd -f stlink-v2-1.cfg -f stm32f4x.cfg
+$C:\Users\xxxxx\.vscode\extensions\iotlink.iot-studio-1.1.0\bin\openocd>bin\openocd.exe -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg
+xPack OpenOCD, 32-bit Open On-Chip Debugger 0.10.0+dev (2019-07-17-07:34)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+WARNING: interface/stlink-v2-1.cfg is deprecated, please switch to interface/stlink.cfg
+Info : auto-selecting first available session transport "hla_swd". To override use 'transport select <transport>'.
+Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : clock speed 2000 kHz
+Info : STLINK V2J37M26 (API v2) VID:PID 0483:374B
+Info : Target voltage: 3.258383
+Info : stm32f4x.cpu: hardware has 6 breakpoints, 4 watchpoints
+Info : Listening on port 3333 for gdb connections
+
+
+
+# 在另一个窗口
+
+telnet localhost 4444
+
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Open On-Chip Debugger
+> 
+> resume 0 #从0地址开始运行
+> halt #暂停cpu
+> mdw 0 12 #从0地址读12个数（32位）
+>mww 地址 写的数 #向某地址写数（32位）
+>reg #查看寄存器
+>flash write_image erase /home/liuyang/Projects/Nuttx/nuttx/nuttx.hex #下载
+```
+
+
+
 

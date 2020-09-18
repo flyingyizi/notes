@@ -204,7 +204,7 @@ __attribute__((used)) int _write(int fd, char *ptr, int len)
 
 ### step3 移植makefile书写
 
-在前面的步骤中，已经通过stem32cubeMX生成了裸机项目，该项目带有`$(MYPROJECT)/Makefile`文件。由于当stm32cubeMX regenerate code时，该文件也是会更新的。因此我们期望由于移植改动引起对该文件的变化最小，并且与stm32cubeMX自动更新不冲突，从而不用去再次修改它。基于该考虑对该文件的改动如下, 仅仅增加一行`include *.mk`：
+在前面的步骤中，已经通过stem32cubeMX生成了裸机项目，该项目带有`$(MYPROJECT)/Makefile`文件。由于当stm32cubeMX regenerate code时，该文件也是会更新的。因此我们期望由于移植改动引起对该文件的变化最小，并且与stm32cubeMX自动更新不冲突，从而不用去再次修改它。基于该考虑对该文件的改动如下, 仅仅增加一行`include **.mk`：
 
 ```makefile
 ...
@@ -212,11 +212,12 @@ __attribute__((used)) int _write(int fd, char *ptr, int len)
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 #移植liteOS引入，注意它的位置
 
+#add
 # must be the first item in addtional including
 # because we want to use CONFIG_XX_ENABLE in other *.mk
 include .config
-
 include **.mk
+
 #######################################
 # build the application
 #######################################
@@ -775,7 +776,7 @@ nucleo  stm32F411的外部晶振由stlink mco输出的，如果自己额外加�
 - microseconds(ms)  = 1 000  milliseconds(us)
 - stm32cubeMX中的缩写： SYSCLK 系统时钟，也称为SystemCoreClock。 HCLK :AHB总线时钟
 - 
-当使用8MHZ的HSE时钟，我们要得到180MHz的SystemCoreClock，就可以采用下面的配置，结合stm32cubeMX 查看能更好帮助理解，下面配置的最终结果是`uint32_t SystemCoreClock = 180000000;`. 详细解释参考[Library 03- STM32F4 system clock and delay functions](http://stm32f4-discovery.net/2014/04/library-03-stm32f429-discovery-system-clock-and-pretty-precise-delay-library/)
+当使用8MHZ的HSE时钟，我们要得到180MHz的SystemCoreClock，就可以采用下面的配置，结合stm32cubeMX 查看能更好帮助理解，下面配置的最终结果是`uint32_t SystemCoreClock = 180 000 000 hz;`. 详细解释参考[Library 03- STM32F4 system clock and delay functions](http://stm32f4-discovery.net/2014/04/library-03-stm32f429-discovery-system-clock-and-pretty-precise-delay-library/)
 
 ```C++
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
@@ -785,6 +786,9 @@ nucleo  stm32F411的外部晶振由stlink mco输出的，如果自己额外加�
 /* SYSCLK = PLL_VCO / PLL_P */
 #define PLL_P      2
 ```
+
+由于 1 s = 1 000 ms = 1 000 000 us
+
 
 ## PWM
 
