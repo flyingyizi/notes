@@ -433,6 +433,18 @@ int main(void)
 
 此时"c/c++build-->builder settings-->"中的“generate makefiles automatical”是非勾选状态的。如果勾选了，我们前面准备的makfile就没有用了。
 
+### 使用vscode iot LINK UI
+
+这里仅仅对debug增加一些说明
+
+因为nucleo板子的固件是stlink，所以无法支持jlink。因此如果基于iot link（vscode）进行调试，并且不使用openOCD,则需要对nucleo板子还需要额外的动作：使得nucleo fireware支持jlink，具体指导见[官方说明](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)，需要下载STLinkReflash.exe刷新固件。
+
+官方stm32cubeide集成工具使用的是ST-LINK_gdbserver， 具体使用说明见“google  ST-LINK_gdbserver”
+
+[使用实例](https://www.cnblogs.com/WeyneChen/p/8379214.html)
+
+
+
 ## liteOS-develop版本移植
 
 [官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html),其实对应的就是liteOS-develop 版本的移植。 下载liteOS源码应采用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 方式下载liteOS。
