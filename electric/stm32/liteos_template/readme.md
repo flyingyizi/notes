@@ -264,6 +264,14 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 	@echo $(notdir $(<:.c=.o))
 ```
 
+#### c++支持
+
+需要对stl支持时，需要注意添加"`-lsupc++ -lstdc++ `"
+
+参考[Using-std-vector](https://forum.pjrc.com/threads/23467-Using-std-vector)
+
+
+
 ### step4 移植完成与验证
 
 到此时， 点击vscode 最下面任务栏中的rebuild图标，开始编译，编译结果显示编译成功，这意味着移植已经成功。 下面我们尝试写个listeOS task，
@@ -442,6 +450,33 @@ int main(void)
 官方stm32cubeide集成工具使用的是ST-LINK_gdbserver， 具体使用说明见“google  ST-LINK_gdbserver”
 
 [使用实例](https://www.cnblogs.com/WeyneChen/p/8379214.html)
+
+注意： 一旦通过上面方式更改为jlink，那就不再支持stlink。如果要恢复stlink，需要通过STLinkReflash.exe restore功能重置为stlink，并且根据实践这个恢复动作往往不成功，表现为stm32cubeide识别不了，因此还需要一个额外动作： stm32cubeide help/stlink upgrade 进行升级refresh。之后才OK。
+
+#### JTAG 与SWD
+
+两种接口的全接口都是20针，但通常都不会用那么多 [对比](https://img-blog.csdnimg.cn/20181030143036713.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzMxNjE=,size_16,color_FFFFFF,t_70)
+
+```TEXT
+        JTAG       SWD
+1/2     VCC        VCC
+3       TRST       N/A
+5       TDI        N/A
+7       TMS        SWDIO
+9       TCLK       SWCLK
+11      RTCLK      N/A
+13      TDO        SWO
+15      RESET      RESET
+```
+
+通常JTAG就只接  VCC(1), TMS(7),GND, TCLK(9),RST(15)
+
+通常SWD就只接   VCC(1), DIO(7),GND,SWCLK(9),RST(15)
+
+ST-Link/V2 协议支持 JTAG/SWD标准接口，但在20针中对的接口中JTAG/SWD定义为GND的接口做了[重定义](https://blog.csdn.net/wxbluesun/article/details/94738272?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param)，如
+
+USART-RX(4), USART-TX(6)
+
 
 
 
