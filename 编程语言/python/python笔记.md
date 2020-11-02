@@ -205,6 +205,30 @@ Python3改变了"除"运算符行为。细节请看网站.
 
 在Python 2中，使用str object保存二进制数据和ASCII文本，而比ASCII中可用字符更多的字符的文本数据保存在 unicode object中。
 
+### 1.1.8-常用运维指令
+
+注：Python 3，它默认安装了pyvenv
+
+- 环境切换
+
+```sh
+#创建一个存放虚拟环境的目录：
+$mkdir python-env
+$cd python-env
+#创建一个虚拟环境：
+$pyvenv env_A
+#上面的命令将会导致生成"python-env/env_A"目录，里面有bin，include，lib...等目录，以及pyvenv.cfg...等文件
+
+#使用创建的虚拟环境env_A：
+$source env_A/bin/activate
+```
+
+
+
+
+
+
+
 ## 1.2-windows
 
 在windows环境，以anaconda集成环境为例说明。这个安装比较简单，从[anaconda官网](https://anaconda.org/)下载按照包安装提示进行安装就可以了，下面对常用运维指令进行下说明
