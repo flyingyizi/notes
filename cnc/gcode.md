@@ -1,7 +1,14 @@
 
 
+[GRBL – 如何對刀 ( Probing )](https://www.misterngan.com/3281/grbl-probing-howto/)
 
+机床坐标系：
 
+采用右手坐标系，X为指向操作者方向，Z为指向道具远离工件方向
+
+G41（左，顺时针）补偿； G42（右，逆时针）补偿； 
+
+工作坐标系均以机床原点为参考点，分别以各自与机床原点的偏移量表示，需要提前输入机床内部
 
 https://github.com/goburrow/modbus
 
@@ -11,6 +18,90 @@ https://github.com/goburrow/modbus
 - [GCode-Tutorial](https://github.com/uwplse/incarnate/wiki/GCode-Tutorial)
 - [浅谈数控铣床中G54与G92指令](https://wenku.baidu.com/view/5567d063f46527d3240ce0a7.html)
 
+#
+
+## G43，G44，G49：刀具补偿(Tool Compensation)
+
+G43是正向补偿， G44是负向补偿，因此用的刀比對Z軸的刀長就G43，短就G44
+
+G43 uses the Z-axis height to determine the length of separate tools. It helps the CNC programming to comprehend the relation between the tip of the tool and the thing on which its action is going on.
+
+Format: G43 Tool Length Compensation + (plus)
+
+Example: N3 G43 H1 Z50
+
+G44 is hardly used as an alternative to G43. Some do not consider its existence. G44 is a code that enables the control to start applying for tool length compensation. The control will drive the spindle to Z1.0 but it is brought down by positive offset amount H2. These offsets can be used again for any other program by just changing the value of that code.
+
+G44 requires an address to summon the tool length to offset register value. For that, G44 generally takes H address. The value is always positive because it works in a negative direction by subtracting the length offset from all Z-axis positions.
+
+Format: G44 tool length compensation – (minus)
+
+Example: N172 G44 H02 Z5 M08
+
+什么是刀具补偿？
+CNC中的刀具长度补偿代码用于调整各种刀具的长度差异。刀具补偿代码无需更改零件程序就可以完成任务。
+
+参考工具是已加载的标准长度，并在Z轴的帮助下被放下，直到它接触到曲面为止，然后您可以在此处设置Z参考位置。使用不同的工具重复相同的活动，并要求控件测量工具。然后，控件会比较Z轴位置和Z参考位置。两者之间的差异是工具的长度偏移。
+
+使用更短的工具接触同一表面可以通过将Z轴进一步向下移动来实现。此活动的结果是负偏移。因此，负偏置与较短的刀具有关，而正偏置与使用较长的刀具有关。
+
+刀具长度补偿使用3个G代码，分别为G43，G44和G49。
+
+如何在数控机床上使用刀具长度补偿？
+在这种补偿长度下，程序员在编写程序时可以忘记每个工具的长度。程序员不需要知道所用每种工具的长度。更好的方法是在每个刀具的第一个Z轴逼近运动中恢复刀具长度补偿。
+
+在机器设置过程中，操作员必须输入每个刀具的刀具长度补偿值。因此，必须首先测量工具。
+
+G43是常用的命令，用于恢复刀具长度补偿。除G43命令外，程序员还使用H代码。H代码专门指出了包含刀具长度值的偏移量。
+
+什么是G43？
+G43是刀具补偿G代码，程序员可以使用它来检索刀具长度补偿。在自动换刀操作中使用。
+
+G43指示控件，在开始操作之前，需要考虑偏移寄存器中存储的刀具长度。然后将已注册的量添加到Z轴移动，直到Z轴移动被G49代码取消为止。
+
+以G开头的代码可以重复活动无限次，直到停止为止。G代码用于启动动作。在CNC编程中，G43代码用于调节对比工具之间的长度差异。
+
+G43使用Z轴高度确定单独工具的长度。它有助于CNC编程理解工具的尖端与其所作用的物体之间的关系。
+
+格式： G43刀具长度补偿+（加号）
+
+例如： N3 G43 H1 Z50
+
+什么是G44？
+G44是CNC编程中的代码，与在正方向上使用刀具长度补偿的G43相反，它在负方向上使用刀具长度补偿。在G44代码中，可以将刀具长度补偿提前并从刀具长度中扣除。
+
+G44几乎不能替代G43。有些人不认为它的存在。G44是使控件能够开始申请刀具长度补偿的代码。控制器会将主轴驱动到Z1.0，但将其降低正偏移量H2。只需更改该代码的值，即可将这些偏移量再次用于任何其他程序。
+
+G44需要一个地址来调用刀具长度到偏置寄存器的值。为此，G44通常采用H地址。该值始终为正，因为它通过从所有Z轴位置减去长度偏移量而在负方向上起作用。
+
+格式： G44刀具长度补偿–（减）
+
+例如： N172 G44 H02 Z5 M08
+
+什么是G49？
+G49是G代码，有助于取消G43和G44刀具长度补偿。如果将补偿量用作H00，则也可能取消刀具长度补偿。
+
+G49通过取消当前刀具补偿功能起作用，并帮助其返回零值。在自动换刀（ATC）期间，当我们使用G43代码时，它将成为有用的代码。此代码不需要任何额外的参数。它通过清除正（G43）和负（G44）偏移来中和该值。
+
+示例：在下面的示例中，借助G43代码建立刀具补偿，然后借助G49代码将值返回零。
+
+结论
+刀具长度补偿可帮助CNC编程机调整不同长度的刀具。高效的机械师必须设置Z轴原点，并且该机器可以自动更换刀具。所有使CNC机器能够相应工作的指令都称为G代码。如果您熟练掌握基本的G代码，则CNC事业的美好前景正在等待着您。
+
+## G17, G18, G19: 平面选择
+
+The G-Codes for the plane selection is:
+G17 is used for XY Plane towards the front face whereas G18 is used for XZ axis design.
+G19 is used for YZ Plane, and it works on the opposite plane of the G17. When a person switches on the CNC machine, the G17 is activated for the X Y plane as a default.
+
+G17 XY Plane Selection:
+
+G17 Format:
+G17 G02 X_Y_ I_ J_
+
+
+
+#
 ### LinuxCNC中RS-274/NGC解析器的编译和使用
 http://blog.sina.com.cn/s/blog_a2a6dd380102vrai.html
 
