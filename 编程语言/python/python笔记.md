@@ -87,7 +87,20 @@ pip 20.1.1 from /usr/local/lib/python3.9/site-packages/pip (python 3.9)
     $cd Twisted-20.3.0/
     $sudo python3 setup.py  install
     ```
-#### 1.1.5.2-安装scrapy
+
+#### 1.1.5.2-安装scipy
+
+pip 安装 scipy 时，因为是编译安装，所以如果缺少一些编译库，会报很多错误，以下总结可能缺失的安装包：
+
+```sh
+$pip3 install Cython
+$sudo apt-get install gfortran
+$sudo apt-get install libopenblas-dev liblapack-dev libatlas-base-dev libblas-dev
+#最后执行以下命令即可
+$pip3 install scipy
+```
+
+#### 1.1.5.3-安装scrapy
 
 ```shell
 #pip安装scrapy
@@ -168,15 +181,15 @@ ERROR: Could not find a version that satisfies the requirement scrapy==? (from v
 ERROR: No matching distribution found for scrapy==?
 ```
 
-Python3改变了"除"运算符行为。细节请看网站.
 
 ### 1.1.7-python2迁移到python3注意事项
 
 注意事项请参考官网迁移说明[python3porting](http://python3porting.com/preparing.html#use-instead-of-when-dividing-integers)。 简要说，包含以下几点：
 
 #### 整数除法
+Python3改变了"除"运算符行为。细节请看网站.
 
-    python3整除采用`//`, `/`含义是普通除法
+    python3整除采用`//`, `/`含义是普通除法。 在c中，是通过`floor,ceil`两个函数实现向下，向上的整除能力。
 
     ```shell
     atmel:~$python2
@@ -223,7 +236,7 @@ $pyvenv env_A
 $source env_A/bin/activate
 ```
 
-
+注1：当如果需要指定虚拟环境的python版本，那运行venv时就需要使用指定版本的python，例如采用 `python3.6 -m venv neural`
 
 
 
@@ -248,6 +261,10 @@ conda --version
 conda update conda
 #创建新环境
 conda create -n myenv
+
+#创建新环境，并指定python版本
+conda create -n py36 python=3.6 anaconda
+
 #移除环境
 conda remove -n myenv --all
 #列出有哪些env
@@ -275,7 +292,7 @@ conda search beautifulsoup4
 
 如果采用vsocde作为python编程环境，以下几个操作常用：
 
-  - 在vscodeCommand Palette，通过ctrl+shift+p拉起，执行“Python: Select Interpreter”。通过该命令在多个python环境中选择自己希望的python环境。这个操作的结果是会设置“python.pythonPath ”值
+  - 在vscodeCommand Palette，通过ctrl+shift+p拉起，执行“Python: Select Interpreter”。通过该命令在多个python环境中选择自己希望的python环境。这个操作的结果是会设置“settings.json”配置中“python.pythonPath ”的值
 
   - 在vscode setting中，搜索“python>auto complete: add brackets”,选择enable，这样对函数类会自动加上括号
 
@@ -326,9 +343,10 @@ a[-3::-1]  # everything except the last two items, reversed
 切片最好采用命名方式
 
 ```python
-record = '....................100 .......513.25 ..........'
-SHARES = slice(20, 23)
-PRICE = slice(31, 37)
+#         01234567890123456789 
+record = '100 .......513.25 ..........'
+SHARES = slice(0, 3)
+PRICE = slice(11, 17)
 cost = int(record[SHARES]) * float(record[PRICE])
 ```
 
@@ -543,13 +561,19 @@ Out[56]: '中国'
 ```
 
 ### 判断变量是否可以迭代
+```python
 isinstance('abc', Iterable) # str是否可迭代
+```
 
 ### 通过enumerate内置函数实现“索引-元素对”
-
+```python
  for i, value in enumerate(['A', 'B', 'C']):
+```
 
-### python3 引入注解
+
+## 2.2.函数
+
+### 2.2.1-python3 引入注解
 
 ```python
 a:str = "abc"
@@ -558,17 +582,14 @@ def xyz(x:int) -> int:
 
 你可以通过 mypy 库来检验最终代码是否符合注解。
 
-```python
+```sh
 #安装 mypy：
-~$pip install mypy
+$pip install mypy
 #执行代码：
-~$mypy test.py
+$mypy test.py
 ```
 
-## 2.2.函数
-
-
-### 2.2.1-位置参数关键字参数
+### 2.2.2-位置参数关键字参数
 
 `def fun(pos1,pos2,*args, **kwargs):`是包含了两种参数形式的例子。其中`p1/p2`是位置参数， `*args, **kwargs`是关键字参数。
 
@@ -615,7 +636,7 @@ args= ()
 kwargs= {}
 ```
 
-### asynchronous generators 
+### 2.2.3-asynchronous generators 
 
 Python 3.5之后出现的async/await的使用方法.
 
@@ -926,6 +947,8 @@ Python面向对象编程中，类中定义的方法可以是 @classmethod 装饰
 
 
 ## 2.5.文件与异常
+
+操作文件示例见“编程语言/golang-java-python文件操作.md”
 
 [Python 工匠：高效操作文件的三个建议](https://www.zlovezl.cn/articles/three-tips-on-writing-file-related-codes/)
 
