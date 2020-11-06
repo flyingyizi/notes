@@ -1,6 +1,10 @@
 
+## 简单使用
+
 ```shell
 jupyter notebook
+#jupyter notebook --no-browser --port=8889
+
 运行上面的命令之后，你将看到类似下面这样的输出：
 
 [I 20:06:36.367 NotebookApp] Writing notebook server cookie secret to /run/user/1000/jupyter/notebook_cookie_secret
@@ -35,4 +39,49 @@ plt.plot(x, y)
 
 The IPython Notebook is running at: http://localhost:8888/
 这意味着，你的 notebook 是本地运行的，可以在浏览器上打开 http://localhost:8888/ ，从而访问 notebook。你也可以修改下配置，让该 notebook 可以被公开访问。这样，任何知道 notebook 地址的人都可以连接到 notebook 进行远程修改。
+
+
+## 安装 golang jupyter
+
+[install manual](https://github.com/gopherdata/gophernotes)
+
+```shell
+env GO111MODULE=on go get github.com/gopherdata/gophernotes
+mkdir -p `jupyter --data-dir`/kernels/gophernotes
+cd "$(go env GOPATH)"/src/github.com/gopherdata/gophernotes
+cp kernel/* `jupyter --data-dir`/kernels/gophernotes
+cd `jupyter --data-dir`/kernels/gophernotes
+chmod +w ./kernel.json # in case copied kernel.json has no write permission
+sed "s|gophernotes|$(go env GOPATH)/bin/gophernotes|" < kernel.json.in > kernel.json
+```
+
+
+## Jupyter notebook远程访问服务器
+
+Jupyter notebook远程访问服务器
+
+```shell
+$jupyter notebook --generate-config
+Writing default config to: /home/atmel/.jupyter/jupyter_notebook_config.py
+$ipython
+In [2]: from IPython.lib import passwd
+In [3]: passwd()
+Enter password: 
+Verify password: 
+Out[3]: 'sha1:456dafc566f0:a29c3bffe48fb0d8981d9c1fd67249e6b233e43e'
+
+$vim /home/atmel/.jupyter/jupyter_notebook_config.py
+#c.NotebookApp.ip='*'
+#c.NotebookApp.password = u'sha1:456da...刚才复制的那个密文'
+#c.NotebookApp.open_browser = False
+#c.NotebookApp.port =8888 #随便指定一个端口
+```
+
+## Jupter notebook配置目录
+
+有两种方法配置jupter notebook的工作目录
+
+1.最简单的方法就是，在cmd里面直接输入： jupyter notebook 目录地址，然后就会在浏览器打开你的工作目录。
+
+2.第二种方法，修改默认配置，先查看你的notebook配置文件在哪里，输入`jupyter notebook --generate-config`,得到配置文件路径. 例如"/home/atmel/.jupyter/jupyter_notebook_config.py". 在该配置文件中查找`c.NotebookApp.notebook_dir`,修改值为自己希望的目录
 

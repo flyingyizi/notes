@@ -18,3 +18,4 @@ In [6]:
 np.lookfor('create array')
 ```
 
+![Numpy索引和切片说明.PNG](images/Numpy索引和切片说明.PNG)
