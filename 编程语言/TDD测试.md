@@ -108,7 +108,7 @@ include $(CPPUTEST_HOME)/build/MakefileWorker.mk
 
 ## googleTest
 
-### 构建googleTest
+### 源码构建googleTest
 
 前提条件：
 - 已经安装mingw，具备pc gcc toolchain
@@ -129,6 +129,21 @@ $ninja -j6 install
 
 后续使用`-I<Work-gtest-dir>/include`,`-L<Work-gtest-dir>/lib`, `-lgtest -lpthread` 
 
+### linux安装googleTest
+
+```shell
+$sudo apt-get install libgtest-dev
+#查看软件安装位置
+$dpkg -L libgtest-dev
+$cd /usr/src/gtest
+$sudo mkdir build
+$cd build
+$sudo cmake ..
+$sudo make
+$sudo make install
+$cd ..
+$sudo rm -rf build
+```
 
 ### 使用googleTest
 
