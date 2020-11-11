@@ -362,3 +362,70 @@ double stddev(const Eigen::VectorXd &x){
         curr->theta = Eigen::MatrixXd::Random(tr, tc);
     }
 ```
+
+## 2.7-.MAT读写
+
+### python代码
+
+- covert ex3data1.mat mat file to csv
+
+    ```python
+    import numpy as np
+    import pandas as pd
+    from scipy.io import loadmat
+    import matplotlib.pyplot as plt
+
+    data = loadmat('ex3data1.mat')
+
+    X=pd.DataFrame(data['X'])
+    y=pd.DataFrame(data['y'])
+
+    X.to_csv('Xex3data1.txt',header=False,index=False)
+    y.to_csv('yex3data1.txt',header=False,index=False)
+    ```
+
+### cplusplus代码
+
+使用方法参考：https://github.com/tbeu/matio/blob/master/test/test_mat.c
+
+```shell
+$sudo apt-get install libmatio-dev
+$atmel@mail:~$ pkg-config --libs --cflags matio
+```
+
+```c++
+//read_mat read mat file 
+// if fail return -1, otherwise 0. the result store in data, dims
+int read_mat(const std::string &filename,
+               const std::string &varname,
+               std::vector<double> &data,
+               std::vector<int>   &dims)
+{
+    mat_t *mat = Mat_Open(filename.c_str(), MAT_ACC_RDONLY);
+    if (mat == nullptr)    {
+        return -1; // can not open file
+    }
+
+    matvar_t *matVar = 0;
+    matVar = Mat_VarRead(mat, varname.c_str());
+    if (matVar == nullptr)
+    {
+        return -1; //"Variable 'x' not found, or error "
+    }
+
+    unsigned xsize = matVar->nbytes / matVar->data_size;
+    const double *xData = static_cast<const double *>(matVar->data);
+    data.clear();
+    data.resize(xsize);
+    std::copy(xData, xData + xsize, std::back_inserter(data));
+
+    dims.clear();
+    dims.resize(matVar->rank);
+    for (int i = 0; i < matVar->rank; ++i)   {
+        dims[i] = matVar->dims[i];
+    }
+
+    Mat_Close(mat);
+}
+```
+
