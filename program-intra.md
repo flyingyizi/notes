@@ -137,9 +137,189 @@ search "window 10 bash"
     readelf -p --string-dump=.rodata ld便可以找到
     ```
 
-## cmake
+## cmake + vcpkg
+
+常用命令
+- `cd build
+cmake .. -DCMAKE_BUILD_TYPE=Debug`
+
+
+
+如果使用cmake作为构建工具，那建议使用vcpkg，否则不使用vcpkg
 
 - [[awesome-cmake]](https://github.com/onqtam/awesome-cmake)
+
+- [vcpkg](https://github.com/microsoft/vcpkg)
+
+```shell
+# 以下假设vcpkg安装在$(VCPKG_PATH), 即假设下面`git clone`的执行的目录是在$(VCPKG_PATH)
+> git clone https://github.com/microsoft/vcpkg
+# 下面命令生成windows vcpkg.exe,或linux下的vcpkg
+> .\vcpkg\bootstrap-vcpkg.bat
+# 下面命令安装指定模块，模块将会存放在$(VCPKG_PATH)/packages
+> .\vcpkg\vcpkg install [packages to install]
+```
+
+使用`./vcpkg list --triplet x64-linux` 或在window下`./vcpkg list --triplet x64-window` 可以查看vcpkg已经安装了哪些模块
+
+### cmake无法找到vcpkg安装的模块
+
+根据vckkg的官方指导，在vscode 项目的settings.json中增加
+
+```json
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    },
+```
+但使用类似find_path还是无法找到vcpkg安装的东西。 不知道是什么原因，可能是自己环境哪里有问题。 暂时这个问题通过在顶层CMakefile.txt中增加以下的指令解决。 此时settings.json中官方要求增加的CMAKE_TOOLCHAIN_FILE有没有增加效果一样。
+
+```cmakefile
+cmake_minimum_required(VERSION 3.0.0)
+#新增下面的指令，猜测应该是设置VCPKG_TARGET_TRIPLET，以及include(..vcpkg.cmake)起了作用
+if(DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
+  set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
+else()  
+  if(NOT DEFINED VCPKG_TARGET_TRIPLET)
+    set(VCPKG_TARGET_TRIPLET  "x64-linux" )
+  endif()
+endif()
+include("/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+project(machineLearn VERSION 0.1.0)
+```
+
+### cmake中增加googletest
+
+执行testcase有两种方式，一种是手工执行编译出来的test程序来执行测试用例。一种是结合cmake的测试框架，cmake run test。 第一种方式那只需要链接googletest，按照googletest的框架写就可以了。 我们建议是采用第二种方式，这就需要一些额外的设置，下面是完整的第二种相关指令，当然其中包括了都需要的“链接googletest”指令
+
+- 首先确保在top-level CMakefile.txt 中包括指令`include(CTest)`
+
+- 在tests对应目录中的CMakefile.txt 包含下面的指令。 
+
+```cmakefile
+# enable_testing() # 可以不需要，因为“include(CTest)”的执行会调用它
+find_package(GTest REQUIRED)
+include(GoogleTest)
+target_include_directories(maintest PRIVATE 
+    ${GTEST_INCLUDE_DIRS}
+)
+# # target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+target_link_libraries(maintest PRIVATE GTest::gtest  pthread)
+gtest_discover_tests(maintest)
+```
+
+
+### 使用find_package VS pkg_search_module
+
+通过vcpkg安装的模块，有的提供config.cmake, 有的是提供pc文件。 因此需要据此来看使用哪种方式。
+
+可以到`<VCPKG-ROOT>installed/x64-linux/share`(或 `<VCPKG-ROOT>installed/x64-window/share`)下查看各个模块知道。
+
+```cmakefile
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(test_machine_learning PRIVATE Eigen3::Eigen)
+target_include_directories(test_machine_learning PRIVATE 
+    ${EIGEN3_INCLUDE_DIRS}
+)
+```
+
+提供pc文件的场景使用方法见下一节“cmakefile中替代pkg-config能力的说明”
+
+### cmakefile中替代pkg-config能力的说明
+
+下面演示了如何在cmakefile中替代pkg-config
+```cmake
+#C_FLAGS +=  $(shell pkg-config  --cflags matio python-3.6)  
+#LIBS += $(shell pkg-config --libs  matio python-3.6)
+
+# 由下面类似的cmakefile指令代替
+# the `pkg_check_modules` function is created with this call
+find_package(PkgConfig REQUIRED) 
+pkg_search_module(MATIOMODULE REQUIRED matio)
+pkg_search_module(PYTHONMODULE REQUIRED python-3.6)
+
+target_include_directories(test_machine_learning PRIVATE 
+             ${PYTHONMODULE_INCLUDE_DIRS} 
+             ${MATIOMODULE_INCLUDE_DIRS} )
+
+target_link_libraries(test_machine_learning PRIVATE 
+        ${PYTHONMODULE_LIBRARIES}
+        ${MATIOMODULE_LIBRARIES} )
+
+target_link_directories(  test_machine_learning PRIVATE 
+    ${PYTHONMODULE_LIBRARY_DIRS}
+    ${MATIOMODULE_LIBRARY_DIRS}
+)        
+```
+
+下面的几个[变量](https://cmake.org/cmake/help/v3.0/module/FindPkgConfig.html),是需要经常使用的。
+```text
+<XPREFIX>_FOUND          ... set to 1 if module(s) exist
+<XPREFIX>_LIBRARIES      ... only the libraries (w/o the '-l')
+<XPREFIX>_LIBRARY_DIRS   ... the paths of the libraries (w/o the '-L')
+<XPREFIX>_LDFLAGS        ... all required linker flags
+<XPREFIX>_LDFLAGS_OTHER  ... all other linker flags
+<XPREFIX>_INCLUDE_DIRS   ... the '-I' preprocessor flags (w/o the '-I')
+<XPREFIX>_CFLAGS         ... all required cflags
+<XPREFIX>_CFLAGS_OTHER   ... the other compiler flags
+```
+
+### 指定目录生成文件列表
+
+通常希望指定上层目录，将该目录下的所有文件，以及子目录中的所有文件收集。下面的是方法之一
+
+```cmakefile
+#收集目录与其子目录下的文件
+# Remove strings matching given regular expression from a list.
+# @param(in,out) aItems Reference of a list variable to filter.
+# @param aRegEx Value of regular expression to match.
+function (filter_items aItems aRegEx)
+    # For each item in our list
+    foreach (item ${${aItems}})
+        # Check if our items matches our regular expression
+        if ("${item}" MATCHES ${aRegEx})
+            # Remove current item from our list
+            list (REMOVE_ITEM ${aItems} ${item})
+        endif ("${item}" MATCHES ${aRegEx})
+    endforeach(item)
+    # Provide output parameter
+    set(${aItems} ${${aItems}} PARENT_SCOPE)
+endfunction (filter_items)
+
+file(GLOB_RECURSE ORIGSRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+#排除特定文件
+filter_items(ORIGSRC_FILES ".*main.cpp.*")
+#收集目录下源文件，不包括子目录。不包括头文件
+aux_source_directory(./src  TESTS_SRCS)
+add_executable(test_machine_learning ${TESTS_SRCS} ${ORIGSRC_FILES})
+```
+
+### cmake与googletest集成
+
+下面是一个最简例子，假设 测试目录为tests
+
+```cmakefile
+enable_testing()
+find_package(GTest REQUIRED)
+include(GoogleTest)
+
+add_executable(1tests tests/foo_test.cpp tests/bar_test.cpp)
+target_link_libraries(1tests GTest::GTest GTest::Main)
+gtest_discover_tests(1tests)
+```
+
+foo_test.cpp文件
+```c++
+// tests/foo_test.cpp
+
+#include "gtest/gtest.h"
+
+TEST(Foo, Sum)
+{
+  EXPECT_EQ(2, 1 + 1);
+}
+```
+
 
 ## atuomake makefile
 

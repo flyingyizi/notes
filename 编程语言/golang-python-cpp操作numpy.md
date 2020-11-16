@@ -32,6 +32,8 @@ np.lookfor('create array')
 
 [规约、范数的操作][https://blog.csdn.net/skank911/article/details/89279675]
 
+[如何求解线性系统，计算几种分解，比如LU，QR，SVD等](https://blog.csdn.net/u012936940/article/details/79871941)
+
 `sudo apt-get install libeigen3-dev`
 
 
@@ -281,6 +283,9 @@ mat.col(mat.cols()-1) = vec;
     //注意下面的x与otheta是不同内存空间，而input_theta与otheta是相同的内存空间
 	Eigen::Map<Eigen::VectorXd> input_theta(otheta.data(),otheta.size());
 	Eigen::VectorXd x= Eigen::Map<Eigen::VectorXd> (otheta.data(),otheta.size());
+
+    // std::vector to martix
+	auto X = Eigen::Map<Eigen::MatrixXd>(otheta.data(), 3, 3);
 ```
 
 
@@ -416,7 +421,6 @@ int read_mat(const std::string &filename,
     unsigned xsize = matVar->nbytes / matVar->data_size;
     const double *xData = static_cast<const double *>(matVar->data);
     data.clear();
-    data.resize(xsize);
     std::copy(xData, xData + xsize, std::back_inserter(data));
 
     dims.clear();
