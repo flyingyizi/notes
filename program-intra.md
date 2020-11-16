@@ -188,9 +188,16 @@ include("/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(machineLearn VERSION 0.1.0)
 ```
 
-### cmake中增加googletest
+### cmake中增加googletest集成
 
 执行testcase有两种方式，一种是手工执行编译出来的test程序来执行测试用例。一种是结合cmake的测试框架，cmake run test。 第一种方式那只需要链接googletest，按照googletest的框架写就可以了。 我们建议是采用第二种方式，这就需要一些额外的设置，下面是完整的第二种相关指令，当然其中包括了都需要的“链接googletest”指令
+
+第二种方式下执行用例的三种可选方式
+```shell
+build$make test
+build$cmake --build . --target test
+build$ctest
+```
 
 - 首先确保在top-level CMakefile.txt 中包括指令`include(CTest)`
 
@@ -207,6 +214,21 @@ target_include_directories(maintest PRIVATE
 target_link_libraries(maintest PRIVATE GTest::gtest  pthread)
 gtest_discover_tests(maintest)
 ```
+
+- 一个最简googletest testcase
+
+foo_test.cpp文件
+```c++
+// tests/foo_test.cpp
+
+#include "gtest/gtest.h"
+
+TEST(Foo, Sum)
+{
+  EXPECT_EQ(2, 1 + 1);
+}
+```
+
 
 
 ### 使用find_package VS pkg_search_module
@@ -293,33 +315,6 @@ filter_items(ORIGSRC_FILES ".*main.cpp.*")
 aux_source_directory(./src  TESTS_SRCS)
 add_executable(test_machine_learning ${TESTS_SRCS} ${ORIGSRC_FILES})
 ```
-
-### cmake与googletest集成
-
-下面是一个最简例子，假设 测试目录为tests
-
-```cmakefile
-enable_testing()
-find_package(GTest REQUIRED)
-include(GoogleTest)
-
-add_executable(1tests tests/foo_test.cpp tests/bar_test.cpp)
-target_link_libraries(1tests GTest::GTest GTest::Main)
-gtest_discover_tests(1tests)
-```
-
-foo_test.cpp文件
-```c++
-// tests/foo_test.cpp
-
-#include "gtest/gtest.h"
-
-TEST(Foo, Sum)
-{
-  EXPECT_EQ(2, 1 + 1);
-}
-```
-
 
 ## atuomake makefile
 
