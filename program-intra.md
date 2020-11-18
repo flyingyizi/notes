@@ -1,28 +1,33 @@
 - [basic](#basic)
-- [C/C++环境准备](#cc%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+- [C/C++环境准备](#cc环境准备)
   - [windows 10 bash](#windows-10-bash)
   - [msys2](#msys2)
   - [install clionclion](#install-clionclion)
-  - [关于命令行](#%e5%85%b3%e4%ba%8e%e5%91%bd%e4%bb%a4%e8%a1%8c)
-  - [cmake](#cmake)
+  - [关于命令行](#关于命令行)
+  - [cmake + vcpkg](#cmake--vcpkg)
+    - [cmake无法找到vcpkg安装的模块](#cmake无法找到vcpkg安装的模块)
+    - [cmake中增加googletest集成](#cmake中增加googletest集成)
+    - [使用find_package VS pkg_search_module](#使用find_package-vs-pkg_search_module)
+    - [cmakefile中替代pkg-config能力的说明](#cmakefile中替代pkg-config能力的说明)
+    - [指定目录生成文件列表](#指定目录生成文件列表)
   - [atuomake makefile](#atuomake-makefile)
-- [c and cplusplus 编程语言](#c-and-cplusplus-%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80)
-  - [获取软件源码](#%e8%8e%b7%e5%8f%96%e8%bd%af%e4%bb%b6%e6%ba%90%e7%a0%81)
-  - [常量](#%e5%b8%b8%e9%87%8f)
-  - [控制语句举例](#%e6%8e%a7%e5%88%b6%e8%af%ad%e5%8f%a5%e4%b8%be%e4%be%8b)
-  - [变量作用域](#%e5%8f%98%e9%87%8f%e4%bd%9c%e7%94%a8%e5%9f%9f)
-  - [数组array](#%e6%95%b0%e7%bb%84array)
-  - [指针](#%e6%8c%87%e9%92%88)
-- [mingw gcc常用命令](#mingw-gcc%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4)
+- [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
+  - [获取软件源码](#获取软件源码)
+  - [常量](#常量)
+  - [控制语句举例](#控制语句举例)
+  - [变量作用域](#变量作用域)
+  - [数组array](#数组array)
+  - [指针](#指针)
+- [mingw gcc常用命令](#mingw-gcc常用命令)
     - [[[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)](#dump-class-layout)
     - [get asm code](#get-asm-code)
     - [Include Path for use with MinGW Compilers](#include-path-for-use-with-mingw-compilers)
-    - [生成share library](#%e7%94%9f%e6%88%90share-library)
-    - [编译vs使用的lib库](#%e7%bc%96%e8%af%91vs%e4%bd%bf%e7%94%a8%e7%9a%84lib%e5%ba%93)
-- [java 环境准备](#java-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+    - [生成share library](#生成share-library)
+    - [编译vs使用的lib库](#编译vs使用的lib库)
+- [java 环境准备](#java-环境准备)
   - [install maven](#install-maven)
-  - [maven 安装](#maven-%e5%ae%89%e8%a3%85)
-  - [java 安装](#java-%e5%ae%89%e8%a3%85)
+  - [maven 安装](#maven-安装)
+  - [java 安装](#java-安装)
   - [install IntelliJ IDEA Ultimate v2017.3.5](#install-intellij-idea-ultimate-v201735)
 
 
@@ -171,22 +176,10 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
         "CMAKE_TOOLCHAIN_FILE": "/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake",
     },
 ```
-但使用类似find_path还是无法找到vcpkg安装的东西。 不知道是什么原因，可能是自己环境哪里有问题。 暂时这个问题通过在顶层CMakefile.txt中增加以下的指令解决。 此时settings.json中官方要求增加的CMAKE_TOOLCHAIN_FILE有没有增加效果一样。
+环境是采用vscode 远程环境。
 
-```cmakefile
-cmake_minimum_required(VERSION 3.0.0)
-#新增下面的指令，猜测应该是设置VCPKG_TARGET_TRIPLET，以及include(..vcpkg.cmake)起了作用
-if(DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-  set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
-else()  
-  if(NOT DEFINED VCPKG_TARGET_TRIPLET)
-    set(VCPKG_TARGET_TRIPLET  "x64-linux" )
-  endif()
-endif()
-include("/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake")
+最后尝试vscode远程环境的terminal中采用命令行执行`$ cmake .. -DCMAKE_TOOLCHAIN_FILE="/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake"`，发现是成功的。
 
-project(machineLearn VERSION 0.1.0)
-```
 
 ### cmake中增加googletest集成
 

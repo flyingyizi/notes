@@ -299,10 +299,12 @@ mat.col(mat.cols()-1) = vec;
 ```c++
 void randomShuffle(const Eigen::MatrixXd &X)
 {
-	///////////////////////////////
+    std::random_device rd;
+    std::mt19937 g(rd());
+	//////////////////////////////
 	Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> perm(X.rows());
 	perm.setIdentity();
-	std::random_shuffle(perm.indices().data(), perm.indices().data() + perm.indices().size());
+	std::random_shuffle(perm.indices().data(), perm.indices().data() + perm.indices().size(),g);
 	// auto A_perm = X * perm; // permute columns
 	auto A_perm = perm * X; // permute rows
 							///////////////////////////////
