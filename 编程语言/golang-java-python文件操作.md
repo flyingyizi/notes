@@ -64,9 +64,10 @@
     - [python代码](#python代码-6)
   - [5.92- json序列化与反序列](#592--json序列化与反序列)
     - [5.92.1-golang代码](#5921-golang代码)
-    - [5.92.3-python代码](#5923-python代码)
+    - [5.92.2-python代码](#5922-python代码)
       - [自定义数据结构](#自定义数据结构)
       - [内置数据结构](#内置数据结构)
+    - [5.92.3-cplusplus代码](#5923-cplusplus代码)
   - [5.93-命令行todo](#593-命令行todo)
     - [python代码](#python代码-7)
 
@@ -2286,7 +2287,7 @@ golang要支持序列化、反序列，条件是struct中对field定义了tags
     //反序列化回来: &{name1 1 male <nil>} *myjosn.Person
    ```
 
-### 5.92.3-python代码
+### 5.92.2-python代码
 
 [网站](https://pynative.com/python-json/)上有关python json的专题比较多，有时间可以看看。
 
@@ -2423,6 +2424,70 @@ y=json.loads(r)
 with open("mix.json",encoding='utf-8')  as f:
     import json
     result=json.load(f)
+```
+
+### 5.92.3-cplusplus代码
+
+使用jsoncpp
+
+```c++
+#include <json/json.h>
+	std::string input = R"(
+	  {
+        "N": 3,
+        "M": 2,
+        "A": [
+            0.333,        0.333,        0.333,
+            0.333,        0.333,        0.333,
+            0.333,        0.333,        0.333
+        ],
+        "B": [
+            0.5,        0.5,
+            0.75,        0.25,
+            0.25,        0.75
+        ],
+        "pi": [    0.333,        0.333,        0.333    ]
+      }
+    )";
+
+    Json::Value json_root;
+    Json::CharReaderBuilder readerBuilder;
+    std::string errs;
+    // auto ret = Json::parseFromStream(reader, f, &json_root, &errs);
+	// ASSERT_EQ(true,ret);
+    std::unique_ptr<Json::CharReader> const x(readerBuilder.newCharReader());
+	x->parse(input.c_str(), input.c_str()+input.size(), &json_root, &errs);
+
+    std::vector<double> pi;
+    for (auto &&_pi : json_root["pi"])
+    {
+        pi.push_back(_pi.asDouble());
+    }
+
+	std::cout<< "pi:";
+    std::copy(pi.begin(), pi.end(),std::ostream_iterator<double>(std::cout, ","));
+	std::cout<<std::endl;
+```
+对应的写操作是：
+
+```c++
+	Json::Value json_temp; // 临时对象，供如下代码使用
+	json_temp["name"] = Json::Value("huchao");
+	json_temp["age"] = Json::Value(26);
+	Json::Value root;								  
+	root["key_string"] = Json::Value("value_string"); 
+	root["key_number"] = Json::Value(12345);		  
+	root["key_boolean"] = Json::Value(false);		  
+	root["key_double"] = Json::Value(12.345);		  
+	root["key_object"] = json_temp;					  
+	root["key_array"].append("array_string");		  
+	root["key_array"].append(1234);					  
+	Json::ValueType type = root.type();				  
+
+	Json::StreamWriterBuilder writerBuilder;
+	std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
+	std::ostringstream os;
+	jsonWriter->write(root, &os);
 ```
 
 ## 5.93-命令行todo
