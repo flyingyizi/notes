@@ -1,28 +1,33 @@
 - [basic](#basic)
-- [C/C++环境准备](#cc%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+- [C/C++环境准备](#cc环境准备)
   - [windows 10 bash](#windows-10-bash)
   - [msys2](#msys2)
   - [install clionclion](#install-clionclion)
-  - [关于命令行](#%e5%85%b3%e4%ba%8e%e5%91%bd%e4%bb%a4%e8%a1%8c)
-  - [cmake](#cmake)
+  - [关于命令行](#关于命令行)
+  - [cmake + vcpkg](#cmake--vcpkg)
+    - [cmake无法找到vcpkg安装的模块](#cmake无法找到vcpkg安装的模块)
+    - [cmake中增加googletest集成](#cmake中增加googletest集成)
+    - [使用find_package VS pkg_search_module](#使用find_package-vs-pkg_search_module)
+    - [cmakefile中替代pkg-config能力的说明](#cmakefile中替代pkg-config能力的说明)
+    - [指定目录生成文件列表](#指定目录生成文件列表)
   - [atuomake makefile](#atuomake-makefile)
-- [c and cplusplus 编程语言](#c-and-cplusplus-%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80)
-  - [获取软件源码](#%e8%8e%b7%e5%8f%96%e8%bd%af%e4%bb%b6%e6%ba%90%e7%a0%81)
-  - [常量](#%e5%b8%b8%e9%87%8f)
-  - [控制语句举例](#%e6%8e%a7%e5%88%b6%e8%af%ad%e5%8f%a5%e4%b8%be%e4%be%8b)
-  - [变量作用域](#%e5%8f%98%e9%87%8f%e4%bd%9c%e7%94%a8%e5%9f%9f)
-  - [数组array](#%e6%95%b0%e7%bb%84array)
-  - [指针](#%e6%8c%87%e9%92%88)
-- [mingw gcc常用命令](#mingw-gcc%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4)
+- [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
+  - [获取软件源码](#获取软件源码)
+  - [常量](#常量)
+  - [控制语句举例](#控制语句举例)
+  - [变量作用域](#变量作用域)
+  - [数组array](#数组array)
+  - [指针](#指针)
+- [mingw gcc常用命令](#mingw-gcc常用命令)
     - [[[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)](#dump-class-layout)
     - [get asm code](#get-asm-code)
     - [Include Path for use with MinGW Compilers](#include-path-for-use-with-mingw-compilers)
-    - [生成share library](#%e7%94%9f%e6%88%90share-library)
-    - [编译vs使用的lib库](#%e7%bc%96%e8%af%91vs%e4%bd%bf%e7%94%a8%e7%9a%84lib%e5%ba%93)
-- [java 环境准备](#java-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87)
+    - [生成share library](#生成share-library)
+    - [编译vs使用的lib库](#编译vs使用的lib库)
+- [java 环境准备](#java-环境准备)
   - [install maven](#install-maven)
-  - [maven 安装](#maven-%e5%ae%89%e8%a3%85)
-  - [java 安装](#java-%e5%ae%89%e8%a3%85)
+  - [maven 安装](#maven-安装)
+  - [java 安装](#java-安装)
   - [install IntelliJ IDEA Ultimate v2017.3.5](#install-intellij-idea-ultimate-v201735)
 
 
@@ -137,9 +142,172 @@ search "window 10 bash"
     readelf -p --string-dump=.rodata ld便可以找到
     ```
 
-## cmake
+## cmake + vcpkg
+
+常用命令
+- `cd build
+cmake .. -DCMAKE_BUILD_TYPE=Debug`
+
+
+
+如果使用cmake作为构建工具，那建议使用vcpkg，否则不使用vcpkg
 
 - [[awesome-cmake]](https://github.com/onqtam/awesome-cmake)
+
+- [vcpkg](https://github.com/microsoft/vcpkg)
+
+```shell
+# 以下假设vcpkg安装在$(VCPKG_PATH), 即假设下面`git clone`的执行的目录是在$(VCPKG_PATH)
+> git clone https://github.com/microsoft/vcpkg
+# 下面命令生成windows vcpkg.exe,或linux下的vcpkg
+> .\vcpkg\bootstrap-vcpkg.bat
+# 下面命令安装指定模块，模块将会存放在$(VCPKG_PATH)/packages
+> .\vcpkg\vcpkg install [packages to install]
+```
+
+使用`./vcpkg list --triplet x64-linux` 或在window下`./vcpkg list --triplet x64-window` 可以查看vcpkg已经安装了哪些模块
+
+### cmake无法找到vcpkg安装的模块
+
+根据vckkg的官方指导，在vscode 项目的settings.json中增加
+
+```json
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    },
+```
+环境是采用vscode 远程环境。
+
+最后尝试vscode远程环境的terminal中采用命令行执行`$ cmake .. -DCMAKE_TOOLCHAIN_FILE="/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake"`，发现是成功的。
+
+
+### cmake中增加googletest集成
+
+执行testcase有两种方式，一种是手工执行编译出来的test程序来执行测试用例。一种是结合cmake的测试框架，cmake run test。 第一种方式那只需要链接googletest，按照googletest的框架写就可以了。 我们建议是采用第二种方式，这就需要一些额外的设置，下面是完整的第二种相关指令，当然其中包括了都需要的“链接googletest”指令
+
+第二种方式下执行用例的三种可选方式
+```shell
+build$make test
+build$cmake --build . --target test
+build$ctest
+```
+
+- 首先确保在top-level CMakefile.txt 中包括指令`include(CTest)`
+
+- 在tests对应目录中的CMakefile.txt 包含下面的指令。 
+
+```cmakefile
+# enable_testing() # 可以不需要，因为“include(CTest)”的执行会调用它
+find_package(GTest REQUIRED)
+include(GoogleTest)
+target_include_directories(maintest PRIVATE 
+    ${GTEST_INCLUDE_DIRS}
+)
+# # target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+target_link_libraries(maintest PRIVATE GTest::gtest  pthread)
+gtest_discover_tests(maintest)
+```
+
+- 一个最简googletest testcase
+
+foo_test.cpp文件
+```c++
+// tests/foo_test.cpp
+
+#include "gtest/gtest.h"
+
+TEST(Foo, Sum)
+{
+  EXPECT_EQ(2, 1 + 1);
+}
+```
+
+
+
+### 使用find_package VS pkg_search_module
+
+通过vcpkg安装的模块，有的提供config.cmake, 有的是提供pc文件。 因此需要据此来看使用哪种方式。
+
+可以到`<VCPKG-ROOT>installed/x64-linux/share`(或 `<VCPKG-ROOT>installed/x64-window/share`)下查看各个模块知道。
+
+```cmakefile
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(test_machine_learning PRIVATE Eigen3::Eigen)
+target_include_directories(test_machine_learning PRIVATE 
+    ${EIGEN3_INCLUDE_DIRS}
+)
+```
+
+提供pc文件的场景使用方法见下一节“cmakefile中替代pkg-config能力的说明”
+
+### cmakefile中替代pkg-config能力的说明
+
+下面演示了如何在cmakefile中替代pkg-config
+```cmake
+#C_FLAGS +=  $(shell pkg-config  --cflags matio python-3.6)  
+#LIBS += $(shell pkg-config --libs  matio python-3.6)
+
+# 由下面类似的cmakefile指令代替
+# the `pkg_check_modules` function is created with this call
+find_package(PkgConfig REQUIRED) 
+pkg_search_module(MATIOMODULE REQUIRED matio)
+pkg_search_module(PYTHONMODULE REQUIRED python-3.6)
+
+target_include_directories(test_machine_learning PRIVATE 
+             ${PYTHONMODULE_INCLUDE_DIRS} 
+             ${MATIOMODULE_INCLUDE_DIRS} )
+
+target_link_libraries(test_machine_learning PRIVATE 
+        ${PYTHONMODULE_LIBRARIES}
+        ${MATIOMODULE_LIBRARIES} )
+
+target_link_directories(  test_machine_learning PRIVATE 
+    ${PYTHONMODULE_LIBRARY_DIRS}
+    ${MATIOMODULE_LIBRARY_DIRS}
+)        
+```
+
+下面的几个[变量](https://cmake.org/cmake/help/v3.0/module/FindPkgConfig.html),是需要经常使用的。
+```text
+<XPREFIX>_FOUND          ... set to 1 if module(s) exist
+<XPREFIX>_LIBRARIES      ... only the libraries (w/o the '-l')
+<XPREFIX>_LIBRARY_DIRS   ... the paths of the libraries (w/o the '-L')
+<XPREFIX>_LDFLAGS        ... all required linker flags
+<XPREFIX>_LDFLAGS_OTHER  ... all other linker flags
+<XPREFIX>_INCLUDE_DIRS   ... the '-I' preprocessor flags (w/o the '-I')
+<XPREFIX>_CFLAGS         ... all required cflags
+<XPREFIX>_CFLAGS_OTHER   ... the other compiler flags
+```
+
+### 指定目录生成文件列表
+
+通常希望指定上层目录，将该目录下的所有文件，以及子目录中的所有文件收集。下面的是方法之一
+
+```cmakefile
+#收集目录与其子目录下的文件
+# Remove strings matching given regular expression from a list.
+# @param(in,out) aItems Reference of a list variable to filter.
+# @param aRegEx Value of regular expression to match.
+function (filter_items aItems aRegEx)
+    # For each item in our list
+    foreach (item ${${aItems}})
+        # Check if our items matches our regular expression
+        if ("${item}" MATCHES ${aRegEx})
+            # Remove current item from our list
+            list (REMOVE_ITEM ${aItems} ${item})
+        endif ("${item}" MATCHES ${aRegEx})
+    endforeach(item)
+    # Provide output parameter
+    set(${aItems} ${${aItems}} PARENT_SCOPE)
+endfunction (filter_items)
+
+file(GLOB_RECURSE ORIGSRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+#排除特定文件
+filter_items(ORIGSRC_FILES ".*main.cpp.*")
+#收集目录下源文件，不包括子目录。不包括头文件
+aux_source_directory(./src  TESTS_SRCS)
+add_executable(test_machine_learning ${TESTS_SRCS} ${ORIGSRC_FILES})
+```
 
 ## atuomake makefile
 

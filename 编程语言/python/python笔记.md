@@ -51,7 +51,7 @@ $wget https://www.python.org/ftp/python/3.9.0/Python-3.9.0b1.tar.xz
 $tar xvf Python-3.9.0b1.tar.xz
 $cd Python-3.9.0b1
 #编译安装
-$./configure
+$./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
 $make 
 $sudo make install
 

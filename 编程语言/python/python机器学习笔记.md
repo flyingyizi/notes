@@ -1,6 +1,12 @@
 
 # 预备动作
 
+## 资源
+
+[吴恩达的Machine Learning](github.com/deeplearning-ai/machine-learning-yearning-cn/releases/download/v0.5.0/MLY-zh-cn.pdf)
+[NYU的Data Science项目课程 DS1003 Machine Learning](https://davidrosenberg.github.io/ml2019/#home),[知乎介绍](https://www.zhihu.com/question/37031588)
+
+
 ## 安装keras以及相关开发包,
 
 ```sh
