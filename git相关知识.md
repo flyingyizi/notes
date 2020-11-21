@@ -60,6 +60,13 @@ git add filename/目录
 git  commit -m  "comment"
 ```
 
+### 导出代码
+
+```sh
+git archive --format tar.gz --output "./output.tar.gz" master
+```
+
+
 ## 打标签
 
 [git tag的基本用法](https://www.jianshu.com/p/154d58451ef7)
