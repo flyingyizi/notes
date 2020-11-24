@@ -5,11 +5,13 @@
   - [install clionclion](#install-clionclion)
   - [关于命令行](#关于命令行)
   - [cmake + vcpkg](#cmake--vcpkg)
+    - [vcpkg常用命令](#vcpkg常用命令)
     - [cmake无法找到vcpkg安装的模块](#cmake无法找到vcpkg安装的模块)
     - [cmake中增加googletest集成](#cmake中增加googletest集成)
     - [使用find_package VS pkg_search_module](#使用find_package-vs-pkg_search_module)
     - [cmakefile中替代pkg-config能力的说明](#cmakefile中替代pkg-config能力的说明)
     - [指定目录生成文件列表](#指定目录生成文件列表)
+    - [tips](#tips)
   - [atuomake makefile](#atuomake-makefile)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
@@ -167,6 +169,32 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
 
 使用`./vcpkg list --triplet x64-linux` 或在window下`./vcpkg list --triplet x64-window` 可以查看vcpkg已经安装了哪些模块
 
+### vcpkg常用命令
+
+- 备份与恢复
+```shell
+$vcpkg export eigen3 --zip
+The following packages are already built and will be exported:
+    eigen3:x64-linux
+Exporting package eigen3:x64-linux...
+Creating zip archive...
+Zip archive exported at: /home/atmel/tool/vcpkg/vcpkg-export-20201119-213739.zip
+
+To use the exported libraries in CMake projects use:
+    -DCMAKE_TOOLCHAIN_FILE=[...]/scripts/buildsystems/vcpkg.cmake
+
+$ 
+#导入备份的开源库
+$vcpkg.exe import vcpkg-export-20201119-213739.zip
+```
+
+- 集成静态库
+
+`cmake .. -DCMAKE_TOOLCHAIN_FILE=.../vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x86-windows-static`
+
+
+
+
 ### cmake无法找到vcpkg安装的模块
 
 根据vckkg的官方指导，在vscode 项目的settings.json中增加
@@ -180,8 +208,11 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
 
 最后尝试vscode远程环境的terminal中采用命令行执行`$ cmake .. -DCMAKE_TOOLCHAIN_FILE="/home/atmel/tool/vcpkg/scripts/buildsystems/vcpkg.cmake"`，发现是成功的。
 
+另外，在运行上述cmake命令前将build目录清空，往往能解决些莫名其妙的问题
 
 ### cmake中增加googletest集成
+
+首先澄清下ctest与googletest区别，cmake CTest是一种工具，用于管理和执行一套完整的测试（即项目中的所有测试），并将构建和测试结果提交到CDash。Google Test是用于编写单个C ++测试的工具。尽管Google Test确实提供了一些重叠，因为它和CTest都有选择要执行的测试或测试用例的概念，但这两个工具是互补的。大多数项目将具有多个测试可执行文件，并且可能具有非C ++可执行文件的测试，因此需要CTest。即使是单个文本可执行文件，CTest仍可用于将结果提交到CDash。
 
 执行testcase有两种方式，一种是手工执行编译出来的test程序来执行测试用例。一种是结合cmake的测试框架，cmake run test。 第一种方式那只需要链接googletest，按照googletest的框架写就可以了。 我们建议是采用第二种方式，这就需要一些额外的设置，下面是完整的第二种相关指令，当然其中包括了都需要的“链接googletest”指令
 
@@ -308,6 +339,84 @@ filter_items(ORIGSRC_FILES ".*main.cpp.*")
 aux_source_directory(./src  TESTS_SRCS)
 add_executable(test_machine_learning ${TESTS_SRCS} ${ORIGSRC_FILES})
 ```
+
+### tips
+
+C++中对stl的容器日志打印不友好，可以考虑使用`vcpkg install dbg-macro`
+
+### cmake 设置vs工程的MT、MTd
+
+1. 追加CMAKE_CXX_FLAGS_Build Type
+```cmakefile
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+```
+
+如果CMAKE Flags已经设置了/MD，可以不能发挥作用。可以采用方法2.
+
+2. 替换CAMKE_FLAGS
+```cmakefile
+    set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+    set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+```
+
+3. 或者将已经存在的/MD、/MDd替换为/MT、/MTd
+```cmakefile
+if (MSVC)
+    set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        )
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+endif(MSVC)
+```
+
+### vs工程构建程序执行报Result: Exit code 0xc0000135
+
+这通常是由缺少库造成，通过类似`dumpbin /dependents  xxx.exe`查看，缺少什么就拷贝放到本目录来。
+
+### Possible to force CMake/MSVC to use UTF-8 encoding for source files without a BOM? C4819
+
+https://stackoverflow.com/questions/47690822/possible-to-force-cmake-msvc-to-use-utf-8-encoding-for-source-files-without-a-bo
+
+```cmakefile
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+```
+
+### windows集成python matplotlib-cpp总结
+
+- cmakefile
+
+```cmakefile
+set(PYTHONHOME  "C:/tools/Anaconda3/envs/neural")
+set(PYTHON_EXECUTABLE "${PYTHONHOME}/python" )
+set(PYTHON_LIBRARYS "${PYTHONHOME}/libs/python36.lib" )
+set(PYTHON_INCLUDE_DIRS "${PYTHONHOME}/include" )
+set(PYTHON_NUMPY_INCLUDE_DIRS  "${PYTHONHOME}/Lib/site-packages/numpy/core/include")
+target_include_directories(test_machine_learning PRIVATE 
+             ${PYTHON_INCLUDE_DIRS} 
+             ${PYTHON_NUMPY_INCLUDE_DIRS}  )
+target_link_libraries(test_machine_learning PRIVATE 
+        ${PYTHON_LIBRARYS})
+```
+
+- 规避问题：This application failed to start because it could not find or load the Qt platform plugin "windows"
+
+    - copy "C:\tools\Anaconda3\pkgs\qt-5.9.7-vc14h73c81de_0\Library\plugins\platforms" 目录到编译exe程序所在目录，保持目录名为platforms
+    - copy "C:\tools\Anaconda3\pkgs\qt-5.9.7-vc14h73c81de_0\Library\bin"目录下的“Qt5Core.dll, Qt5Gui.dll, Qt5Widgets.dll”文件到编译exe程序所在目录
+
+- 规避问题： Fatal Python error: Py_Initialize: unable to load the file system codec ModuleNotFoundError: No module named 'encodings'
+
+    - 设置环境变量： `$Env:PYTHONPATH=C:\tools\Anaconda3\envs\neural`
+    - 设置环境变量： `$Env:PYTHONHOME=C:\tools\Anaconda3\envs\neural`
+
 
 ## atuomake makefile
 
