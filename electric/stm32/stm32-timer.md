@@ -4,7 +4,8 @@
 
 [STM32 Timer Presentation](https://www.st.com/content/ccc/resource/training/technical/product_training/c4/1b/56/83/3a/a1/47/64/STM32L4_WDG_TIMERS_GPTIM.pdf/files/STM32L4_WDG_TIMERS_GPTIM.pdf/jcr:content/translations/en.STM32L4_WDG_TIMERS_GPTIM.pdf)
 
-
+注意，在使用stm32cubemx生成的硬件代码如果要结合os使用，注意要更改系统时钟源头，参见[例子](https://blog.csdn.net/zhanglifu3601881/article/details/89844466)
+![更改系统时钟源头](https://img-blog.csdnimg.cn/20190505142705638.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5nbGlmdTM2MDE4ODE=,size_16,color_FFFFFF,t_70)
 
 常见硬件功能：
 
@@ -57,10 +58,12 @@ PWM
 
 - TIM_Cmd  ---__HAL_TIM_ENABLE/__HAL_TIM_DISABLE
 - TIM_ITConfig ---__HAL_TIM_ENABLE_IT/__HAL_TIM_DISABLE_IT
-- TIM_ITConfig(TIMx, TIM_IT_CC1 | TIM_IT_Update, ENABLE) --- TIM_IT_CC1由HAL_TIM_PWM_Start_IT ,TIM_IT_Update由HAL_TIM_Base_Start_IT
+- TIM_ITConfig(TIMx, TIM_IT_CC1 | TIM_IT_Update, ENABLE) --- 使用在HAL_TIM_Base_MspInit中调用__HAL_TIM_ENABLE_IT(tim_baseHandle, TIM_IT_UPDATE)， 或可以看到TIM_IT_CC1由HAL_TIM_PWM_Start_IT ,TIM_IT_Update由HAL_TIM_Base_Start_IT自动开启了
 - 
 
 ## PWM原理：
+
+当使用PWM驱动电机时，有条经验法则， PWM 频率至少应该是电机最高频率的 10 倍。
 
 向上计数模式
 
