@@ -396,11 +396,21 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 ### windows集成python matplotlib-cpp总结
 
+<<<<<<< HEAD
 - 预备动作： `conda install numpy  matplotlib`
+=======
+>>>>>>> e26bdd34e41579bd02a2977627ec56f2cf3d87de
 
 - cmakefile
 
 ```cmakefile
+
+#>>> from distutils.sysconfig import get_config_var
+#>>> "%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME"))
+#'/usr/lib64/libpython2.7.so.1.0'
+#from distutils.sysconfig import get_python_inc
+#get_python_inc()
+#
 set(PYTHONHOME  "C:/tools/Anaconda3/envs/neural")
 set(PYTHON_EXECUTABLE "${PYTHONHOME}/python" )
 set(PYTHON_LIBRARYS "${PYTHONHOME}/libs/python36.lib" )
