@@ -58,7 +58,12 @@ PWM
 - TIM_Cmd  ---__HAL_TIM_ENABLE/__HAL_TIM_DISABLE
 - TIM_ITConfig ---__HAL_TIM_ENABLE_IT/__HAL_TIM_DISABLE_IT
 - TIM_ITConfig(TIMx, TIM_IT_CC1 | TIM_IT_Update, ENABLE) --- TIM_IT_CC1由HAL_TIM_PWM_Start_IT ,TIM_IT_Update由HAL_TIM_Base_Start_IT
-- 
+
+
+-  HAL_RCC_GetPCLK1Freq  对应APB1 PERIPHERAL CLOCKS(mhz)
+-  HAL_RCC_GetHCLKFreq 对应 HCLK(MHZ)
+
+apb1 timer clocks mhz
 
 ## PWM原理：
 
