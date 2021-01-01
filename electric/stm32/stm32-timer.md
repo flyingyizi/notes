@@ -131,5 +131,80 @@ apb1 timer clocks mhz
 知道速度值就可以调用CALC_ARR宏返回对应的ARR寄存器值啦，我们就可以根据机器的系统参数来控制了。注意，速度不能高于30000ms/s  = 30m/s的速度。因为定时的的最大频率就是48MHZ 
 
 
+### stm32cubeMX 设置参数的解释
+以STM32F411RE  TIM1为例：
+
+通过stm32cubeMX clock configuration设置SYSCLK(也称为SystemCoreClock)系统时钟为96MHz，同时设置APB2 timer clock为96MHz。
+
+TIM1是挂载在APB2总线上，因此TIM1 Timer_default_frequency是96MHz.
+
+在stm32cubeMX TIM1中设置它`precaller(PSC 16bit) `为“`48-1`”,设置“`count period(autoload register-16 bits)`”为“`200-1`”
+
+根据公式:
+$timerTickFrequency = \cfrac{TimerDefaultFrequency}{prescaller + 1}$：
+
+$PWMFrequency = \cfrac{timerTickFrequency}{TIMPeriod + 1}$
+
+得到,最终生成的PWM 频率为10KHz:
+```c++
+timer_tick_frequency = 96Mhz / 48  = 2MHz(即2 000 000 Hz)
+PWM_frequency = 2 000 000 / 200 = 10 000 Hz
+```
+
+在通常的工作中，我们是已知目标`PWM_frequency`，需要反算`TIM_Period`，这可以通过上面的公式反推得到：
 
 
+在本例子中，TIM_Period是`16 bits`最大65535，如果得到的TIM_Period大于这个`max timer value`，显然死不合法的。我们要去输入一个合适的`timer_tick_frequency`，这可以给一个合适的`precaller`得到
+
+
+占空比调节可以通过调用函数“`__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1,80(如果(TIM_Period + 1)是100，则占空比:80%));`"进行设置，也可以通过"`duty circle = TIM1->CCR1 / arr(单位：%)`"进行设置, 其中：
+
+//
+
+[STM32F4 PWM tutorial with TIMERs](http://stm32f4-discovery.net/2014/05/stm32f4-stm32f429-discovery-pwm-tutorial/)
+
+
+[STM32Cube的PWM控制基础篇（三）定时器的PWM设置详解](https://blog.csdn.net/ASWaterbenben/article/details/93466073)
+
+1、Mode（PWM的模式）
+该选项中有PWM Mode 1和PWM Mode 2两个选项; PWM Mode 1 ：正常理解的PWM波; PWM Mode 2 ：与PWM1模式互补的波（PWM模式1为高电平时PWM2为低电平，反之亦然）
+
+2、Pulse（脉冲宽度）
+Pulse16位二进制数，可以输入范围为0-2^16等于 0-65535的10进制数. 改变Pulse就是改变PWM的初始脉冲宽度
+
+4、CH Polarity（频道有效电平【High/Low】）
+顾名思义，这个参数就是控制有效电平的，因为有一些芯片的处理需要的是高电平有效，一些是需要低电平有效，为了在提高STM32适应性的同时不把我们程序猿的脑子搞乱，就有了这个设置
+
+5、CH Idle State（空闲状态【Set/Reset】）
+同样顾名思义，CH Idle State为该频道PWM不输出时的状态. Set为高电平,Reset为低电平
+
+
+
+# 关于时钟的一些记录    
+
+- 1HZ的周期是1秒,代表一秒一个脉冲；50HZ的周期是1/50=0.02秒，代表0.2秒一个脉冲；10HZ的周期是1/10=0.1秒
+- 1MHZ  = 1 000 000  HZ
+- microseconds(ms)  = 1 000  milliseconds(us)。通常使用的规则：1 s = 1 000 ms = 1 000 000 us
+- stm32cubeMX中的缩写： SYSCLK 系统时钟，也称为SystemCoreClock。 HCLK :AHB总线时钟
+- 
+当使用8MHZ的HSE时钟，我们要得到180MHz的SystemCoreClock，就可以采用下面的配置，结合stm32cubeMX 查看能更好帮助理解，下面配置的最终结果是`uint32_t SystemCoreClock = 180 000 000 hz;`. 详细解释参考[Library 03- STM32F4 system clock and delay functions](http://stm32f4-discovery.net/2014/04/library-03-stm32f429-discovery-system-clock-and-pretty-precise-delay-library/)
+
+```C++
+/* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
+#define PLL_M      8
+#define PLL_N      360 //Set this to 336 for 168MHz clock
+ 
+/* SYSCLK = PLL_VCO / PLL_P */
+#define PLL_P      2
+```
+
+
+
+### 正常输出，与互补输出
+
+注意CHX,与CHXN启动的区别，在配置时是选择“PWM Mode 1”，还是选择“PWM Mode 2”
+
+```c++
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);    //starts PWM on CH1 pin
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); //starts PWM on CH1N pin
+```
