@@ -81,8 +81,20 @@ straight_traverse 规范加工功能调用。
 X、Y 和 Z 轴形成正交线性轴的标准右手坐标系。三直线运动机构的位置用这些轴上的坐标表示。
 
 #### 2.1.2.2 旋转轴
-旋转轴以度为单位测量, 其方向为缠绕的线性轴。当从相应的 X 的正端查看时, 正旋转是逆时针的,Y 或 Z 轴。我们指的是 "绕线轴", 即角位置增加的一个
-没有限制 (走向加无穷大), 因为轴逆时针旋转, 没有限制 (走向负无穷大), 因为轴顺时针旋转。使用包线轴无论是否有机械的旋转极限。
+
+The rotational axes are measured in degrees as wrapped linear axes in which the direction of
+positive rotation is counterclockwise when viewed from the positive end of the corresponding X,
+Y, or Z-axis. By “wrapped linear axis,” we mean one on which the angular position increases
+without limit (goes towards plus infinity) as the axis turns counterclockwise and deceases without
+limit (goes towards minus infinity) as the axis turns clockwise. Wrapped linear axes are used
+regardless of whether or not there is a mechanical limit on rotation.
+Clockwise or counterclockwise is from the point of view of the workpiece. If the workpiece is
+fastened to a turntable which turns on a rotational axis, a counterclockwise turn from the point of
+view of the workpiece is accomplished by turning the turntable in a direction that (for most
+common machine configurations) looks clockwise from the point of view of someone standing
+next to the machine.1
+
+旋转轴以度为单位测量, 其方向为缠绕的线性轴。当从相应的 X 的正端查看时, 正旋转是逆时针的,Y 或 Z 轴。我们指的是 "绕线轴", 即角位置增加的一个没有限制 (走向加无穷大), 因为轴逆时针旋转, 没有限制 (走向负无穷大), 因为轴顺时针旋转。使用包线轴无论是否有机械的旋转极限。
 
 顺时针或逆时针是从工件的角度来看。如果工件是固定在一个转盘上转动的轴, 从点逆时针转工件的视图是通过转动转盘的方向完成的 (对于大多数普通机器配置) 从站在某人的角度看顺时针方向机器旁边
 
@@ -97,10 +109,34 @@ X、Y 和 Z 轴形成正交线性轴的标准右手坐标系。三直线运动�
 协调线性运动可以在当前的进给速率或遍历速率下进行。如果轴速度的物理限制使所需的速率无法得到, 所有轴都减慢以保持所需的路径。
 
 #### 2.1.2.5 进料率（Feed Rate）
-控制点或轴移动的速率名义上是一个稳定的速率, 可由用户设置。在解释器中, 除非在 RS274/NGC 视图中使用反向时间进给速率模式 (请参见3.5.19 节), 否则对进纸速率的解释如下面描述。4.3.5.1 节中所述的进给速率的规范化加工功能视图具有不同的应用条件, 但在解释器中没有使用。
+
+The rate at which the controlled point or the axes move is nominally a steady rate which may be
+set by the user. In the Interpreter, the interpretation of the feed rate is as follows unless inverse
+time feed rate mode is being used in the RS274/NGC view (see Section 3.5.19). The canonical
+machining functions view of feed rate, as described in Section 4.3.5.1, has conditions under which
+the set feed rate is applied differently, but none of these is used in the Interpreter.
+
+- A. For motion involving one or more of the X, Y, and Z axes (with or without simultaneous
+rotational axis motion), the feed rate means length units per minute along the
+programmed XYZ path, as if the rotational axes were not moving.
+
+- B. For motion of one rotational axis with X, Y, and Z axes not moving, the feed rate means
+degrees per minute rotation of the rotational axis.
+
+- C. For motion of two or three rotational axes with X, Y, and Z axes not moving, the rate is
+applied as follows. Let dA, dB, and dC be the angles in degrees through which the A, B,
+and C axes, respectively, must move. Let $D=\sqrt{(dA)^2 +(dB)^2 + (dC)^2}$ , Conceptually, D is a
+measure of total angular motion, using the usual Euclidean metric. Let T be the amount
+of time required to move through D degrees at the current feed rate in degrees per
+minute. The rotational axes should be moved in coordinated linear motion so that the
+elapsed time from the start to the end of the motion is T plus any time required for
+acceleration or deceleration.
+
+控制点或轴移动的速率 是可以由用户设置的一个稳定速率。在解释器中, 除非在 RS274/NGC 视图中使用反向时间进给速率模式 (请参见3.5.19 节), 否则对进纸速率的解释如下面描述。4.3.5.1 节中所述的进给速率的规范化加工功能视图具有不同的应用条件, 但在解释器中没有使用。
+
 - a. 对于涉及一个或多个 X、Y 和 Z 轴 (有或不同时旋转轴运动) 的运动, 进给速率意味着沿编程 XYZ 路径每分钟的长度单位, 就好像旋转轴没有移动一样。
 - b. 对于一个旋转轴的运动, X、Y 和 Z 轴不移动, 进给速率表示旋转轴的每分钟旋转的度数。
-- c. 对于不移动的 X、Y 和 Z 轴的三个旋转轴的运动, 该速率应用如下。让 dA、dB 和 dC 分别是 A、B 和 C 轴各自必须移动的角度。让 D =。从概念上讲, D 是一个总角运动的度量, 使用通常的欧几里德度量。让 T 是以每分钟以度为单位, 以当前的进给速率在 D 度上移动所需的时间量。旋转轴应在协调线性运动中移动, 以便从开始到运动结束的时间是 T 加上加速度或减速所需的任何时间。
+- c. 对于不移动的 X、Y 和 Z 轴的三个旋转轴的运动, 该速率应用如下。让 dA、dB 和 dC 分别是 A、B 和 C 轴各自必须移动的角度。让 $D=\sqrt{(dA)^2 +(dB)^2 + (dC)^2}$。从概念上讲, D 是一个总角运动的度量, 使用通常的欧几里德度量。让 T 是以每分钟以度为单位, 以当前的进给速率在 D 度上移动所需的时间量。旋转轴应在协调线性运动中移动, 以便从开始到运动结束的时间是 T 加上加速度或减速所需的任何时间。
 
 
 #### 2.1.2.6 Arc Motion
@@ -109,6 +145,44 @@ X、Y 和 Z 轴形成正交线性轴的标准右手坐标系。三直线运动�
 
 在弧运动中的进给速率是如上文2.1.2.5 节 a 项所述。在螺旋运动的情况下, 该速率沿螺旋线应用。在 RS274 的其他版本中,
 该速率适用于所选平面上的螺旋线投影的圆弧。
+
+#### 2.1.2.7 Coolant
+Flood coolant and mist coolant may each be turned on independently. The RS274/NGC language
+turns them off together (see Section 3.6.4) while the canonical machining functions turn them off
+independently (see Section 4.3.9).
+
+可单独打开溢流冷却液和雾气冷却液。RS274/NGC语言在标准加工功能关闭时将它们一起关闭（参见第3.6.4节独立（见第4.3.9节）。
+
+#### 2.1.2.8 Dwell暂停
+A machining center may be commanded to dwell (i.e., keep all axes unmoving) for a specific
+amount of time. The most common use of dwell is to break and clear chips, so the spindle is
+usually turning during a dwell.
+
+可命令加工中心在特定的位置暂停（即保持所有轴不移动）时间。最常用的停留是破碎和清除碎屑，因此主轴是通常在暂停期间转弯。
+
+#### 2.1.2.9 Units
+Units used for distances along the X, Y, and Z axes may be measured in millimeters or inches.
+Units for all other quantities involved in machine control cannot be changed. Different quantities
+use different specific units. Spindle speed is measured in revolutions per minute. The positions of
+rotational axes are measured in degrees. Feed rates are expressed in current length units per
+minute or in degrees per minute, as described in Section 2.1.2.5.
+
+沿X、Y和Z轴的距离使用的单位可以以毫米或英寸为单位测量。机器控制中涉及的所有其他数量的单位不能更改。不同数量使用不同的特定单位。主轴转速以每分钟转数为单位。的位置旋转轴以度为单位。进给速度用当前长度单位表示分钟或单位为度/分钟，如第2.1.2.5节所述。
+
+#### 2.1.2.10 Current Position
+The controlled point is always at some location called the “current position,” and the controller
+always knows where that is. The numbers representing the current position must be adjusted in
+the absence of any axis motion if any of several events take place:
+1. Length units are changed.
+2. Tool length offset is changed.
+3. Coordinate system offsets are changed.
+
+控制点总是在一个叫做“当前位置”的位置，控制器总是知道它在哪里。表示当前位置的数字必须在中调整。 如果发生以下几种情况中的任何一种，则没有任何轴运动：
+
+- 1长度单位已更改。
+- 2刀具长度偏移已更改。
+- 3坐标系偏移已更改。
+
 
 #### 2.1.2.11 选中的平面（Selected Plane）
 总是有一个 "选中的平面", 这必须是加工中心的 XY 平面, YZ 平面, 或 XZ 平面。Z 轴垂直于 XY 平面, X 轴垂直于YZ-平面, 和 Y 轴垂直于 XZ 平面。
@@ -119,8 +193,6 @@ X、Y 和 Z 轴形成正交线性轴的标准右手坐标系。三直线运动�
 ## 2.3 工具文件（Tool File）
 使用解释器时需要一个工具文件。该文件告诉哪些工具在其中的旋转槽以及每个刀具的长度和直径。
 解释器不直接处理工具文件。工具文件由 EMC 系统或SAI读取。
-
-
 
 The “POCKET” 列包含一个无符号整形值，它代表放置工具的工具转盘槽（tool carousel slot）的pocket number (slotnumber) .此列中的项必须全部不同。 
 
@@ -135,6 +207,11 @@ The “DIAM” 列包含一个实数. 仅当该pocket的工具半径补偿被打
 
 用于刀具长度和直径的单位可以是毫米或英寸, 但如果该数据由 NC 程序使用, 用户必须确保文件中用于工具的单位是与使用工具数据的 NC 代码被解释时有效的单位相同。
 
+|       |    |    |         |       |
+|POCKET |FMS |TLO |DIAMETER |COMMENT|
+|-------|----|----|---------|-------|
+|   21  | 21 | 1.7| 0       |1/2” spot drill|
+
 
 
 #  3 Input: the RS274/NGC Language
@@ -142,8 +219,8 @@ The “DIAM” 列包含一个实数. 仅当该pocket的工具半径补偿被打
 RS274/NGC 语言基于代码行。每行 (也称为 "块block") 可能包括多个到加工中心的命令到做几件不同的事情。
 
 典型的代码行由一个可选行号开始, 后跟一个或更多的 "words"。word由字母后跟数字 (或计算结果为数字)。word 可以给出命令或向命令提供参数。
-例如, "G1 X3" 是一个有效的代码行, 其中有两个word。"G1" 是一个命令意思是"移动在编程提要速率的直线, "X3"提供一个参数值 (X 的值
-在移动结束时应为 3)。大多数 RS274/NGC 命令以 G 或 M 开头 (for miscellaneous)。这些命令的word称为 “G codes” and “M codes.”。
+
+例如, "G1 X3" 是一个有效的代码行, 其中有两个word。"G1" 是一个命令意思是"移动在编程提要速率的直线, "X3"提供一个参数值 (X 的值在移动结束时应为 3)。大多数 RS274/NGC 命令以 G 或 M 开头 (for miscellaneous)。这些命令的word称为 “G codes” and “M codes.”。
 
 一个文件可以按以下方式进行分界。
 - 文件的第一个非空行可能只包含一个百分比符号 "%", 该百分比符号可能被空白环绕, 稍后在文件中 (通常位于文件末尾) 可能有类似的行。

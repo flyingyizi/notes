@@ -12,6 +12,10 @@
     - [cmakefile中替代pkg-config能力的说明](#cmakefile中替代pkg-config能力的说明)
     - [指定目录生成文件列表](#指定目录生成文件列表)
     - [tips](#tips)
+    - [cmake 设置vs工程的MT、MTd](#cmake-设置vs工程的mtmtd)
+    - [vs工程构建程序执行报Result: Exit code 0xc0000135](#vs工程构建程序执行报result-exit-code-0xc0000135)
+    - [Possible to force CMake/MSVC to use UTF-8 encoding for source files without a BOM? C4819](#possible-to-force-cmakemsvc-to-use-utf-8-encoding-for-source-files-without-a-bom-c4819)
+    - [windows集成python matplotlib-cpp总结](#windows集成python-matplotlib-cpp总结)
   - [atuomake makefile](#atuomake-makefile)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
@@ -392,6 +396,10 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 ### windows集成python matplotlib-cpp总结
 
+<<<<<<< HEAD
+- 预备动作： `conda install numpy  matplotlib`
+=======
+>>>>>>> e26bdd34e41579bd02a2977627ec56f2cf3d87de
 
 - cmakefile
 

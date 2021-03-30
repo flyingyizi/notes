@@ -20,7 +20,17 @@ https://github.com/goburrow/modbus
 
 #
 
-## G43，G44，G49：刀具补偿(Tool Compensation)
+## G40，G41和G42 G代码：刀具补偿（cutter compensation）
+
+刀具补偿cutter compensation. 又称为Cutter Comp。也被称为CDC ( Cutter Diameter Compensation) 刀具直径补偿
+
+刀具补偿是相对于刀具轴中心线的偏移或偏移。刀具补偿最适合基于几何的补偿。它允许对类似程序使用不同直径的工具。
+
+The application of cutter compensation happens based on the direction of the cut. G41 and G42 denote the left & right payment. On a CNC machine, climb milling should be used.
+
+https://www.cnc.com/g40-g41-g42-cutter-compensation-gcodes/
+
+## G43，G44，G49：刀具长度补偿(Tool Compensation)
 
 G43是正向补偿， G44是负向补偿，因此用的刀比對Z軸的刀長就G43，短就G44
 
