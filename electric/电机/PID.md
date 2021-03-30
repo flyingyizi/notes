@@ -31,6 +31,8 @@ $$y(x_{n+1}) = y(x_n) +hy'(x_n)$$
 
 ## 公式结论
 
+![PID控制器与被控对象关系](https://img-blog.csdnimg.cn/20181216103726414.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpbmdmZW5naGFubGVp,size_16,color_FFFFFF,t_70)
+
 预定义：
 - $k$ 采样序号, $k=0,1,2,3,...$
 - $T$ 采样周期
@@ -49,6 +51,16 @@ $$u_k =K_p \times e_k + T_I  \times \sum \limits_{j=0}^k e(j) +T_D \times (e_k-e
 增量式：
 
 $$\Delta u_k= u_k - u_{k-1}=K_p \times ([e_k-e_{k-1}] + \cfrac{T}{T_I} e_k + T_D \cfrac{e_k-2e_{k-1}+e_{k-2}}{T})$$
+
+积分分离式：
+
+$$u_k = \left\{\begin{matrix}
+K_p(1+\cfrac{T_D}{T})e_k - K_p\cfrac{T_D}{T}e_{k-1} +u_0 & |e_k| > X\\ 
+\Delta u_k + u_{k-1} & |e_k| \le  X
+\end{matrix}\right.$$
+
+    - 积分分离式的思想是当偏差过大时去掉积分采用PD，否则采用PID
+    - 其中X为认为选择的一个阈值
 
 
 ### 原理推导
@@ -72,7 +84,6 @@ PID控制器与被控对象关系:
 
 ![](https://img2018.cnblogs.com/blog/772331/201903/772331-20190311190707222-1055112250.png)
 
-![PID控制器与被控对象关系](https://img-blog.csdnimg.cn/20181216103726414.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpbmdmZW5naGFubGVp,size_16,color_FFFFFF,t_70)
 
 PID调试一般原则，动画模拟[见](https://zh.wikipedia.org/wiki/PID%E6%8E%A7%E5%88%B6%E5%99%A8)：
 
