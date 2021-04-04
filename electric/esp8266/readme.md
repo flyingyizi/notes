@@ -11,4 +11,5 @@ C:\Users\tu_xu\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\t
   [密码52p3](https://pan.baidu.com/s/1mh92QU0)
 
 
-  [t12焊接](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.4e2a2e8dNFk0yn&id=40168487512&_u=81861sbc682)
+
+[使用VS Code的 ESP-IDF 插件开发ESP32](https://blog.csdn.net/u012121390/article/details/111660359?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_utm_term-1&spm=1001.2101.3001.4242)

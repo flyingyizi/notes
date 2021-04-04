@@ -1,3 +1,12 @@
+
+## gen8升级bios
+
+[HP ProLiant MicroServer Gen8升级BIOS](https://www.mobibrw.com/2017/8442)
+
+
+
+## hard disk 直通
+
 以下描述中，已经知道ESXI host的IP是192.168.1.5。  内容参考的是[gen8折腾记录](https://www.biaodianfu.com/gen8-esxi.html)
 
 0. 开通ssh访问ESXI
@@ -88,3 +97,20 @@ Ubuntu 18.04安装Samba服务器及配置
 sudo service smbd restart
 
 (8)Windows徽标+R 在弹出的运行窗口中输入 \\ip即可访问。如\\192.168.182.188,输入samba用户名及密码访问即可看到共享，然后就可以在Linux系统与Windows系统直接进行文件共享了
+
+## esxi升级
+
+通过官网下载bundle package
+“https://my.vmware.com/group/vmware/details?downloadGroup=OEM-ESXI67U3-HPE&productId=742”
+
+```sh
+#获取package name以便升级使用
+~esxcli software sources profile list -d  /vmfs/volumes/59ac3ffb-12e01b3c-27b3-00fd45fda5dc/iso/VMware-ESXi-6.0.0-2494585-HP-600.9.3.30.2-J
+un2015-depot.zip 
+Name                        Vendor           Acceptance Level
+--------------------------  ---------------  ----------------
+HP-ESXi-6.0.0-600.9.3.30.2  Hewlett-Packard  PartnerSupported
+
+# 使用上一部获取的package name进行升级
+~esxcli  software  profile  update  -d   /vmfs/volumes/59ac3ffb-12e01b3c-27b3-00fd45fda5dc/iso/VMware-ESXi-6.0.0-2494585-HP-600.9.3.30.2-Jun2015-depot.zip  -p HP-ESXi-6.0.0-600.9.3.30.2
+```
