@@ -6,6 +6,7 @@
   - [关于命令行](#关于命令行)
   - [cmake + vcpkg](#cmake--vcpkg)
     - [vcpkg常用命令](#vcpkg常用命令)
+    - [vcpkg常见问题](#vcpkg常见问题)
     - [cmake无法找到vcpkg安装的模块](#cmake无法找到vcpkg安装的模块)
     - [cmake中增加googletest集成](#cmake中增加googletest集成)
     - [使用find_package VS pkg_search_module](#使用find_package-vs-pkg_search_module)
@@ -16,6 +17,8 @@
     - [vs工程构建程序执行报Result: Exit code 0xc0000135](#vs工程构建程序执行报result-exit-code-0xc0000135)
     - [Possible to force CMake/MSVC to use UTF-8 encoding for source files without a BOM? C4819](#possible-to-force-cmakemsvc-to-use-utf-8-encoding-for-source-files-without-a-bom-c4819)
     - [windows集成python matplotlib-cpp总结](#windows集成python-matplotlib-cpp总结)
+- [- 预备动作： `conda install numpy  matplotlib`](#--预备动作-conda-install-numpy--matplotlib)
+    - [cgal[qt]](#cgalqt)
   - [atuomake makefile](#atuomake-makefile)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
@@ -156,7 +159,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
 
 
 
-如果使用cmake作为构建工具，那建议使用vcpkg，否则不使用vcpkg
+如果使用cmake作为构建工具，那建议使用vcpkg.
 
 - [[awesome-cmake]](https://github.com/onqtam/awesome-cmake)
 
@@ -177,6 +180,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
 
 - 备份与恢复
 ```shell
+#备份
 $vcpkg export eigen3 --zip
 The following packages are already built and will be exported:
     eigen3:x64-linux
@@ -186,7 +190,6 @@ Zip archive exported at: /home/atmel/tool/vcpkg/vcpkg-export-20201119-213739.zip
 
 To use the exported libraries in CMake projects use:
     -DCMAKE_TOOLCHAIN_FILE=[...]/scripts/buildsystems/vcpkg.cmake
-
 $ 
 #导入备份的开源库
 $vcpkg.exe import vcpkg-export-20201119-213739.zip
@@ -195,6 +198,17 @@ $vcpkg.exe import vcpkg-export-20201119-213739.zip
 - 集成静态库
 
 `cmake .. -DCMAKE_TOOLCHAIN_FILE=.../vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x86-windows-static`
+
+### vcpkg常见问题
+
+- Downloading https://raw.githubusercontent.com/boostorg/boost/boost-1.73.0/LICENSE_1_0.txt... Failed. Status: 6;"Couldn't resolve host name"
+
+    解决方法：DNS被污染了，需要在hosts文件中加上github相关的真实ip地址
+```text
+    140.82.114.3 github.com
+    199.232.69.194 github.global.ssl.fastly.net
+    199.232.68.133 raw.githubusercontent.com
+```
 
 
 
@@ -432,6 +446,20 @@ target_link_libraries(test_machine_learning PRIVATE
 
     - 设置环境变量： `$Env:PYTHONPATH=C:\tools\Anaconda3\envs\neural`
     - 设置环境变量： `$Env:PYTHONHOME=C:\tools\Anaconda3\envs\neural`
+
+### cgal[qt]
+
+```shell
+vcpkg install --rescure cgal[qt]
+```
+安装预备
+
+```shell
+sudo apt install libglfw3-dev libgles2-mesa-dev libegl1-mesa-dev
+sudo apt install build-essential
+sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+```
+通常和qt安装配合使用，安装过程中的问题，参考(https://github.com/microsoft/vcpkg/issues/15150)
 
 
 ## atuomake makefile
