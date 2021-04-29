@@ -5,6 +5,7 @@
   - [install clionclion](#install-clionclion)
   - [关于命令行](#关于命令行)
   - [cmake + vcpkg](#cmake--vcpkg)
+    - [集成vscode](#集成vscode)
     - [vcpkg常用命令](#vcpkg常用命令)
     - [vcpkg常见问题](#vcpkg常见问题)
     - [cmake无法找到vcpkg安装的模块](#cmake无法找到vcpkg安装的模块)
@@ -175,6 +176,17 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug`
 ```
 
 使用`./vcpkg list --triplet x64-linux` 或在window下`./vcpkg list --triplet x64-window` 可以查看vcpkg已经安装了哪些模块
+
+### 集成vscode
+
+- 安装 c/c++, cmake, cmake-tools 插件。 
+- 通过 c/c++ edit configuration(UI) 增加includepath，例如"${vcpkgRoot}/x64-windows-static/include" ，使得代码提示识别路径
+- 在vscode 项目的settings.json中增加CMAKE_TOOLCHAIN_FILE的定义
+    ```json
+        "cmake.configureSettings": {
+            "CMAKE_TOOLCHAIN_FILE": "c:/tool/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        },
+    ```
 
 ### vcpkg常用命令
 
