@@ -94,8 +94,7 @@ pip 安装 scipy 时，因为是编译安装，所以如果缺少一些编译库
 
 ```sh
 $pip3 install Cython
-$sudo apt-get install gfortran
-$sudo apt-get install libopenblas-dev liblapack-dev libatlas-base-dev libblas-dev
+$sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-base-dev libblas-dev
 #最后执行以下命令即可
 $pip3 install scipy
 ```

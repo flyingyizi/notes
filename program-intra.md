@@ -4,6 +4,7 @@
   - [msys2](#msys2)
   - [install clionclion](#install-clionclion)
   - [关于命令行](#关于命令行)
+  - [关于X window](#关于x-window)
   - [cmake + vcpkg](#cmake--vcpkg)
     - [集成vscode](#集成vscode)
     - [vcpkg常用命令](#vcpkg常用命令)
@@ -20,9 +21,13 @@
     - [windows集成python matplotlib-cpp总结](#windows集成python-matplotlib-cpp总结)
 - [- 预备动作： `conda install numpy  matplotlib`](#--预备动作-conda-install-numpy--matplotlib)
     - [cgal[qt]](#cgalqt)
+    - [Could not find a configuration file for package](#could-not-find-a-configuration-file-for-package)
+    - [opencv](#opencv)
   - [atuomake makefile](#atuomake-makefile)
+  - [使用GDB查看core文件](#使用gdb查看core文件)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
+  - [查找缺失文件](#查找缺失文件)
   - [常量](#常量)
   - [控制语句举例](#控制语句举例)
   - [变量作用域](#变量作用域)
@@ -152,6 +157,15 @@ search "window 10 bash"
     readelf -p --string-dump=.rodata ld便可以找到
     ```
 
+##  关于X window
+
+远程操作linux机器当前看比较好的几种方式：
+
+- anydesk
+- 如果是使用X server。建议是 [微软 VcXsrv ](https://sourceforge.net/projects/vcxsrv/),然后通过X11 forward使用SecureCRT ，具体配置是在secureCRT中option-> port forwarding 勾选  forward x11 packet。
+
+
+
 ## cmake + vcpkg
 
 常用命令
@@ -221,6 +235,8 @@ $vcpkg.exe import vcpkg-export-20201119-213739.zip
     199.232.69.194 github.global.ssl.fastly.net
     199.232.68.133 raw.githubusercontent.com
 ```
+
+- 在wndows下 vs-yasm, yasm-tool-helper,yasm-tool这些工具要提前install，不然会出现稀奇古怪的事情，即使你安装你需要的package是采用"--recurse"
 
 
 
@@ -301,6 +317,10 @@ target_include_directories(test_machine_learning PRIVATE
 
 提供pc文件的场景使用方法见下一节“cmakefile中替代pkg-config能力的说明”
 
+vcpkg 安装的module提供了pc文件，但就是找不到。这种情况考虑设置下环境变量`PKG_CONFIG_PATH` 。下面是在cmake中设置路径的例子：
+
+`set(ENV{PKG_CONFIG_PATH}  "/home/tools/vcpkg/installed/x64-linux/lib/pkgconfig")`
+
 ### cmakefile中替代pkg-config能力的说明
 
 下面演示了如何在cmakefile中替代pkg-config
@@ -339,6 +359,8 @@ target_link_directories(  test_machine_learning PRIVATE
 <XPREFIX>_CFLAGS         ... all required cflags
 <XPREFIX>_CFLAGS_OTHER   ... the other compiler flags
 ```
+
+
 
 ### 指定目录生成文件列表
 
@@ -461,18 +483,75 @@ target_link_libraries(test_machine_learning PRIVATE
 
 ### cgal[qt]
 
+在linux下建议直接使用apt-get安装，使用vcpkg install，因为qt编译非常耗资源，硬件不足的机器不要尝试了。
+
+安装它的核心预置条件是opengl的开发环境准备
+
+opengl安装预备
+
+```shell
+apt-get install libgl-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev mesa-common-dev libxrandr-dev libxxf86vm-dev
+sudo apt install libglfw3-dev libgles2-mesa-dev libegl1-mesa-dev
+sudo apt install build-essential  libtool texinfo  gperf autopoint
+sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+```
+
 ```shell
 vcpkg install --rescure cgal[qt]
 ```
-安装预备
 
-```shell
-sudo apt install libglfw3-dev libgles2-mesa-dev libegl1-mesa-dev
-sudo apt install build-essential
-sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
-```
+
 通常和qt安装配合使用，安装过程中的问题，参考(https://github.com/microsoft/vcpkg/issues/15150)
 
+在安装过程中出现类似缺失AX_PTHREAD M4定义的问题，找个ax_pthread.m4文件放到/usr/share/aclocal目录中去；
+
+依赖opengl，当环境在虚拟机时，由于虚拟机支持有限，不建议使用虚拟机环境。 
+
+vcpkg安装qt时缺失“ERROR: The OpenGL functionality tests failed!”， 这个问题的出现实际原因不知道，下面是实践中可行的一个办法。
+1.通过下面查找，知道它应该在libgl-dev，但发现它已经安装了，还是没有libGL.so。 先将他卸载，然后再次install libgl-dev，发现问题解决了。
+```shell
+$ apt-file search libGL.so
+libgl-dev: /usr/lib/x86_64-linux-gnu/libGL.so
+libgl1: /usr/lib/x86_64-linux-gnu/libGL.so.1
+libgl1: /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0
+...
+```
+
+配置片段
+
+```cmake
+find_package(CGAL CONFIG REQUIRED)
+target_link_libraries(test_geo PRIVATE CGAL::CGAL)
+find_package(CGAL REQUIRED OPTIONAL_COMPONENTS Qt5)
+if(CGAL_Qt5_FOUND)
+  #required to use basic_viewer
+  add_definitions(-DCGAL_USE_BASIC_VIEWER -DQT_NO_KEYWORDS)
+  target_link_libraries(test_geo PUBLIC CGAL::CGAL_Qt5)
+endif()
+```
+
+### Could not find a configuration file for package
+
+除了通过vcpkg install 加载的模块，还有通过apt-get install加载的模块。 对于后者, 安装后的config cmake文件时位于`/usr/lib/x86_64-linux-gnu/cmake`中的。如果发现类似错误，先到这里面查找下。
+
+### opencv
+
+The packages in the official repos are outdated, don't use them (e.g. apt-get install libopencv). This is what I use to install OpenCV, should work for you too.
+
+```shell
+sudo apt-get install build-essential make cmake git libgtk2.0-dev pkg-config python python-dev python-numpy libavcodec-dev libavformat-dev libswscale-dev libjpeg-dev libpng-dev libtiff-dev
+cd ~/Downloads
+git clone https://github.com/itseez/opencv
+mv opencv /opt
+cd /opt/opencv
+git checkout 2.4.10.1 #or whatever version you want
+sudo mkdir build
+cd build
+sudo cmake -j4 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+sudo make -j4
+sudo make -j4 install
+sudo ldconfig
+```
 
 ## atuomake makefile
 
@@ -607,6 +686,18 @@ AC_OUTPUT
    将361行的左大括号“}”删掉即可，这时因为新版的perl不在支持左大括号的使用，删掉大括号，问题解决。
 
 
+## 使用GDB查看core文件
+
+默认编译出来的程序在出现Segmentation fault 时并没有生成core崩溃文件，可以在gcc/g++编译时增加-g选项, 比如在cmakefile.txt中设置"`set(CMAKE_BUILD_TYPE Debug)  #vs Release`"。
+
+如果仍然没有生成core文件，则可能是因为系统设置了core文件大小为0，可以通过："`ulimit -a`" 查询得知。
+
+执行 "`ulimit -c unlimited`" 命令后可以使core文件大小不受限制。此时再次运行程序应该就能在同级目录看到core.XXX文件了
+
+使用 "`gdb ./a.out core.XXX`" 可以查看出错所在行信息，这样就进入了 gdb core 调试模式。
+
+通过"`gdb>bt`"追踪产生segmenttation fault的位置及代码函数调用情况。
+  
   
 # c and cplusplus 编程语言
 
@@ -619,7 +710,17 @@ AC_OUTPUT
 - [[stackoverflow.com]](https://stackoverflow.com/)
 - [[GNU软件列表]](http://ftp.gnu.org/)
 
+## 查找缺失文件
 
+在c/C++编程中常常出现类似“fatal error: X11/extensions/xf86vmode.h: No such file or directory”缺失头文件的场景，这个通常使用`apt-file`来查找
+
+例如:
+```shell
+$ apt-file search xf86vmode.h
+libxxf86vm-dev: /usr/include/X11/extensions/xf86vmode.h
+$ sudo apt-get install libxxf86vm-dev
+Reading package lists... Done
+```
 
 ## 常量
 ```c++

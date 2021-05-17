@@ -39,6 +39,15 @@ np.lookfor('create array')
 
 # 2-基本操作
 
+## 获取文件大小
+
+```c++
+	    auto begin = file.tellg();
+	    file.seekg(0, std::ios::end);
+	    auto end = file.tellg();
+		auto size = end - begin;
+```
+
 ## 2.1-打开CSV文件
 
 ### golang代码：
