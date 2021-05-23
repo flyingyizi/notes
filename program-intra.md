@@ -923,7 +923,7 @@ $mingw32-gcc -m32 -shared - mydll.dll mydll.o
 ```
 
 
-### 编译vs使用的lib库
+### 编译vs使用的lib库  
 
     - 生成lib
     ```shell
@@ -945,6 +945,16 @@ $mingw32-gcc -m32 -shared - mydll.dll mydll.o
     #pragma comment(lib, "xxx.dll.a")
     ```
 
+### 临时取消宏定义
+
+```c++
+#pragma push_macro("MACRONAME")
+#undef MACRONAME
+
+// some actions
+
+#pragma pop_macro("MACRONAME")
+```
 
 # java 环境准备
 
