@@ -1,4 +1,6 @@
 
+[program with gtkmm4](https://github.com/GNOME/gtkmm-documentation/tree/gtkmm-3-22)
+
 
 [gtk2 tutorial](http://www.huzheng.org/ebook/gtk2-tut/x408.html)
 [Getting started with gtk3](https://riptutorial.com/gtk3)
@@ -166,6 +168,26 @@ toplevel普通的场景只要采用下面的方式就可以了
       drag->signal_drag_end().connect(sigc::mem_fun(*this, &mydraw_t::on_selfdrag_end), false);
       this->add_controller(drag);
 ```
+
+### 鼠标scrool
+
+注意，默认是不跟踪滚动的，所以必须`set_flags`后才可以看到效果
+```c++
+    auto b=Gtk::EventControllerScroll::create();
+    //默认效果是set_flags(Gtk::EventControllerScroll::Flags::NONE);所以必须设置该flag
+    b->set_flags(Gtk::EventControllerScroll::Flags::BOTH_AXES);
+    b->signal_scroll().connect([](double x_delta,double y_delta)->bool{
+        std::cout<<"deltas: x["<<x <<"] y["<<y<<"]"<<std::endl;
+        return true;
+    },false);
+    this->add_controller(b);
+```
+
+### 命令行
+
+https://student.cs.uwaterloo.ca/~cs246/common/gtkmm/gtkmm-examples-3.0/09-commandLine/
+
+
 
 ###  locale::facet::_S_create_c_locale name not valid
 

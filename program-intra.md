@@ -39,6 +39,7 @@
     - [Include Path for use with MinGW Compilers](#include-path-for-use-with-mingw-compilers)
     - [生成share library](#生成share-library)
     - [编译vs使用的lib库](#编译vs使用的lib库)
+    - [临时取消宏定义](#临时取消宏定义)
 - [java 环境准备](#java-环境准备)
   - [install maven](#install-maven)
   - [maven 安装](#maven-安装)
@@ -721,6 +722,13 @@ libxxf86vm-dev: /usr/include/X11/extensions/xf86vmode.h
 $ sudo apt-get install libxxf86vm-dev
 Reading package lists... Done
 ```
+
+另外，经常出现类似“ld: cannot find -lxxx”的问题，这个问题有两种情况，一种是确实没有，另外一种就是系统中存在，但没有找到。 这个一般可以通过`ld -l库名 --verbose` 识别出来。
+
+对于第二种情况，有两种方法解决：
+- 库的路径加到LD_LIBRARY_PATH环境变量中
+- 增加类似`-L/dest-path` 编译选项
+
 
 ## 常量
 ```c++
