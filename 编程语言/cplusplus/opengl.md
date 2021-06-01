@@ -3,7 +3,7 @@ https://openglbook.com/
 
 https://learnopengl-cn.github.io/01%20Getting%20started/01%20OpenGL/
 
-[官方文档](http://docs.gl/es2/glTexImage2D)
+[OpenGL-Refpages](https://www.khronos.org/registry/OpenGL-Refpages/)
 
 ## opengl 矩阵
 
@@ -200,54 +200,15 @@ $$M^{-1} = R^{-1}T^{-1} = \begin{bmatrix}
 
 projection matrix转换矩阵的推导见[推导过程](http://www.songho.ca/opengl/gl_projectionmatrix.html)。
 
-## 各空间介绍
-
-![opengl采用右手直角坐标系](https://pic3.zhimg.com/80/v2-4ba2a170d562a5c4b3714ec43886fc2a_720w.jpg)
-
-顶点着色器运行后，我们可见的所有顶点都为标准化设备坐标(Normalized Device Coordinate, NDC)。也就是说，每个顶点的x，y，z坐标都应该在-1.0到1.0之间，超出这个坐标范围的顶点都将不可见。
-
-将坐标变换为标准化设备坐标，接着再转化为屏幕坐标的过程通常是分步进行的，也就是类似于流水线那样子。在流水线中，物体的顶点在最终转化为屏幕坐标之前还会被变换到多个坐标系统(Coordinate System)。
-
-
-### 局部空间(Local Space，或者称为物体空间(Object Space))
-
-    由model matrix 转换"local space" to "world space"  。
-
-### 世界空间(World Space)
-
-    从局部变换到世界空间；该变换是由模型矩阵(Model Matrix)实现。模型矩阵是一种变换矩阵，它能通过对物体进行位移、缩放、旋转来将它置于它本应该在的位置或朝向。你可以将它想像为变换一个房子，你需要先将它缩小（它在局部空间中太大了），并将其位移至郊区的一个小镇，然后在y轴上往左旋转一点以搭配附近的房子。
-
-    世界空间的坐标系,注意右手坐标系，以屏幕中心为原点(0, 0, 0)，Z正向是指向你
-
-
-### 观察空间(View Space，或者称为视觉空间(Eye Space))
-
-    将世界坐标变换到观察空间，该变换由观察矩阵(View Matrix)实现。观察空间就是从摄像机的视角所观察到的空间。而这通常是由一系列的位移和旋转的组合来完成，平移/旋转场景从而使得特定的对象被变换到摄像机的前方。
-
-    当讨论View Matrix时，是在讨论以摄像机的视角作为场景原点时场景中所有的顶点坐标：观察矩阵把所有的世界坐标变换为相对于摄像机位置与方向的观察坐标。
-
-  ![](https://learnopengl-cn.github.io/img/01/09/camera_axes.png)
-
-    
-    注意： 视点坐标是以视点为原点，以视线的方向为Z+轴正方向的坐标系。
-
-### 裁剪空间(Clip Space)
-
-    在一个顶点着色器运行的最后，OpenGL期望所有的坐标都能落在一个特定的范围内，且任何在这个范围之外的点都应该被裁剪掉(Clipped)
-
-    投影矩阵(Projection Matrix)将顶点坐标从观察变换到裁剪空间。指定了一个范围的坐标，比如在每个维度上的-1000到1000。投影矩阵接着会将在这个指定的范围内的坐标变换为标准化设备坐标的范围(-1.0, 1.0)。所有在范围外的坐标不会被映射到在-1.0到1.0的范围之间，所以会被裁剪掉。在上面这个投影矩阵所指定的范围内，坐标(1250, 500, 750)将是不可见的，这是由于它的x坐标超出了范围，它被转化为一个大于1.0的标准化设备坐标，所以被裁剪掉了。
-
-### 屏幕空间(Screen Space)
-
-    经过裁剪空间之后，最终的坐标将会被映射到屏幕空间中（使用glViewport中的设定）
-
 
 ## 欧拉角 转换为 方向向量
 
 定义： 
 - 绕X轴旋转 roll
 - 绕y轴旋转 
--    Z                              Y                                X
+-
+```text
+    Z                              Y                                X
  //then yaw                    then pitch                      First roll:
  | cos(yaw), -sin(yaw), 0 |  | cos(pitch), 0, -sin(pitch) |  | 1 ,   0     ,     0      | 
  | sin(yaw),  cos(yaw), 0 |  |     0     , 1,      0      |  | 0 ,cos(roll), -sin(roll) | 
@@ -263,7 +224,7 @@ projection matrix转换矩阵的推导见[推导过程](http://www.songho.ca/ope
 | cos(y)cos(p),  -sin(y)cos(r) - cos(y)sin(p)sin(r),  sin(y)sin(r) -cos(y)sin(p)cos(r)   |
 | sin(y)cos(p),  cos(y)cos(r) - sin(y)sin(p)sin(r) ,  - cos(y)sin(r) - sin(y)sin(p)cos(r)|
 | sin(p),        cos(p)sin(r),                        cos(p)cos(r)                       |
-
+```
 
 
 ## 变换编码举例
@@ -310,6 +271,12 @@ void main()
     glUniformMatrix4fv(glGetUniformLocation(this->program, "view"), 1, GL_FALSE, view.data());
     glUniformMatrix4fv(glGetUniformLocation(this->program, "projection"), 1, GL_FALSE, projection.data());
 ```
+
+
+## 理论推导
+
+![pespective](http://hiphotos.baidu.com/zhujianzhai/pic/item/96369a004c086e066b53430202087bf40bd1cb34.jpg)
+
 
 # 颜色
 
