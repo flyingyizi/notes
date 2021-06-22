@@ -478,7 +478,11 @@ int main(void)
 
 从操作过程来看，与历史liteos版本移植有很大不同。 这里对官方移植说明进行一些自己认为缺失的补充说明。
 
-- 浮点支持： `project config(F4)`中没有查找到配置的地方，所以先临时在.config中手动配置`LOSCFG_ARCH_FPU_ENABLE=y`. 如果没有设置，则会出现类似“selected processor does not support `vldmia r0!,{d8-d15}' in Thumb mode”问题
+### 浮点支持： 
+
+`project config(F4)`中没有查找到配置的地方，所以先临时在.config中手动配置`LOSCFG_ARCH_FPU_ENABLE=y`. 如果没有设置，则会出现类似“selected processor does not support `vldmia r0!,{d8-d15}' in Thumb mode”问题
+
+### lowpower
 
 - lowpower：
 
@@ -497,6 +501,7 @@ int main(void)
   LOSCFG_KERNEL_POWER_MGR=y
   ```
 
+### ifconfig补充
 
 - 由于liteos是使用ifconfig进行配置的，因此新增一个新的芯片（开发板）支持，首先需要对该开发板提供默认配置。具体涉及动作如下：
 
@@ -504,7 +509,7 @@ int main(void)
   - 以上一步得到的默认配置文件拷贝并重命名为".config"放置到`$(LITEOSTOPDIR)/`目录下。
   - 经过以上两步，就对该开发板使能ifconfig配置了。
 
-- 如果需要支持"C++"，对应配置是`project config(F4)->xomponent->kernel-> 选择支持c++`
+- 如果需要支持"C++"，对应配置是`project config(F4)->component->kernel-> 选择支持c++`
 
 - “$(LITEOSTOPDIR)\targets\STM32F411RETx\include\menuconfig.h” 文件是`project config(F4)`运行后自动生成的头文件。
 
@@ -514,6 +519,7 @@ int main(void)
   #define LOSCFG_PLATFORM_STM32F411RETx 1
   ```
 
+### 新增开发板到liteos 系统配置中
 - “$(LITEOSTOPDIR)\targets\bsp.mk”与“$(LITEOSTOPDIR)\targets\bsp\Makefile” 都需要执行[添加新开发板到系统配置中](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628532.html)中描述的修改。
 
   例如，本次仿照中新增了下面语句
@@ -548,10 +554,33 @@ int main(void)
       LOCAL_SRCS = $(STM32F411RETX_HAL_SRC)
   ```
 
+### link script
 
-- “$(LITEOSTOPDIR)\build\mk\los_config.mk” 中对链接文件的名字固定为"liteos.ld"，所以在移植中要遵守这一点
+通常我们使用裸机创建的ld script，然后与liteos SDK已经包含的范例开发板进行比较，书写一个我们移植开发板的ld script
 
-- 通过stm32MX模板生成的硬件项目，其中Drivers目录不用，因此liteos中已经包含了HAL，例如“$(LITEOSTOPDIR)\targets\bsp\drivers\STM32F4xx_HAL_Driver”。 如果还是希望使用stm32MX模板携带的HAL，那就要修改“$(LITEOSTOPDIR)\targets\bsp.mk”，看了下，内容不是很多，应该比较容易修改。
+注意 “$(LITEOSTOPDIR)\build\mk\los_config.mk” 中对链接文件的名字固定为"liteos.ld"，所以在移植中要遵守这一点
+
+### stm32 HAL driver
+
+- 通过stm32MX模板生成的裸机项目，其中Drivers目录可以不用，因此liteos中已经包含了HAL，例如“$(LITEOSTOPDIR)\targets\bsp\drivers\STM32F4xx_HAL_Driver”。 如果还是希望使用stm32MX模板携带的HAL，那就要修改“$(LITEOSTOPDIR)\targets\bsp.mk”，看了下，内容不是很多，应该比较容易修改。
+
+### 书写main
+
+通常我们不使用stm32MX创建裸机project生成的main，而是使用liteos 中范例开发板的main进行修改得到我们新增开发板的main。 main()中最核心的是要包含OsMain()。
+
+OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务，该任务入口时app_init
+
+下面是增加的app_init函数，其中DemoEntry包含了liteos sdk已经写好的各个demo。要启用它们，在ifconfig中可以使能各个demo
+```c++
+#include "sys_porting.h"
+#include "demo_entry.h"
+
+VOID app_init(VOID)
+{
+    printf("app init!\n");
+    DemoEntry();
+}
+```
 
 C:\tmp\demo\targets\STM32F411RETx\include\menuconfig.h
 
