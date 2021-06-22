@@ -474,7 +474,35 @@ int main(void)
 
 ## 1.4.liteOS版本(gitee master)移植
 
-当前这个属于最新的liteos版本移植。 对应所需编译环境见[liteOS官网](https://support.huaweicloud.com/LiteOS/)中环境安装说明, 本次移植是基于[官方移植说明](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628477.html)进行操作的。从操作过程来看，与历史liteos版本移植有很大不同。 这里对官方移植说明进行一些自己认为缺失的补充说明。
+当前这个属于最新的liteos版本移植。 对应所需编译环境见[liteOS官网](https://support.huaweicloud.com/LiteOS/)中环境安装说明, 本次移植是基于[官方移植说明](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628477.html)进行操作的。本次是移植到STM32F411RETx-neucleo，即新增一个STM32F411RETx target。
+
+从操作过程来看，与历史liteos版本移植有很大不同。 这里对官方移植说明进行一些自己认为缺失的补充说明。
+
+- 浮点支持： `project config(F4)`中没有查找到配置的地方，所以先临时在.config中手动配置`LOSCFG_ARCH_FPU_ENABLE=y`. 如果没有设置，则会出现类似“selected processor does not support `vldmia r0!,{d8-d15}' in Thumb mode”问题
+
+- lowpower：
+
+  ```text
+  1. ifconfig 操作：
+  首先勾选：kernel  -> enable low power management framework
+  基于第一步，会出现"kernel->low power management configure" menu。 在该menu中勾选“ enable default mplementation of low poser manager framework
+  ”
+  2. 确认结果
+  在.config 中确认下面三个配置项目的值为y
+  LOSCFG_KERNEL_LOWPOWER=y
+  #
+  # Low Power Management Configure
+  #
+  LOSCFG_KERNEL_TICKLESS=y
+  LOSCFG_KERNEL_POWER_MGR=y
+  ```
+
+
+- 由于liteos是使用ifconfig进行配置的，因此新增一个新的芯片（开发板）支持，首先需要对该开发板提供默认配置。具体涉及动作如下：
+
+  - 新增默认配置文件： 在`$(LITEOSTOPDIR)/tools/build/config/`目录下找一个类似配置文件拷贝并重命名为`${platform}.config`，作为该开发板的的默认配置文件
+  - 以上一步得到的默认配置文件拷贝并重命名为".config"放置到`$(LITEOSTOPDIR)/`目录下。
+  - 经过以上两步，就对该开发板使能ifconfig配置了。
 
 - 如果需要支持"C++"，对应配置是`project config(F4)->xomponent->kernel-> 选择支持c++`
 
