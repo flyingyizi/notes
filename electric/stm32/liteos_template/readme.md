@@ -4,15 +4,26 @@ https://seisman.github.io/how-to-write-makefile/overview.html （跟我一起写
 
 GNU-LD 在线文档https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_mono/ld.html
 
-# liteOS移植
+# 1.liteOS移植
 
 从实践来看， liteOS的版本比较多，它们的移植实践有比较多的区别。 下面对liteOS-master， liteOS-develop，liteOS-lab三种移植过程进行记录。
 
 当前官方推荐的是liteOS-lab。
 
-## liteOS-lab版本移植
+LiteOS相关的主要代码仓如下：
 
-根据官网介绍，这个版本是最新，并且重构最优的版本。 源码下载路径是“https://github.com/LiteOS/LiteOS_Lab”。与该版本配套有个IoT link vscode扩展工具，通过该扩展工具可以方便的对移植进行模块裁剪。
+- 码云gitee的[master分支](https://gitee.com/LiteOS/LiteOS)：官方最新的LiteOS代码仓。
+
+- 码云gitee的LiteOS Studio官方仓库（包括使用手册）。
+
+- github上的[LiteOS代码仓](https://github.com/LiteOS/LiteOS)：跟随码云的master分支，会定期更新同步。
+
+- github上的[LiteOS_Lab代码仓](https://github.com/LiteOS/LiteOS_Lab)：LiteOS_Lab是LiteOS发展过程中衍生出来的一个分支，其代码仓的最新分支为iot_link分支。LiteOS_Lab在官方LiteOS 18年的版本上持续演进，新增了更多的组件和开发板支持。
+
+
+## 1.1.liteOS-lab版本(iot_link分支)移植
+
+源码下载路径是“https://github.com/LiteOS/LiteOS_Lab”。与该版本配套有个IoT link vscode扩展工具，通过该扩展工具可以方便的对移植进行模块裁剪。
 
 由于安装IoT link会自动下载liteOS-lab,所以我们这就不单独下载“https://github.com/LiteOS/LiteOS_Lab”了，如果单独下载，注意记得设置变量SDK_DIR指向下载的路径。
 
@@ -454,7 +465,83 @@ int main(void)
 
 注意： 一旦通过上面方式更改为jlink，那就不再支持stlink。如果要恢复stlink，需要通过STLinkReflash.exe restore功能重置为stlink，并且根据实践这个恢复动作往往不成功，表现为stm32cubeide识别不了，因此还需要一个额外动作： stm32cubeide help/stlink upgrade 进行升级refresh。之后才OK。
 
-#### JTAG 与SWD
+## 1.2.liteOS版本(github代码仓)移植
+
+[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html),其实对应的就是liteOS-develop 版本的移植。 下载liteOS源码应采用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 方式下载liteOS。
+
+1、“demo-with-develop”目录对应的liteOS为使用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 下载的liteOS，参考的教程是 [STM32L431移植LiteOS 手把手教程](https://bbs.huaweicloud.com/forum/thread-12430-1-1.html) 
+
+
+## 1.4.liteOS版本(gitee master)移植
+
+当前这个属于最新的liteos版本移植。 对应所需编译环境见[liteOS官网](https://support.huaweicloud.com/LiteOS/)中环境安装说明, 本次移植是基于[官方移植说明](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628477.html)进行操作的。从操作过程来看，与历史liteos版本移植有很大不同。 这里对官方移植说明进行一些自己认为缺失的补充说明。
+
+- 如果需要支持"C++"，对应配置是`project config(F4)->xomponent->kernel-> 选择支持c++`
+
+- “$(LITEOSTOPDIR)\targets\STM32F411RETx\include\menuconfig.h” 文件是`project config(F4)`运行后自动生成的头文件。
+
+  在这个文件中，类似下面两个macro很重要，并且它们是根据我们在`project config(F4)`根据芯片新增的board信息自动生成的。 在下一步“添加新开发板到系统配置中”，会经常使用到它们。
+  ```c++
+  #define LOSCFG_PLATFORM "STM32F411RETx"
+  #define LOSCFG_PLATFORM_STM32F411RETx 1
+  ```
+
+- “$(LITEOSTOPDIR)\targets\bsp.mk”与“$(LITEOSTOPDIR)\targets\bsp\Makefile” 都需要执行[添加新开发板到系统配置中](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628532.html)中描述的修改。
+
+  例如，本次仿照中新增了下面语句
+  ```makefile
+  # 在“$(LITEOSTOPDIR)\targets\bsp.mk”
+  ######################### STM32F411RETx Options #######################
+  else ifeq ($(LOSCFG_PLATFORM_STM32F411RETx), y)
+      LITEOS_CMACRO_TEST += -DSTM32F411xE
+      HAL_DRIVER_TYPE := STM32F4xx_HAL_Driver
+  ```
+
+  ```makefile
+  # “$(LITEOSTOPDIR)\targets\bsp\Makefile”, 内容是根据stm32MX makefile中的hal列表
+  else ifeq ($(LOSCFG_PLATFORM_STM32F411RETx), y)
+  STM32F411RETX_HAL_SRC = \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c 
+      LOCAL_SRCS = $(STM32F411RETX_HAL_SRC)
+  ```
+
+
+- “$(LITEOSTOPDIR)\build\mk\los_config.mk” 中对链接文件的名字固定为"liteos.ld"，所以在移植中要遵守这一点
+
+- 通过stm32MX模板生成的硬件项目，其中Drivers目录不用，因此liteos中已经包含了HAL，例如“$(LITEOSTOPDIR)\targets\bsp\drivers\STM32F4xx_HAL_Driver”。 如果还是希望使用stm32MX模板携带的HAL，那就要修改“$(LITEOSTOPDIR)\targets\bsp.mk”，看了下，内容不是很多，应该比较容易修改。
+
+C:\tmp\demo\targets\STM32F411RETx\include\menuconfig.h
+
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .config
+        modified:   drivers/uart/src/arm_generic/uart_debug.c
+        modified:   targets/bsp.mk
+        modified:   targets/bsp/Makefile
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        targets/STM32F411RETx/
+        tools/build/config/STM32F411RETx.config
+
+## JTAG 与SWD
 
 两种接口的全接口都是20针，但通常都不会用那么多 [对比](https://img-blog.csdnimg.cn/20181030143036713.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzMxNjE=,size_16,color_FFFFFF,t_70)
 
@@ -479,22 +566,6 @@ ST-Link/V2 协议支持 JTAG/SWD标准接口，但在20针中对的接口中JTAG
 USART-RX(4), USART-TX(6)
 
 
-
-
-## liteOS-develop版本移植
-
-[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html),其实对应的就是liteOS-develop 版本的移植。 下载liteOS源码应采用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 方式下载liteOS。
-
-1、“demo-with-develop”目录对应的liteOS为使用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 下载的liteOS，参考的教程是 [STM32L431移植LiteOS 手把手教程](https://bbs.huaweicloud.com/forum/thread-12430-1-1.html) 
-
-
-## liteOS-master版本移植
-
-如果采用`git clone  https://github.com/LiteOS/LiteOS.git` 下载liteOS源码，它的内容与liteOS-develop是存在较大差异的，你如果按照[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html)，根本会发现走不下去。
-
-此时，你只能参照target中的内容去改写。 
-
-2、“demo-with-master”目录对应的liteOS为使用`git clone  https://github.com/LiteOS/LiteOS.git` 下载的liteOS,使用方法会与上面有较大的差异。 该目录内容是参照target改写得到。
 
 
 # liteOS使用
