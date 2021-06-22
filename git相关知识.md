@@ -106,7 +106,8 @@ git fetch --all
 git reset --hard origin/master
 ```
 
+### git status 查看哪些文件被修改
 
-
+### git diff 查看所有文件具体被修改的地方
 
 
