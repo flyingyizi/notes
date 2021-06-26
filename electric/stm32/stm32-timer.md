@@ -71,7 +71,7 @@ PWM
 apb1 timer clocks mhz
 >>>>>>> caffb3ab155307f50103b3cdd4aec59a59ef7e17
 
-## PWM原理：
+## PWM 原理：
 
 当使用PWM驱动电机时，有条经验法则， PWM 频率至少应该是电机最高频率的 10 倍。
 
@@ -103,7 +103,7 @@ apb1 timer clocks mhz
 
 定时器溢出中断（也称为更新中断）的处理逻辑如下
 
-![](http://6.eewimg.cn/news/uploadfile/2019/0530/20190530063656321.png)
+![更新中断逻辑](http://6.eewimg.cn/news/uploadfile/2019/0530/20190530063656321.png)
 
 
 ### 电机速度与频率
@@ -216,3 +216,35 @@ Pulse16位二进制数，可以输入范围为0-2^16等于 0-65535的10进制数
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);    //starts PWM on CH1 pin
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); //starts PWM on CH1N pin
 ```
+
+# STM32 Timer Cookbook 笔记 
+
+[STM32 Timer Cookbook](https://www.st.com/resource/en/application_note/dm00236305-generalpurpose-timer-cookbook-for-stm32-microcontrollers-stmicroelectronics.pdf)
+
+## STM32 timer peripheral tear-down
+
+The STM32 timer 包含下面四个模块:
+- 1. The master/slave controller unit
+- 2. The time-base unit
+- 3. The timer channels unit
+- 4. The Break feature unit.  中断功能单元仅由具有互补输出的定时器外围设备嵌入。换句话说，只有至少有一个通道和两个互补输出的定时器外设才嵌入中断功能。
+
+### Timer time-base configuration
+
+```c++
+#define ANY_DELAY_RQUIRED 0x0FFF
+/* Hardware-precision delay loop implementation using TIM6 timer
+peripheral. Any other STM32 timer can be used to fulfill this function, but
+TIM6 timer was chosen as it has the less integration level. Other timer
+peripherals may be reserved for more complicated tasks */
+/* Clear the update event flag */
+TIM6->SR = 0
+/* Set the required delay */
+/* The timer presclaer reset value is 0. If a longer delay is required the
+presacler register may be configured to */
+/*TIM6->PSC = 0 */
+TIM6->ARR = ANY_DELAY_RQUIRED
+/* Start the timer counter */
+TIM6->CR1 |= TIM_CR1_CEN
+```
+

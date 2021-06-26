@@ -568,9 +568,9 @@ int main(void)
 
 通常我们不使用stm32MX创建裸机project生成的main，而是使用liteos 中范例开发板的main进行修改得到我们新增开发板的main。 main()中最核心的是要包含OsMain()。
 
-OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务，该任务入口时app_init
+OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务（该任务入口时app_init）
 
-下面是增加的app_init函数，其中DemoEntry包含了liteos sdk已经写好的各个demo。要启用它们，在ifconfig中可以使能各个demo
+下面是新增加的app_init函数，其中DemoEntry包含了liteos sdk已经写好的各个demo。要启用它们，在ifconfig中可以使能各个demo
 ```c++
 #include "sys_porting.h"
 #include "demo_entry.h"
@@ -582,21 +582,197 @@ VOID app_init(VOID)
 }
 ```
 
-C:\tmp\demo\targets\STM32F411RETx\include\menuconfig.h
+建议：
+- 裸机生成代码时，指示stm32cubeMX不生成main, 即勾选 `do not generate the main()` . 在user code部分增加我们自己的main()
 
-On branch master
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   .config
-        modified:   drivers/uart/src/arm_generic/uart_debug.c
-        modified:   targets/bsp.mk
-        modified:   targets/bsp/Makefile
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        targets/STM32F411RETx/
-        tools/build/config/STM32F411RETx.config
+### module makefile说明
+
+大家观察sdk中的module makefile，大致都长以下的模样
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME := dtls_server
+
+LOCAL_SRCS :=
+LOCAL_INCLUDE :=
+
+LOCAL_INCLUDE += 
+
+LOCAL_SRCS = 
+LOCAL_FLAGS := 
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+这些module最终都是被“$(LITEOSTOPDIR)/build/mk/module.mk”的下面动作执行编译
+```makefile
+SUB_MODULE_BUILD: $(MODULE_y)
+	$(HIDE) for dir in $(MODULE_y); 		\
+		do $(MAKE) -C $$dir all || exit 1; 	\
+	done
+```
+
+对编译的结果，添加到lib列表中，就可以被使用了，例如
+```makefile
+    ifeq ($(LOSCFG_DEMOS_GUI), y)
+        LITEOS_BASELIB += -lgui_demo
+    endif
+```
+
+
+$(LITEOSTOPDIR)/config.mk
+      |--$(LITEOSTOPDIR)/mk/liteos_tables_ldflags.mk
+      |--$(LITEOSTOPDIR)/build/mk/los_config.mk
+
+
+### 启用esp8266
+
+需要启用下面的模块：`components->network-> enable AT, choose AT device, enable sal `
+
+对应使得.config 改变如下：
+```diff
+$ git diff
+diff --git a/.config b/.config
+index 4347af5..8831c11 100644
+--- a/.config
++++ b/.config
+@@ -221,9 +221,9 @@ LOSCFG_LIB_ZLIB=y
+ #
+ # Network
+ #
+-# LOSCFG_COMPONENTS_NET_AT is not set
++LOSCFG_COMPONENTS_NET_AT=y
+-# LOSCFG_COMPONENTS_NET_SAL is not set
++LOSCFG_COMPONENTS_NET_SAL=y
+-# LOSCFG_COMPONENTS_NET_AT_ESP8266 is not set
++LOSCFG_COMPONENTS_NET_AT_ESP8266=y
+-# LOSCFG_COMPONENTS_NETWORK is not set
++LOSCFG_COMPONENTS_NETWORK=y
+```
+
+liteos SDK提供的BSP， 几个配置是写死在代码中，因此下面改为条件定义，使得它们可以在makefile中define它们的值
+```diff
+diff --git a/components/net/at_device/wifi_esp8266/esp8266.h b/components/net/at_device/wifi_esp8266/esp8266.h
+index 424f49f..f92d2b8 100644
+--- a/components/net/at_device/wifi_esp8266/esp8266.h
++++ b/components/net/at_device/wifi_esp8266/esp8266.h
+@@ -31,11 +31,16 @@
+
+ #include "at_frame/at_main.h"
+
++#ifndef WIFI_SSID
+ #define WIFI_SSID                 "HWTEST"
++#endif
++#ifndef WIFI_PASSWD
+ #define WIFI_PASSWD               ""
+-
++#endif
+ #define AT_MODU_NAME              "ESP8266"
++#ifndef AT_USART_PORT
+ #define AT_USART_PORT             2
++#endif
+ #define AT_BUARDRATE              115200
+ #define AT_CMD_TIMEOUT            10000 // ms
+ #define AT_MAX_LINK_NUM           4
+
+```
+
+```diff
+diff --git a/targets/STM32F411RETx/Makefile b/targets/STM32F411RETx/Makefile
+@@ -50,9 +50,10 @@ C_DEFS += \
+     -DSTM32F411xE \
+     -DNDEBUG \
+     -D__LITEOS__ \
+-    -D_ALL_SOURCE
+-
+-
++    -D_ALL_SOURCE \
++    -DAT_USART_PORT=6 \
++    -DWIFI_SSID="testssid"  \
++    -DWIFI_PASSWD=""
+
+```
+
+另外， 我们本次移植的STM32F411xE开发板，是不支持类似USART3,4...的，为了编译通过，针对该芯片增加下面的条件编译
+```diff
+diff --git a/targets/bsp/drivers/at_hal/at_hal.c b/targets/bsp/drivers/at_hal/at_hal.c
+index cebe7d4..2f683b5 100644
+--- a/targets/bsp/drivers/at_hal/at_hal.c
++++ b/targets/bsp/drivers/at_hal/at_hal.c
+@@ -49,6 +49,20 @@ static void at_usart_adapter(uint32_t port)
+     g_atIRQn = LPUART1_IRQn;
+     return;
+ #endif
++
++#ifdef  STM32F411xE
++    switch (port) {
++        case 6: // 6: usart6
++            g_atUSART = USART6;
++            g_atIRQn = USART6_IRQn;
++            break;
++        case 2: // 2: usart2
++            g_atUSART = USART2;
++            g_atIRQn = USART2_IRQn;
++            break;
++    }
++    return;
++#else
+     switch (port) {
+         case 1: // 1: usart1
+             g_atUSART = USART1;
+@@ -70,6 +84,8 @@ static void at_usart_adapter(uint32_t port)
+         default:
+             break;
+     }
++#endif
++    return;
+ }
+```
+
+### 中断号
+
+在liteos中使用中断有两种方式： 使用stm32 裸机中断； 使用liteos 封装的中断（LOS_HwiCreate）
+
+如果使用裸机中断，中断号显然直接使用stm32 hal中定义的中断，比如TIM3_IRQn。
+
+如果使用使用liteos封装的中断，中断号需要使用类似`#define TIM_IRQ                 (TIM3_IRQn + 16) // 16: cortex-m irq shift`。 这里magic number 16的原因是：
+
+- 在liteos限定中断号的合法范围是`[OS_USER_HWI_MIN, OS_USER_HWI_MAX]`
+
+  在“$(LITEOSTOPDIR)\drivers\interrupt\include\hal_hwi.h” 中有设定：
+  ```c++
+  #if defined(LOSCFG_CORTEX_M_NVIC)
+  #define OS_USER_HWI_MIN                 15
+  #else
+  #define OS_USER_HWI_MIN                 0
+  #endif
+
+  #if defined(LOSCFG_PLATFORM_HIFIVE1_REV1_B01)
+  #define OS_USER_HWI_MAX                 (OS_HWI_MAX_NUM - 1)
+  #else
+  #define OS_USER_HWI_MAX                 (LOSCFG_PLATFORM_HWI_LIMIT - 1)
+  #endif
+
+  #define HWI_NUM_VALID(num)              (((num) >= OS_USER_HWI_MIN) && ((num) <= OS_USER_HWI_MAX))
+  ```
+  上面使用到的15这个数字，不是随便写的。而是根据“Cortex-M4 Processor Exceptions Numbers”的范围来取的一个值。将OS_USER_HWI_MIN值定为15，当我们将“16: cortex-m irq shift”约定为16，显然将“`SysTick_IRQn                = -1,     /*!< 15 Cortex-M4 System Tick Interrupt`”作为用户态的中断号
+
+-  liteos 软中断是存放在`STATIC HwiHandleInfo g_hwiForm[LOSCFG_PLATFORM_HWI_LIMIT] = { 0 };`数组中,访问这个数组是以中断号作为index进行访问的，显然index应该是一个negative value
+-  
+
+### 启用shell
+
+需要启用shell，需要配套的usart bsp移植，即“$(LITEOSTOPDIR)\drivers\uart\src\arm_generic\uart_debug.c”中代码的适配。
+
+shell使用说明见"$(LITEOSTOPDIR)\shell\README_CN.md"
+
+### lwip
+
+[Huawei LiteOS LwIP API Reference](https://usermanual.wiki/Document/Huawei20LiteOS20LwIP20Developer20Guide.144895066/view)
+
+
 
 ## JTAG 与SWD
 
