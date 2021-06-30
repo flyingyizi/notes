@@ -588,7 +588,9 @@ VOID app_init(VOID)
 
 ### module makefile说明
 
-大家观察sdk中的module makefile，大致都长以下的模样
+大家观察sdk中的module makefile，大致都以下几种类型
+
+- 类型1：
 ```makefile
 
 include $(LITEOSTOPDIR)/config.mk
@@ -606,7 +608,47 @@ LOCAL_FLAGS :=
 include $(MODULE)
 ```
 
-这些module最终都是被“$(LITEOSTOPDIR)/build/mk/module.mk”的下面动作执行编译
+- 类型2：
+
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME :=
+
+MODULE_y :=
+MODULE_y += xxx
+
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+- 类型3：
+
+  他是类型1与类型2的结合，代表了它不但编译LOCAL_SRCS 列表，编译结果为$(MODULE)， 另外还编译由MODULE_y 目录列表所代表的各个子模块
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME := dtls_server
+
+LOCAL_SRCS :=
+LOCAL_INCLUDE :=
+
+LOCAL_INCLUDE += 
+
+LOCAL_SRCS = 
+LOCAL_FLAGS := 
+
+MODULE_y :=
+MODULE_y += xxx
+
+
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+其中命名为“MODULE_y” 是作为特别独立模块处理的，它们会被自动链接（解释见下面的“module编译结果的使用”）。处理代码见“$(LITEOSTOPDIR)/build/mk/module.mk”的下面动作执行编译
 ```makefile
 SUB_MODULE_BUILD: $(MODULE_y)
 	$(HIDE) for dir in $(MODULE_y); 		\
@@ -614,17 +656,24 @@ SUB_MODULE_BUILD: $(MODULE_y)
 	done
 ```
 
-对编译的结果，添加到lib列表中，就可以被使用了，例如
-```makefile
-    ifeq ($(LOSCFG_DEMOS_GUI), y)
-        LITEOS_BASELIB += -lgui_demo
-    endif
-```
+对module编译结果的使用，分为两种情况：
 
+- 施加到“MODULE_y”的，在“$(LITEOSTOPDIR)/build/mk/module.mk”中是以“SUB_MODULE_BUILD”目标标识的，有个专门的动作针对它：
+  ```makefile
+  $(LIBA): $(LOCAL_OBJS) SUB_MODULE_BUILD
+    $(HIDE)$(OBJ_MKDIR)
+    $(call add_lib_to_baselib_file,$(MODULE_NAME))
+  ```
+  其中的`add_lib_to_baselib_file`行为会收集它们的列表记录到`$(BASELIB_FILE)`。LD在链接的时候会去链接它们。 这意味着只要是按照“MODULE_y”来构建的module，liteos build mk会自动去链接它们。
 
-$(LITEOSTOPDIR)/config.mk
-      |--$(LITEOSTOPDIR)/mk/liteos_tables_ldflags.mk
-      |--$(LITEOSTOPDIR)/build/mk/los_config.mk
+- 对不是“MODULE_y”施加构建的模块，那就要手工添加到“$(LITEOSTOPDIR)/targets/bsp.mk”中的`$(LITEOS_BASELIB)`里面，比如
+  ```makefile
+      ifeq ($(LOSCFG_DEMOS_GUI), y)
+          LITEOS_BASELIB += -lgui_demo
+      endif
+  ```
+  LD在链接的时候会去链接`$(LITEOS_BASELIB)`. 当然，有些是肯定会去链接的，它们在“$(LITEOSTOPDIR)/targets/bsp.mk”中已经写好了，例如`LITEOS_BASELIB += -l$(LITEOS_PLATFORM) -lsec -lbase -linit -lbsp -lc -lm -losdepends`这些就不用你再手动写了。
+ 
 
 
 ### 启用esp8266
