@@ -69,7 +69,7 @@ PWM
 -  HAL_RCC_GetHCLKFreq 对应 HCLK(MHZ)
 
 apb1 timer clocks mhz
->>>>>>> caffb3ab155307f50103b3cdd4aec59a59ef7e17
+
 
 ## PWM 原理：
 
@@ -186,9 +186,17 @@ Pulse16位二进制数，可以输入范围为0-2^16等于 0-65535的10进制数
 5、CH Idle State（空闲状态【Set/Reset】）
 同样顾名思义，CH Idle State为该频道PWM不输出时的状态. Set为高电平,Reset为低电平
 
+### 单极性和双极性PWM调制的区别在哪里 详解PWM中的单极性和双极性
+
+[单极性和双极性PWM调制的区别在哪里 详解PWM中的单极性和双极性](http://www.elecfans.com/analog/20180824738048.html)
+
 
 
 # 关于时钟的一些记录    
+
+- TIMx 的时钟来自它们挂在的所在APBx总线，但之间不是相等关系。 在stm32cubeMX clock configuration中使用“APBx Timer clocks”显示出来的是TIMx的时钟，它有时和“APBx peripheral clocks ”是不一样的。这个不同是因为"当APBx的分频系数不为1的时候，TIMx CLK的时钟就是APBx的时钟乘以2。"的[特殊规则存在](http://news.eeworld.com.cn/uploadfile/2016/1208/1481163323473078.png)。
+
+-  HCLK（AHB总线时钟）由系统时钟SYSCLK分频得到。由HCLK分频得到PCLK1/PCLK2。 PCLK2对应APB2外设， PCLK1对应APB1外设， 
 
 - 1HZ的周期是1秒,代表一秒一个脉冲；50HZ的周期是1/50=0.02秒，代表0.2秒一个脉冲；10HZ的周期是1/10=0.1秒
 - 1MHZ  = 1 000 000  HZ
