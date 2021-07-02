@@ -585,6 +585,15 @@ VOID app_init(VOID)
 建议：
 - 裸机生成代码时，指示stm32cubeMX不生成main, 即勾选 `do not generate the main()` . 在user code部分增加我们自己的main()
 
+### 网络
+
+以at为例，下面是at net启用的过程
+1. app_init->DemoEntry->AgenttinyDemoTask(entry是AtinyDemoTaskEntry)-> 当启用at时会调用Esp8266Register->at_api_register(填写gp_at_adaptor_api，后续at_api_xx api都是使用该结构)
+
+2. 对sal 的api atiny_net_xxx， 如果是启用at，那就是调用对应的at_api_xx； 如果是启用lwip或指明linux，那就是不是调用at_api_xx,而是posix net api
+
+从上面也可以看出，我们配置时，如果启用at，那就不应启用lwip
+
 
 ### module makefile说明
 
@@ -676,7 +685,7 @@ SUB_MODULE_BUILD: $(MODULE_y)
  
 
 
-### 启用esp8266
+### 启用at esp8266
 
 需要启用下面的模块：`components->network-> enable AT, choose AT device, enable sal `
 
@@ -821,6 +830,22 @@ shell使用说明见"$(LITEOSTOPDIR)\shell\README_CN.md"
 
 [Huawei LiteOS LwIP API Reference](https://usermanual.wiki/Document/Huawei20LiteOS20LwIP20Developer20Guide.144895066/view)
 
+lwip部分已升级为在线组件形式，需要调用在线组件脚本，当前stuido还未支持在线组件。
+
+
+
+#### uart
+
+    ifeq ($(LOSCFG_DRIVERS_SIMPLE_UART), y)
+        LITEOS_BASELIB += -luart
+    endif
+
+MODULE_$(LOSCFG_DRIVERS_UART_ARM_PL011) += src/arm_pl011
+MODULE_$(LOSCFG_DRIVERS_UART_CSKY_PORT) += src/csky
+
+ifneq ($(findstring y, $(LOSCFG_DRIVERS_UART_CSKY_PORT) $(LOSCFG_DRIVERS_UART_ARM_PL011)), y)
+    LOCAL_SRCS_$(LOSCFG_DRIVERS_SIMPLE_UART) += src/arm_generic/uart_debug.c
+endif
 
 
 ## JTAG 与SWD
