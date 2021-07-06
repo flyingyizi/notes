@@ -4,15 +4,26 @@ https://seisman.github.io/how-to-write-makefile/overview.html （跟我一起写
 
 GNU-LD 在线文档https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_mono/ld.html
 
-# liteOS移植
+# 1.liteOS移植
 
 从实践来看， liteOS的版本比较多，它们的移植实践有比较多的区别。 下面对liteOS-master， liteOS-develop，liteOS-lab三种移植过程进行记录。
 
 当前官方推荐的是liteOS-lab。
 
-## liteOS-lab版本移植
+LiteOS相关的主要代码仓如下：
 
-根据官网介绍，这个版本是最新，并且重构最优的版本。 源码下载路径是“https://github.com/LiteOS/LiteOS_Lab”。与该版本配套有个IoT link vscode扩展工具，通过该扩展工具可以方便的对移植进行模块裁剪。
+- 码云gitee的[master分支](https://gitee.com/LiteOS/LiteOS)：官方最新的LiteOS代码仓。
+
+- 码云gitee的LiteOS Studio官方仓库（包括使用手册）。
+
+- github上的[LiteOS代码仓](https://github.com/LiteOS/LiteOS)：跟随码云的master分支，会定期更新同步。
+
+- github上的[LiteOS_Lab代码仓](https://github.com/LiteOS/LiteOS_Lab)：LiteOS_Lab是LiteOS发展过程中衍生出来的一个分支，其代码仓的最新分支为iot_link分支。LiteOS_Lab在官方LiteOS 18年的版本上持续演进，新增了更多的组件和开发板支持。
+
+
+## 1.1.liteOS-lab版本(iot_link分支)移植
+
+源码下载路径是“https://github.com/LiteOS/LiteOS_Lab”。与该版本配套有个IoT link vscode扩展工具，通过该扩展工具可以方便的对移植进行模块裁剪。
 
 由于安装IoT link会自动下载liteOS-lab,所以我们这就不单独下载“https://github.com/LiteOS/LiteOS_Lab”了，如果单独下载，注意记得设置变量SDK_DIR指向下载的路径。
 
@@ -454,7 +465,390 @@ int main(void)
 
 注意： 一旦通过上面方式更改为jlink，那就不再支持stlink。如果要恢复stlink，需要通过STLinkReflash.exe restore功能重置为stlink，并且根据实践这个恢复动作往往不成功，表现为stm32cubeide识别不了，因此还需要一个额外动作： stm32cubeide help/stlink upgrade 进行升级refresh。之后才OK。
 
-#### JTAG 与SWD
+## 1.2.liteOS版本(github代码仓)移植
+
+[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html),其实对应的就是liteOS-develop 版本的移植。 下载liteOS源码应采用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 方式下载liteOS。
+
+1、“demo-with-develop”目录对应的liteOS为使用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 下载的liteOS，参考的教程是 [STM32L431移植LiteOS 手把手教程](https://bbs.huaweicloud.com/forum/thread-12430-1-1.html) 
+
+
+## 1.4.liteOS版本(gitee master)移植
+
+当前这个属于最新的liteos版本移植。 对应所需编译环境见[liteOS官网](https://support.huaweicloud.com/LiteOS/)中环境安装说明, 本次移植是基于[官方移植说明](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628477.html)进行操作的。本次是移植到STM32F411RETx-neucleo，即新增一个STM32F411RETx target。
+
+从操作过程来看，与历史liteos版本移植有很大不同。 这里对官方移植说明进行一些自己认为缺失的补充说明。
+
+### 浮点支持： 
+
+`project config(F4)`中没有查找到配置的地方，所以先临时在.config中手动配置`LOSCFG_ARCH_FPU_ENABLE=y`. 如果没有设置，则会出现类似“selected processor does not support `vldmia r0!,{d8-d15}' in Thumb mode”问题
+
+### lowpower
+
+- lowpower：
+
+  ```text
+  1. ifconfig 操作：
+  首先勾选：kernel  -> enable low power management framework
+  基于第一步，会出现"kernel->low power management configure" menu。 在该menu中勾选“ enable default mplementation of low poser manager framework
+  ”
+  2. 确认结果
+  在.config 中确认下面三个配置项目的值为y
+  LOSCFG_KERNEL_LOWPOWER=y
+  #
+  # Low Power Management Configure
+  #
+  LOSCFG_KERNEL_TICKLESS=y
+  LOSCFG_KERNEL_POWER_MGR=y
+  ```
+
+### ifconfig补充
+
+- 由于liteos是使用ifconfig进行配置的，因此新增一个新的芯片（开发板）支持，首先需要对该开发板提供默认配置。具体涉及动作如下：
+
+  - 新增默认配置文件： 在`$(LITEOSTOPDIR)/tools/build/config/`目录下找一个类似配置文件拷贝并重命名为`${platform}.config`，作为该开发板的的默认配置文件
+  - 以上一步得到的默认配置文件拷贝并重命名为".config"放置到`$(LITEOSTOPDIR)/`目录下。
+  - 经过以上两步，就对该开发板使能ifconfig配置了。
+
+- 如果需要支持"C++"，对应配置是`project config(F4)->component->kernel-> 选择支持c++`
+
+- “$(LITEOSTOPDIR)\targets\STM32F411RETx\include\menuconfig.h” 文件是`project config(F4)`运行后自动生成的头文件。
+
+  在这个文件中，类似下面两个macro很重要，并且它们是根据我们在`project config(F4)`根据芯片新增的board信息自动生成的。 在下一步“添加新开发板到系统配置中”，会经常使用到它们。
+  ```c++
+  #define LOSCFG_PLATFORM "STM32F411RETx"
+  #define LOSCFG_PLATFORM_STM32F411RETx 1
+  ```
+
+### 新增开发板到liteos 系统配置中
+- “$(LITEOSTOPDIR)\targets\bsp.mk”与“$(LITEOSTOPDIR)\targets\bsp\Makefile” 都需要执行[添加新开发板到系统配置中](https://support.huaweicloud.com/porting-LiteOS/zh-cn_topic_0314628532.html)中描述的修改。
+
+  例如，本次仿照中新增了下面语句
+  ```makefile
+  # 在“$(LITEOSTOPDIR)\targets\bsp.mk”
+  ######################### STM32F411RETx Options #######################
+  else ifeq ($(LOSCFG_PLATFORM_STM32F411RETx), y)
+      LITEOS_CMACRO_TEST += -DSTM32F411xE
+      HAL_DRIVER_TYPE := STM32F4xx_HAL_Driver
+  ```
+
+  ```makefile
+  # “$(LITEOSTOPDIR)\targets\bsp\Makefile”, 内容是根据stm32MX makefile中的hal列表
+  else ifeq ($(LOSCFG_PLATFORM_STM32F411RETx), y)
+  STM32F411RETX_HAL_SRC = \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
+      Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c 
+      LOCAL_SRCS = $(STM32F411RETX_HAL_SRC)
+  ```
+
+### link script
+
+通常我们使用裸机创建的ld script，然后与liteos SDK已经包含的范例开发板进行比较，书写一个我们移植开发板的ld script
+
+注意 “$(LITEOSTOPDIR)\build\mk\los_config.mk” 中对链接文件的名字固定为"liteos.ld"，所以在移植中要遵守这一点
+
+### stm32 HAL driver
+
+- 通过stm32MX模板生成的裸机项目，其中Drivers目录可以不用，因此liteos中已经包含了HAL，例如“$(LITEOSTOPDIR)\targets\bsp\drivers\STM32F4xx_HAL_Driver”。 如果还是希望使用stm32MX模板携带的HAL，那就要修改“$(LITEOSTOPDIR)\targets\bsp.mk”，看了下，内容不是很多，应该比较容易修改。
+
+### 书写main
+
+通常我们不使用stm32MX创建裸机project生成的main，而是使用liteos 中范例开发板的main进行修改得到我们新增开发板的main。 main()中最核心的是要包含OsMain()。
+
+OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务（该任务入口时app_init）
+
+下面是新增加的app_init函数，其中DemoEntry包含了liteos sdk已经写好的各个demo。要启用它们，在ifconfig中可以使能各个demo
+```c++
+#include "sys_porting.h"
+#include "demo_entry.h"
+
+VOID app_init(VOID)
+{
+    printf("app init!\n");
+    DemoEntry();
+}
+```
+
+建议：
+- 裸机生成代码时，指示stm32cubeMX不生成main, 即勾选 `do not generate the main()` . 在user code部分增加我们自己的main()
+
+### 网络
+
+以at为例，下面是at net启用的过程
+1. app_init->DemoEntry->AgenttinyDemoTask(entry是AtinyDemoTaskEntry)-> 当启用at时会调用Esp8266Register->at_api_register(填写gp_at_adaptor_api，后续at_api_xx api都是使用该结构)
+
+2. 对sal 的api atiny_net_xxx， 如果是启用at，那就是调用对应的at_api_xx； 如果是启用lwip或指明linux，那就是不是调用at_api_xx,而是posix net api
+
+从上面也可以看出，我们配置时，如果启用at，那就不应启用lwip
+
+
+### module makefile说明
+
+大家观察sdk中的module makefile，大致都以下几种类型
+
+- 类型1：
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME := dtls_server
+
+LOCAL_SRCS :=
+LOCAL_INCLUDE :=
+
+LOCAL_INCLUDE += 
+
+LOCAL_SRCS = 
+LOCAL_FLAGS := 
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+- 类型2：
+
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME :=
+
+MODULE_y :=
+MODULE_y += xxx
+
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+- 类型3：
+
+  他是类型1与类型2的结合，代表了它不但编译LOCAL_SRCS 列表，编译结果为$(MODULE)， 另外还编译由MODULE_y 目录列表所代表的各个子模块
+```makefile
+
+include $(LITEOSTOPDIR)/config.mk
+# 在$(MODULE)中MODULE_NAME将作为生成目标的名字
+MODULE_NAME := dtls_server
+
+LOCAL_SRCS :=
+LOCAL_INCLUDE :=
+
+LOCAL_INCLUDE += 
+
+LOCAL_SRCS = 
+LOCAL_FLAGS := 
+
+MODULE_y :=
+MODULE_y += xxx
+
+
+# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+include $(MODULE)
+```
+
+其中命名为“MODULE_y” 是作为特别独立模块处理的，它们会被自动链接（解释见下面的“module编译结果的使用”）。处理代码见“$(LITEOSTOPDIR)/build/mk/module.mk”的下面动作执行编译
+```makefile
+SUB_MODULE_BUILD: $(MODULE_y)
+	$(HIDE) for dir in $(MODULE_y); 		\
+		do $(MAKE) -C $$dir all || exit 1; 	\
+	done
+```
+
+对module编译结果的使用，分为两种情况：
+
+- 施加到“MODULE_y”的，在“$(LITEOSTOPDIR)/build/mk/module.mk”中是以“SUB_MODULE_BUILD”目标标识的，有个专门的动作针对它：
+  ```makefile
+  $(LIBA): $(LOCAL_OBJS) SUB_MODULE_BUILD
+    $(HIDE)$(OBJ_MKDIR)
+    $(call add_lib_to_baselib_file,$(MODULE_NAME))
+  ```
+  其中的`add_lib_to_baselib_file`行为会收集它们的列表记录到`$(BASELIB_FILE)`。LD在链接的时候会去链接它们。 这意味着只要是按照“MODULE_y”来构建的module，liteos build mk会自动去链接它们。
+
+- 对不是“MODULE_y”施加构建的模块，那就要手工添加到“$(LITEOSTOPDIR)/targets/bsp.mk”中的`$(LITEOS_BASELIB)`里面，比如
+  ```makefile
+      ifeq ($(LOSCFG_DEMOS_GUI), y)
+          LITEOS_BASELIB += -lgui_demo
+      endif
+  ```
+  LD在链接的时候会去链接`$(LITEOS_BASELIB)`. 当然，有些是肯定会去链接的，它们在“$(LITEOSTOPDIR)/targets/bsp.mk”中已经写好了，例如`LITEOS_BASELIB += -l$(LITEOS_PLATFORM) -lsec -lbase -linit -lbsp -lc -lm -losdepends`这些就不用你再手动写了。
+ 
+
+
+### 启用at esp8266
+
+需要启用下面的模块：`components->network-> enable AT, choose AT device, enable sal `
+
+对应使得.config 改变如下：
+```diff
+$ git diff
+diff --git a/.config b/.config
+index 4347af5..8831c11 100644
+--- a/.config
++++ b/.config
+@@ -221,9 +221,9 @@ LOSCFG_LIB_ZLIB=y
+ #
+ # Network
+ #
+-# LOSCFG_COMPONENTS_NET_AT is not set
++LOSCFG_COMPONENTS_NET_AT=y
+-# LOSCFG_COMPONENTS_NET_SAL is not set
++LOSCFG_COMPONENTS_NET_SAL=y
+-# LOSCFG_COMPONENTS_NET_AT_ESP8266 is not set
++LOSCFG_COMPONENTS_NET_AT_ESP8266=y
+-# LOSCFG_COMPONENTS_NETWORK is not set
++LOSCFG_COMPONENTS_NETWORK=y
+```
+
+liteos SDK提供的BSP， 几个配置是写死在代码中，因此下面改为条件定义，使得它们可以在makefile中define它们的值
+```diff
+diff --git a/components/net/at_device/wifi_esp8266/esp8266.h b/components/net/at_device/wifi_esp8266/esp8266.h
+index 424f49f..f92d2b8 100644
+--- a/components/net/at_device/wifi_esp8266/esp8266.h
++++ b/components/net/at_device/wifi_esp8266/esp8266.h
+@@ -31,11 +31,16 @@
+
+ #include "at_frame/at_main.h"
+
++#ifndef WIFI_SSID
+ #define WIFI_SSID                 "HWTEST"
++#endif
++#ifndef WIFI_PASSWD
+ #define WIFI_PASSWD               ""
+-
++#endif
+ #define AT_MODU_NAME              "ESP8266"
++#ifndef AT_USART_PORT
+ #define AT_USART_PORT             2
++#endif
+ #define AT_BUARDRATE              115200
+ #define AT_CMD_TIMEOUT            10000 // ms
+ #define AT_MAX_LINK_NUM           4
+
+```
+
+```diff
+diff --git a/targets/STM32F411RETx/Makefile b/targets/STM32F411RETx/Makefile
+@@ -50,9 +50,10 @@ C_DEFS += \
+     -DSTM32F411xE \
+     -DNDEBUG \
+     -D__LITEOS__ \
+-    -D_ALL_SOURCE
+-
+-
++    -D_ALL_SOURCE \
++    -DAT_USART_PORT=6 \
++    -DWIFI_SSID="testssid"  \
++    -DWIFI_PASSWD=""
+
+```
+
+另外， 我们本次移植的STM32F411xE开发板，是不支持类似USART3,4...的，为了编译通过，针对该芯片增加下面的条件编译
+```diff
+diff --git a/targets/bsp/drivers/at_hal/at_hal.c b/targets/bsp/drivers/at_hal/at_hal.c
+index cebe7d4..2f683b5 100644
+--- a/targets/bsp/drivers/at_hal/at_hal.c
++++ b/targets/bsp/drivers/at_hal/at_hal.c
+@@ -49,6 +49,20 @@ static void at_usart_adapter(uint32_t port)
+     g_atIRQn = LPUART1_IRQn;
+     return;
+ #endif
++
++#ifdef  STM32F411xE
++    switch (port) {
++        case 6: // 6: usart6
++            g_atUSART = USART6;
++            g_atIRQn = USART6_IRQn;
++            break;
++        case 2: // 2: usart2
++            g_atUSART = USART2;
++            g_atIRQn = USART2_IRQn;
++            break;
++    }
++    return;
++#else
+     switch (port) {
+         case 1: // 1: usart1
+             g_atUSART = USART1;
+@@ -70,6 +84,8 @@ static void at_usart_adapter(uint32_t port)
+         default:
+             break;
+     }
++#endif
++    return;
+ }
+```
+
+### 中断号
+
+在liteos中使用中断有两种方式： 使用stm32 裸机中断； 使用liteos 封装的中断（LOS_HwiCreate）
+
+如果使用裸机中断，中断号显然直接使用stm32 hal中定义的中断，比如TIM3_IRQn。
+
+如果使用使用liteos封装的中断，中断号需要使用类似`#define TIM_IRQ                 (TIM3_IRQn + 16) // 16: cortex-m irq shift`。 这里magic number 16的原因是：
+
+- 在liteos限定中断号的合法范围是`[OS_USER_HWI_MIN, OS_USER_HWI_MAX]`
+
+  在“$(LITEOSTOPDIR)\drivers\interrupt\include\hal_hwi.h” 中有设定：
+  ```c++
+  #if defined(LOSCFG_CORTEX_M_NVIC)
+  #define OS_USER_HWI_MIN                 15
+  #else
+  #define OS_USER_HWI_MIN                 0
+  #endif
+
+  #if defined(LOSCFG_PLATFORM_HIFIVE1_REV1_B01)
+  #define OS_USER_HWI_MAX                 (OS_HWI_MAX_NUM - 1)
+  #else
+  #define OS_USER_HWI_MAX                 (LOSCFG_PLATFORM_HWI_LIMIT - 1)
+  #endif
+
+  #define HWI_NUM_VALID(num)              (((num) >= OS_USER_HWI_MIN) && ((num) <= OS_USER_HWI_MAX))
+  ```
+  上面使用到的15这个数字，不是随便写的。而是根据“Cortex-M4 Processor Exceptions Numbers”的范围来取的一个值。将OS_USER_HWI_MIN值定为15，当我们将“16: cortex-m irq shift”约定为16，显然将“`SysTick_IRQn                = -1,     /*!< 15 Cortex-M4 System Tick Interrupt`”作为用户态的中断号
+
+-  liteos 软中断是存放在`STATIC HwiHandleInfo g_hwiForm[LOSCFG_PLATFORM_HWI_LIMIT] = { 0 };`数组中,访问这个数组是以中断号作为index进行访问的，显然index应该是一个negative value
+-  
+
+### 启用shell
+
+需要启用shell，需要配套的usart bsp移植，即“$(LITEOSTOPDIR)\drivers\uart\src\arm_generic\uart_debug.c”中代码的适配。
+
+shell使用说明见"$(LITEOSTOPDIR)\shell\README_CN.md"
+
+### lwip
+
+[Huawei LiteOS LwIP API Reference](https://usermanual.wiki/Document/Huawei20LiteOS20LwIP20Developer20Guide.144895066/view)
+
+lwip部分已升级为在线组件形式，需要调用在线组件脚本，当前stuido还未支持在线组件。
+
+
+
+#### uart
+
+    ifeq ($(LOSCFG_DRIVERS_SIMPLE_UART), y)
+        LITEOS_BASELIB += -luart
+    endif
+
+MODULE_$(LOSCFG_DRIVERS_UART_ARM_PL011) += src/arm_pl011
+MODULE_$(LOSCFG_DRIVERS_UART_CSKY_PORT) += src/csky
+
+ifneq ($(findstring y, $(LOSCFG_DRIVERS_UART_CSKY_PORT) $(LOSCFG_DRIVERS_UART_ARM_PL011)), y)
+    LOCAL_SRCS_$(LOSCFG_DRIVERS_SIMPLE_UART) += src/arm_generic/uart_debug.c
+endif
+
+
+## JTAG 与SWD
 
 两种接口的全接口都是20针，但通常都不会用那么多 [对比](https://img-blog.csdnimg.cn/20181030143036713.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzMxNjE=,size_16,color_FFFFFF,t_70)
 
@@ -479,22 +873,6 @@ ST-Link/V2 协议支持 JTAG/SWD标准接口，但在20针中对的接口中JTAG
 USART-RX(4), USART-TX(6)
 
 
-
-
-## liteOS-develop版本移植
-
-[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html),其实对应的就是liteOS-develop 版本的移植。 下载liteOS源码应采用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 方式下载liteOS。
-
-1、“demo-with-develop”目录对应的liteOS为使用`git clone -b develop https://github.com/LiteOS/LiteOS.git` 下载的liteOS，参考的教程是 [STM32L431移植LiteOS 手把手教程](https://bbs.huaweicloud.com/forum/thread-12430-1-1.html) 
-
-
-## liteOS-master版本移植
-
-如果采用`git clone  https://github.com/LiteOS/LiteOS.git` 下载liteOS源码，它的内容与liteOS-develop是存在较大差异的，你如果按照[官网移植教程](https://support.huaweicloud.com/bestpractice-LiteOS/zh-cn_topic_0145350112.html)，根本会发现走不下去。
-
-此时，你只能参照target中的内容去改写。 
-
-2、“demo-with-master”目录对应的liteOS为使用`git clone  https://github.com/LiteOS/LiteOS.git` 下载的liteOS,使用方法会与上面有较大的差异。 该目录内容是参照target改写得到。
 
 
 # liteOS使用

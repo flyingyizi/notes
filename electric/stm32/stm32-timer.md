@@ -4,7 +4,8 @@
 
 [STM32 Timer Presentation](https://www.st.com/content/ccc/resource/training/technical/product_training/c4/1b/56/83/3a/a1/47/64/STM32L4_WDG_TIMERS_GPTIM.pdf/files/STM32L4_WDG_TIMERS_GPTIM.pdf/jcr:content/translations/en.STM32L4_WDG_TIMERS_GPTIM.pdf)
 
-
+注意，在使用stm32cubemx生成的硬件代码如果要结合os使用，注意要更改系统时钟源头，参见[例子](https://blog.csdn.net/zhanglifu3601881/article/details/89844466)
+![更改系统时钟源头](https://img-blog.csdnimg.cn/20190505142705638.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5nbGlmdTM2MDE4ODE=,size_16,color_FFFFFF,t_70)
 
 常见硬件功能：
 
@@ -57,6 +58,10 @@ PWM
 
 - TIM_Cmd  ---__HAL_TIM_ENABLE/__HAL_TIM_DISABLE
 - TIM_ITConfig ---__HAL_TIM_ENABLE_IT/__HAL_TIM_DISABLE_IT
+<<<<<<< HEAD
+- TIM_ITConfig(TIMx, TIM_IT_CC1 | TIM_IT_Update, ENABLE) --- 使用在HAL_TIM_Base_MspInit中调用__HAL_TIM_ENABLE_IT(tim_baseHandle, TIM_IT_UPDATE)， 或可以看到TIM_IT_CC1由HAL_TIM_PWM_Start_IT ,TIM_IT_Update由HAL_TIM_Base_Start_IT自动开启了
+- 
+=======
 - TIM_ITConfig(TIMx, TIM_IT_CC1 | TIM_IT_Update, ENABLE) --- TIM_IT_CC1由HAL_TIM_PWM_Start_IT ,TIM_IT_Update由HAL_TIM_Base_Start_IT
 
 
@@ -65,7 +70,10 @@ PWM
 
 apb1 timer clocks mhz
 
-## PWM原理：
+
+## PWM 原理：
+
+当使用PWM驱动电机时，有条经验法则， PWM 频率至少应该是电机最高频率的 10 倍。
 
 向上计数模式
 
@@ -95,7 +103,7 @@ apb1 timer clocks mhz
 
 定时器溢出中断（也称为更新中断）的处理逻辑如下
 
-![](http://6.eewimg.cn/news/uploadfile/2019/0530/20190530063656321.png)
+![更新中断逻辑](http://6.eewimg.cn/news/uploadfile/2019/0530/20190530063656321.png)
 
 
 ### 电机速度与频率
@@ -178,9 +186,17 @@ Pulse16位二进制数，可以输入范围为0-2^16等于 0-65535的10进制数
 5、CH Idle State（空闲状态【Set/Reset】）
 同样顾名思义，CH Idle State为该频道PWM不输出时的状态. Set为高电平,Reset为低电平
 
+### 单极性和双极性PWM调制的区别在哪里 详解PWM中的单极性和双极性
+
+[单极性和双极性PWM调制的区别在哪里 详解PWM中的单极性和双极性](http://www.elecfans.com/analog/20180824738048.html)
+
 
 
 # 关于时钟的一些记录    
+
+- TIMx 的时钟来自它们挂在的所在APBx总线，但之间不是相等关系。 在stm32cubeMX clock configuration中使用“APBx Timer clocks”显示出来的是TIMx的时钟，它有时和“APBx peripheral clocks ”是不一样的。这个不同是因为"当APBx的分频系数不为1的时候，TIMx CLK的时钟就是APBx的时钟乘以2。"的[特殊规则存在](http://news.eeworld.com.cn/uploadfile/2016/1208/1481163323473078.png)。
+
+-  HCLK（AHB总线时钟）由系统时钟SYSCLK分频得到。由HCLK分频得到PCLK1/PCLK2。 PCLK2对应APB2外设， PCLK1对应APB1外设， 
 
 - 1HZ的周期是1秒,代表一秒一个脉冲；50HZ的周期是1/50=0.02秒，代表0.2秒一个脉冲；10HZ的周期是1/10=0.1秒
 - 1MHZ  = 1 000 000  HZ
@@ -208,3 +224,35 @@ Pulse16位二进制数，可以输入范围为0-2^16等于 0-65535的10进制数
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);    //starts PWM on CH1 pin
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); //starts PWM on CH1N pin
 ```
+
+# STM32 Timer Cookbook 笔记 
+
+[STM32 Timer Cookbook](https://www.st.com/resource/en/application_note/dm00236305-generalpurpose-timer-cookbook-for-stm32-microcontrollers-stmicroelectronics.pdf)
+
+## STM32 timer peripheral tear-down
+
+The STM32 timer 包含下面四个模块:
+- 1. The master/slave controller unit
+- 2. The time-base unit
+- 3. The timer channels unit
+- 4. The Break feature unit.  中断功能单元仅由具有互补输出的定时器外围设备嵌入。换句话说，只有至少有一个通道和两个互补输出的定时器外设才嵌入中断功能。
+
+### Timer time-base configuration
+
+```c++
+#define ANY_DELAY_RQUIRED 0x0FFF
+/* Hardware-precision delay loop implementation using TIM6 timer
+peripheral. Any other STM32 timer can be used to fulfill this function, but
+TIM6 timer was chosen as it has the less integration level. Other timer
+peripherals may be reserved for more complicated tasks */
+/* Clear the update event flag */
+TIM6->SR = 0
+/* Set the required delay */
+/* The timer presclaer reset value is 0. If a longer delay is required the
+presacler register may be configured to */
+/*TIM6->PSC = 0 */
+TIM6->ARR = ANY_DELAY_RQUIRED
+/* Start the timer counter */
+TIM6->CR1 |= TIM_CR1_CEN
+```
+

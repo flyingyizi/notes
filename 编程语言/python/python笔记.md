@@ -94,8 +94,7 @@ pip 安装 scipy 时，因为是编译安装，所以如果缺少一些编译库
 
 ```sh
 $pip3 install Cython
-$sudo apt-get install gfortran
-$sudo apt-get install libopenblas-dev liblapack-dev libatlas-base-dev libblas-dev
+$sudo apt-get install gfortran libopenblas-dev liblapack-dev libatlas-base-dev libblas-dev
 #最后执行以下命令即可
 $pip3 install scipy
 ```
@@ -305,6 +304,40 @@ conda search beautifulsoup4
 
 
 # 2.python3基础知识
+
+## 2.0-调试debug
+
+- 适用vscode集成环境：在调试配置中，点击齿轮构建python launch.json， 然后选择边栏中的调试视图。注意在launch.json中添加`"justMyCode": false`, 以便能step into 系统库等。
+
+- 使用PDB。
+    ```python
+    (deveco-venv) atmel@atmel-vm:~/.deveco-device-tool/core/deveco-venv/bin$ python -m pdb hb
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(3)<module>()
+    -> import re
+    (Pdb) n
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(4)<module>()
+    -> import sys
+    (Pdb) n
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(5)<module>()
+    -> from hb.__main__ import main
+    (Pdb) n
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(6)<module>()
+    -> if __name__ == '__main__':
+    (Pdb) n
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(7)<module>()
+    -> sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    (Pdb) n
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/bin/hb(8)<module>()
+    -> sys.exit(main())
+    (Pdb) b main
+    Breakpoint 1 at /home/atmel/.deveco-device-tool/core/deveco-venv/lib/python3.8/site-packages/hb/__main__.py:34
+    (Pdb) c
+    > /home/atmel/.deveco-device-tool/core/deveco-venv/lib/python3.8/site-packages/hb/__main__.py(35)main()
+    -> parser = argparse.ArgumentParser(usage="hb",
+    (Pdb) 
+
+    ```
+
 
 ## 2.1-基础数据结构
 
