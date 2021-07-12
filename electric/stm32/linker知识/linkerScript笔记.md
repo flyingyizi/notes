@@ -202,11 +202,11 @@ LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是
 
 总结来说，要指定某个section的LMA和VMA了，有4种方法：
 
-- a) [<address>] + [AT(<lma>)]；例如`.my_data {} 0xD0004000 AT 0x80000020`
+- a) `[<address>] + [AT(<lma>)]`；例如`.my_data {} 0xD0004000 AT 0x80000020`
 
-- b) [<address>] + [AT><lma region>]；例如`.my_data :　{} 0xD0004000 AT> rom`
+- b) `[<address>] + [AT><lma region>]`；例如`.my_data :　{} 0xD0004000 AT> rom`
 
-- c) [><region>] + [AT><lma region>]；例如`.my_data :　{} > ram AT> rom`
+- c) `[><region>] + [AT><lma region>]`；例如`.my_data :　{} > ram AT> rom`
 
-- d) [><region>] + [AT(<lma>)]； 例如`.my_data :　{} > ram AT 0x80000020`
+- d) `[><region>] + [AT(<lma>)]`； 例如`.my_data :　{} > ram AT 0x80000020`
 
