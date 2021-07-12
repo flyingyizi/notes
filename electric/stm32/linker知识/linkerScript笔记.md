@@ -1,5 +1,7 @@
 
 
+[Linker Scripts](http://sourceware.org/binutils/docs/ld/Scripts.html#Scripts),[中文](https://blog.csdn.net/yyww322/article/details/50827418?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control)
+
 [link script reference document](http://blog.chinaunix.net/uid-10678279-id-2936584.html)
 
 ## 实验一： MEMORY 与seciton VMA设置
@@ -173,6 +175,11 @@ SECTIONS
 }
 ```
 当目标文件内引用了etext符号，确没有定义它时，etext符号对应的地址被定义为.textsection之后的第一个字节的地址。
+如果目标文件中有定义etext符号，则链接脚本中通过`PROVIDE(etext = .);`定义的符号etext则会被忽略。
+
+显然，如果目标文件中定义了_etext，则会导致重复定义的错误。
+
+
 
 
 ### LMA和VMA
