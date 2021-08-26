@@ -585,7 +585,7 @@ VOID app_init(VOID)
 建议：
 - 裸机生成代码时，指示stm32cubeMX不生成main, 即勾选 `do not generate the main()` . 在user code部分增加我们自己的main()
 
-### 网络
+### 网络数据流
 
 以at为例，下面是at net启用的过程
 1. app_init->DemoEntry->AgenttinyDemoTask(entry是AtinyDemoTaskEntry)-> 当启用at时会调用Esp8266Register->at_api_register(填写gp_at_adaptor_api，后续at_api_xx api都是使用该结构)
@@ -593,6 +593,14 @@ VOID app_init(VOID)
 2. 对sal 的api atiny_net_xxx， 如果是启用at，那就是调用对应的at_api_xx； 如果是启用lwip或指明linux，那就是不是调用at_api_xx,而是posix net api
 
 从上面也可以看出，我们配置时，如果启用at，那就不应启用lwip
+
+### shell 数据流
+
+DemoEntry ->OsShellInit->OsShellCreateTask-> 调用：1. ShellTaskInit(创建入口是ShellTask的task); 2. ShellEntryInit
+
+
+ShellEntryInit->ShellEntry->ShellStdinLoop, 在ShellStdinLoop中无限循环从uart读取数据
+
 
 
 ### module makefile说明
