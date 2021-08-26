@@ -566,6 +566,18 @@ int main(void)
 
 ### 书写main
 
+从startup.s可以看到 , 先调用SystemInit，再调用main. 其中在SystemInit中会设置中断表等信息。
+```c++
+/* Call the clock system intitialization function.*/
+  bl  SystemInit   
+/* Call static constructors */
+    bl __libc_init_array
+/* Call the application's entry point.*/
+  bl  main
+```
+
+但是一旦执行了liteos的OsMain，它会调用HalIrqInit执行“`SCB->VTOR = (UINT32)g_hwiVec;`”将中断向量表起始地址给替换掉
+
 通常我们不使用stm32MX创建裸机project生成的main，而是使用liteos 中范例开发板的main进行修改得到我们新增开发板的main。 main()中最核心的是要包含OsMain()。
 
 OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务（该任务入口时app_init）
@@ -801,9 +813,11 @@ index cebe7d4..2f683b5 100644
 
 在liteos中使用中断有两种方式： 使用stm32 裸机中断； 使用liteos 封装的中断（LOS_HwiCreate）
 
+对裸机中断，中断ISR是放在“.isr_vector” section中，对liteos中断ISR是放在“.data.vector”section中。
+
 如果使用裸机中断，中断号显然直接使用stm32 hal中定义的中断，比如TIM3_IRQn。
 
-如果使用使用liteos封装的中断，中断号需要使用类似`#define TIM_IRQ                 (TIM3_IRQn + 16) // 16: cortex-m irq shift`。 这里magic number 16的原因是：
+如果使用使用liteos封装的中断，中断号需要使用类似`#define TIM_IRQ                 (TIM3_IRQn + 16) // 16: cortex-m irq shift`。 这里magic number 16的原因是因为“#define NVIC_USER_IRQ_OFFSET          16”的缘故，查看cortex-m的类似“__NVIC_GetVector(IRQn_Type IRQn)”api可以看到它的使用。 依据16这个值在liteos中有很多地方是依赖它的，例如：
 
 - 在liteos限定中断号的合法范围是`[OS_USER_HWI_MIN, OS_USER_HWI_MAX]`
 
@@ -825,7 +839,7 @@ index cebe7d4..2f683b5 100644
   ```
   上面使用到的15这个数字，不是随便写的。而是根据“Cortex-M4 Processor Exceptions Numbers”的范围来取的一个值。将OS_USER_HWI_MIN值定为15，当我们将“16: cortex-m irq shift”约定为16，显然将“`SysTick_IRQn                = -1,     /*!< 15 Cortex-M4 System Tick Interrupt`”作为用户态的中断号
 
--  liteos 软中断是存放在`STATIC HwiHandleInfo g_hwiForm[LOSCFG_PLATFORM_HWI_LIMIT] = { 0 };`数组中,访问这个数组是以中断号作为index进行访问的，显然index应该是一个negative value
+
 -  
 
 ### 启用shell

@@ -1,5 +1,9 @@
 
 
+[Linker Scripts](http://sourceware.org/binutils/docs/ld/Scripts.html#Scripts),[中文](https://blog.csdn.net/yyww322/article/details/50827418?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control)
+
+[link script reference document](http://blog.chinaunix.net/uid-10678279-id-2936584.html)
+
 ## 实验一： MEMORY 与seciton VMA设置
 
 - 实验对象
@@ -90,4 +94,122 @@ $ ls -lh t.out
 注意，上面的例子中的数字是随便设的，没有任何合理程度在里面。
 
 同级目录下的makefile是实验lds的， 修改linker.lds文件， 执行`$ make clean  &&  make`看对应结果。
+
+
+## 语法
+
+典型的linker script的内容包括如下部分：
+
+```c++
+/* 将符号xxxx SYMBOL的值设置成入口地址 */
+ENTRY(xxxx)
+
+/* Specify the memory areas */
+MEMORY
+{
+  /* <name> [(<attr>)] : ORIGIN = <origin>, LENGTH = <len> */
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 128K
+}
+
+/* Define output sections */
+SECTIONS
+{
+/*把定位器符号置为0x10000 (若不指定, 则该符号的初始值为0).*/  
+. = 0x10000;
+/* 将所有(*符号代表任意输入文件)输入文件的.textsection合并成一个.textsection,该section的地址由定位器符号的值指定, 即0x10000.*/
+.text : { *(.text) }
+/*把定位器符号置为0x8000000*/
+. = 0x8000000;
+/*将所有输入文件的.text section合并成一个.data section, 该section的地址被置为0x8000000.*/
+.data : { *(.data) }
+/*将所有输入文件的.bss section合并成一个.bss section，该section的地址被置为0x8000000+.datasection的大小.*/
+.bss : { *(.bss) }  
+}
+```
+这里强调下“定位符号器”，连接器每读完一个section描述后, 将定位器符号的值*增加*该section的大小.
+
+### 符号赋值
+
+在目标文件内定义的全局变量符号可以在链接脚本内被赋值. 下面演示了在链接脚本中更改这个符号对应的地址。
+
+这个赋值操作支持任何c语言内的赋值操作，例如`+=, =, -=, *=, /=,...`
+
+"`.`" “定位符号器”是一个特殊的符号，它是定位器，一个位置指针，指向程序地址空间内的某位置(或某section内的偏移，如果它在SECTIONS命令内的某section描述内)，该符号只能在SECTIONS命令内使用。当然支持这里提到的符号赋值规则。
+
+```c
+/* a.c */
+#include <stdio.h>
+int a = 100;
+int main(void)
+{
+    printf( "&a=0x%p ", &a );
+    return 0;
+}
+```
+
+```lds
+/* a.lds */
+a = 3;
+```
+
+```shell
+$ gcc -Wall -o a-without-lds a.c
+&a = 0x8049598
+$ gcc -Wall -o a-with-lds a.c a.lds
+&a = 0x3
+```
+
+### PROVIDE
+
+PROVIDE关键字
+该关键字用于定义这类符号：在目标文件内被引用，但没有在任何目标文件内被定义的符号。
+例子：
+
+```c
+SECTIONS
+{
+  .text :
+  {
+  *(.text)
+  _etext = .;
+  PROVIDE(etext = .);
+  }
+}
+```
+当目标文件内引用了etext符号，确没有定义它时，etext符号对应的地址被定义为.textsection之后的第一个字节的地址。
+如果目标文件中有定义etext符号，则链接脚本中通过`PROVIDE(etext = .);`定义的符号etext则会被忽略。
+
+显然，如果目标文件中定义了_etext，则会导致重复定义的错误。
+
+
+
+
+### LMA和VMA
+
+LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是其存储地址，而VMA是其运行时地址，例如将全局变量g_Data所在数据段.data的LMA设为0x80000020（属于ROM地址），VMA设为0xD0004000（属于RAM地址），那么g_Data的值将存储在ROM中的0x80000020处，而程序运行时，用到g_Data的程序会到RAM中的0xD0004000处寻找它。
+
+由于默认情况下LMA=VMA，因此可以只定义VMA而不必指明LMA
+
+```c++
+/*address/region:用于设置VMA。两者只能存其一或都不存在。如果都不存在，则根据"."设置该section的VMA*/
+/*               注意：`.text . :{...}`与`.text :{...}`这两个描述是截然不同的，第一个将
+                 .text section的VMA设置为定位符号的值，而第二个则是设置成定位符号的修调值，满足对齐要求后的。*/
+<section> [<address>] [(<type>)] : [AT(<lma>)]
+{
+　　<output−section−command>
+　　<var{output−section−command>
+　　...
+} [><region>] [AT><lma region>] [:<phdr> :<phdr> ...] [=<fillexp>]
+```
+
+总结来说，要指定某个section的LMA和VMA了，有4种方法：
+
+- a) `[<address>] + [AT(<lma>)]`；例如`.my_data {} 0xD0004000 AT 0x80000020`
+
+- b) `[<address>] + [AT><lma region>]`；例如`.my_data :　{} 0xD0004000 AT> rom`
+
+- c) `[><region>] + [AT><lma region>]`；例如`.my_data :　{} > ram AT> rom`
+
+- d) `[><region>] + [AT(<lma>)]`； 例如`.my_data :　{} > ram AT 0x80000020`
 

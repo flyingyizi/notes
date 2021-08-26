@@ -1,5 +1,29 @@
 
 
+### 时基
+
+https://blog.csdn.net/m0_38064214/article/details/84285587
+
+在基于STM32 HAL的项目中，一般需要维护的 “时基” 主要有2个：
+
+- HAL的时基，SYS Timebase Source
+- OS的时基（仅在使用OS的情况下才考虑）
+
+而这些 “时基” 该去如何维护，主要分为两种情况考虑：
+
+一、裸机运行
+在这种情况下，需要维护的时间仅有SYS Timebase Source，也就是HAL库中的 uwTick，这是HAL库中维护的一个全局变量，比如在 stm32f1xx_hal.c/stm32f4xx_hal.c 等不同系列的文件中都有如下定义：
+```c++
+__IO uint32_t uwTick;
+```
+
+在 CubeMX 配置界面中关于 SYS Timebase Source 的[选择部分](https://img-blog.csdnimg.cn/20181120113850438.png)
+
+
+
+
+## timer
+
 [STM32 Timer Cookbook](https://www.st.com/resource/en/application_note/dm00236305-generalpurpose-timer-cookbook-for-stm32-microcontrollers-stmicroelectronics.pdf)
 
 [STM32 Timer Presentation](https://www.st.com/content/ccc/resource/training/technical/product_training/c4/1b/56/83/3a/a1/47/64/STM32L4_WDG_TIMERS_GPTIM.pdf/files/STM32L4_WDG_TIMERS_GPTIM.pdf/jcr:content/translations/en.STM32L4_WDG_TIMERS_GPTIM.pdf)
@@ -143,6 +167,9 @@ apb1 timer clocks mhz
 以STM32F411RE  TIM1为例：
 
 通过stm32cubeMX clock configuration设置SYSCLK(也称为SystemCoreClock)系统时钟为96MHz，同时设置APB2 timer clock为96MHz。
+
+配置结果中Coretex system timer(MHz) 是systick
+
 
 TIM1是挂载在APB2总线上，因此TIM1 Timer_default_frequency是96MHz.
 
