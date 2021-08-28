@@ -51,6 +51,8 @@ vmkfstools -z /vmfs/devices/disks/t10.ATA_____TOSHIBA_MG05ACA800E_______________
 
 4. samba提供访问直通盘
    
+   [samba配置指导](https://www.cnblogs.com/baiquan/p/7660153.html)
+
    在linux系统下，考虑通过samba对外提供直通盘的访问，因为历史采用NFS访问时，乱码问题较难解决。
     - (2)安装samba服务器。
     sudo apt-get install samba samba-common
@@ -65,7 +67,7 @@ sudo chmod 777 /home/linuxidc/linuxidc.com/share
 
 Ubuntu 18.04 安装Samba服务器及配置
 
-(5)添加用户(下面的linuxidc是我的用户名，之后会需要设置samba的密码)。
+(5)添加用户(下面的linuxidc必须是一个linux的用户名，之后会需要设置samba的密码)。
 sudo smbpasswd -a linuxidc
 
 Ubuntu 18.04 安装Samba服务器及配置

@@ -580,7 +580,26 @@ int main(void)
 
 通常我们不使用stm32MX创建裸机project生成的main，而是使用liteos 中范例开发板的main进行修改得到我们新增开发板的main。 main()中最核心的是要包含OsMain()。
 
-OsMain()->OsAppInit()->OsAppTaskCreate()->创建任务（该任务入口时app_init）
+- normal: OsMain()->OsAppInit() ->OsAppTaskCreate()->创建任务（该任务入口是app_init）
+- test:   OsMain()->OsTestInit()->创建任务（该任务入口是TestTaskEntry）
+
+```c++
+LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)
+{
+    ...
+
+#ifdef LOSCFG_PLATFORM_OSAPPINIT
+    ret = OsAppInit();
+#else /* LOSCFG_TEST */
+    ret = OsTestInit();
+#endif
+    ... 
+
+    return LOS_OK;
+}
+
+```
+
 
 下面是新增加的app_init函数，其中DemoEntry包含了liteos sdk已经写好的各个demo。要启用它们，在ifconfig中可以使能各个demo
 ```c++
@@ -633,7 +652,7 @@ LOCAL_INCLUDE +=
 
 LOCAL_SRCS = 
 LOCAL_FLAGS := 
-# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+# $(MODULE)是一个mk名字（即$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
 include $(MODULE)
 ```
 
@@ -648,7 +667,7 @@ MODULE_NAME :=
 MODULE_y :=
 MODULE_y += xxx
 
-# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+# $(MODULE)是一个mk名字（即$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
 include $(MODULE)
 ```
 
@@ -673,7 +692,7 @@ MODULE_y :=
 MODULE_y += xxx
 
 
-# $(MODULE)时一个mk名字（$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
+# $(MODULE)是一个mk名字（即$(LITEOSTOPDIR)/build/mk/module.mk），在los_config.mk定义，$(MODULE)中定义了makefile compile rule
 include $(MODULE)
 ```
 
@@ -868,6 +887,35 @@ MODULE_$(LOSCFG_DRIVERS_UART_CSKY_PORT) += src/csky
 ifneq ($(findstring y, $(LOSCFG_DRIVERS_UART_CSKY_PORT) $(LOSCFG_DRIVERS_UART_ARM_PL011)), y)
     LOCAL_SRCS_$(LOSCFG_DRIVERS_SIMPLE_UART) += src/arm_generic/uart_debug.c
 endif
+
+### 书写testcase
+见`### 书写main`中描述。
+
+下面记录了testcase如何被引入到$(LITEOSTOPDIR)/makefile中被编译的，显然只要配置了`LOSCFG_PLATFORM_OSAPPINIT`，就会编译testcase：
+
+- 1. 首先有下面的文件包含关系：
+```text
+"$(LITEOSTOPDIR)/Makefile.mk"
+     |--"$(LITEOSTOPDIR)/build/mk/config.mk"
+        |--"$(LITEOSTOPDIR)/build/mk/los_config.mk"
+```
+- 2. 在"$(LITEOSTOPDIR)/build/mk/los_config.mk"中有如下内容，该文件:
+```makefile
+...
+ifeq ($(LOSCFG_PLATFORM_OSAPPINIT), y)
+else
+    -include $(LITEOSTOPDIR)/test/test.mk
+endif
+...
+```
+
+- 3. 我们查看“$(LITEOSTOPDIR)/test/test.mk”，可以指导将相应模块追加到`LIB_SUBDIRS`， 而我们知道在"$(LITEOSTOPDIR)/Makefile.mk"中会
+
+```makefile
+	$(HIDE)for dir in $(LIB_SUBDIRS); \
+		do $(MAKE) -C $$dir all || exit 1; \
+```
+  因此我们知道了编译testcase的过程。
 
 
 ## JTAG 与SWD
