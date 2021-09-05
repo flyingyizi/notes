@@ -66,6 +66,29 @@ git  commit -m  "comment"
 git archive --format tar.gz --output "./output.tar.gz" master
 ```
 
+## git pre-commit hook
+
+每次git commit的时，git会主动调用project根目录下的` .git/hooks/pre-commit` 这个脚本(默认的*.sample不执行)，脚本可以是shell、python、ruby等可执行脚本，只要是 以非零状态 退出会导致中止，就commit失败。
+
+下面的例子是强制要求提交代码需要符合linux编程风格，其中`./scripts/checkpatch.pl`是linux-source下的脚本：
+
+```shell
+#!/bin/sh
+#
+# pre-commit hook to run check-patch on the output and stop any commits
+# that do not pass. Note, only for git-commit, and not for any of the
+# other scenarios
+#
+# Copyright 2010 Ben Dooks, <ben-linux@fluff.org>
+if git rev-parse --verify HEAD 2>/dev/null >/dev/null
+then
+against=HEAD
+else
+# Initial commit: diff against an empty tree object
+against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+f i
+git diff --cached $against -- | ./scripts/checkpatch.pl --no-signoff -
+```
 
 ## 打标签
 
