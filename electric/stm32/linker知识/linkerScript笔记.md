@@ -4,6 +4,8 @@
 
 [link script reference document](http://blog.chinaunix.net/uid-10678279-id-2936584.html)
 
+在embedded develop中，`link-time garbage collection is in use (‘--gc-sections’)`务必需要，mark sections that should not be eliminated. This is accomplished by surrounding an input section’s wildcard entry with KEEP(), as in `KEEP(*(.init)) or KEEP(SORT_BY_NAME(*)(.ctors))`.
+
 ## 实验一： MEMORY 与seciton VMA设置
 
 - 实验对象
@@ -182,16 +184,15 @@ SECTIONS
 
 
 
-### LMA和VMA
-
-LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是其存储地址，而VMA是其运行时地址，例如将全局变量g_Data所在数据段.data的LMA设为0x80000020（属于ROM地址），VMA设为0xD0004000（属于RAM地址），那么g_Data的值将存储在ROM中的0x80000020处，而程序运行时，用到g_Data的程序会到RAM中的0xD0004000处寻找它。
-
-由于默认情况下LMA=VMA，因此可以只定义VMA而不必指明LMA
+### sections
 
 ```c++
-/*address/region:用于设置VMA。两者只能存其一或都不存在。如果都不存在，则根据"."设置该section的VMA*/
+/*address/region:用于设置VMA。两者只能存其一或都不存在。如果都不存在，则根据dot "."设置该section的VMA*/
 /*               注意：`.text . :{...}`与`.text :{...}`这两个描述是截然不同的，第一个将
-                 .text section的VMA设置为定位符号的值，而第二个则是设置成定位符号的修调值，满足对齐要求后的。*/
+ *                .text section的VMA设置为定位符号的值，而第二个则是设置成定位符号的修调值，满足对齐要求后的。
+ *type: NOLOAD/DSECT/COPY/INFO/OVERLAY
+ *
+                 */
 <section> [<address>] [(<type>)] : [AT(<lma>)]
 {
 　　<output−section−command>
@@ -199,6 +200,22 @@ LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是
 　　...
 } [><region>] [AT><lma region>] [:<phdr> :<phdr> ...] [=<fillexp>]
 ```
+
+LOADADDR(section)
+Return the absolute LMA of the named section. (see Output Section LMA).
+
+ADDR(section)
+Return the address (VMA) of the named section.
+
+SIZEOF(section)
+Return the size in bytes of the named section,
+
+#### LMA和VMA
+
+LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是其存储地址，而VMA是其运行时地址，例如将全局变量g_Data所在数据段.data的LMA设为0x80000020（属于ROM地址），VMA设为0xD0004000（属于RAM地址），那么g_Data的值将存储在ROM中的0x80000020处，而程序运行时，用到g_Data的程序会到RAM中的0xD0004000处寻找它。
+
+由于默认情况下LMA=VMA，因此可以只定义VMA而不必指明LMA
+
 
 总结来说，要指定某个section的LMA和VMA了，有4种方法：
 
@@ -210,3 +227,84 @@ LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是
 
 - d) `[><region>] + [AT(<lma>)]`； 例如`.my_data :　{} > ram AT 0x80000020`
 
+
+#### location counter
+
+位置计数器(location counter) 的符号是dot ".". 注意：
+- 只能出现在section命令的表达式中
+- 位置计数器只能向前移，不能向后移动， 即类似 "`. += xxx`"是合法的，类似 "`. -= xxx`"是非法的。
+- dot "."指从当前包含对象(e.g SECTIONS, xx output section)开始的字节偏移量. 特别是对“SECTIONS”,它的start address是0，因此针对SECTIONS，dot "."也可以被当作绝对地址。在下面的这个例子中解释了在SECTIONS 与 特定section中对dot "." 解释的差异
+
+```c++
+SECTIONS
+{
+    /*The ‘.text’ section will be assigned a starting address of 0x100 and a size of 
+      exactly 0x200 bytes*/
+    . = 0x100
+    .text: {
+      *(.text)
+      . = 0x200
+    }
+    /*The ‘.data’ section will start at 0x500 and it will have an extra 0x600 bytes worth of 
+      space after the end of the values from the ‘.data’ input sections and before the 
+      end of the ‘.data’ output section itself.*/
+    . = 0x500
+    .data: {
+      *(.data)
+      . += 0x600
+    }
+}
+```
+
+- 对相邻的两个output section之间的assignments，有如下规则：
+  - it assumes that all assignments or other statements belong to the previous output section, except for the special case of an assignment to ..
+  
+  - as the linker assumes that an assignment to . is setting the start address of a following output section and thus should be grouped with that section. 
+  
+- 因此推荐在output section前面带一个dot "."赋值。下面的例子演示了相关影响
+
+```c++
+SECTIONS
+{
+    start_of_text = . ;
+    .text: { *(.text) }
+    end_of_text = . ;
+    /*假如没有下面的".=.;", 如果存在orphan sections（孤立段）被插入，则下面的“start_of_data = . ;”结果可能不是我们期望的，
+      因为orphan section有可能被放置在“start_of_data = . ;”后面*/
+    . = . ;
+    start_of_data = . ;
+    .data: { *(.data) }
+    end_of_data = . ;
+}
+```
+
+#### 显式填充output section
+
+- using BYTE, SHORT, LONG, QUAD, or SQUAD as an output section command. 
+- use the FILL command to set the fill pattern for the current section. 
+- 
+```c++
+SECTIONS { 
+   .text : { 
+     *(.text) ; 
+     /*using BYTE, SHORT, LONG, QUAD, or SQUAD as an output section command*/
+     LONG(1) 
+   } 
+   /*You may use the FILL command to set the fill pattern for the current section. 
+   It is followed by an expression in parentheses. Any otherwise unspecified regions 
+   of memory within the section (for example, gaps left due to the required alignment 
+   of input sections) are filled with the value of the expression, repeated as necessary. 
+   
+   A FILL statement covers memory locations after the point at which it occurs in the 
+   section definition; by including more than one FILL statement, you can have different 
+   fill patterns in different parts of an output section.*/
+   .xdata : { 
+     *(.xdata) ;
+     FILL(0x90909090)
+   } 
+   .data : { 
+     *(.data) } =0x90909090 
+} 
+
+
+```

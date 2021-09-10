@@ -461,7 +461,7 @@ int main(void)
 
 官方stm32cubeide集成工具使用的是ST-LINK_gdbserver， 具体使用说明见“google  ST-LINK_gdbserver”
 
-[使用实例](https://www.cnblogs.com/WeyneChen/p/8379214.html)
+使用实例[使用VSCode和VS2017编译调试STM32程序 ](https://www.cnblogs.com/WeyneChen/p/8379214.html)
 
 注意： 一旦通过上面方式更改为jlink，那就不再支持stlink。如果要恢复stlink，需要通过STLinkReflash.exe restore功能重置为stlink，并且根据实践这个恢复动作往往不成功，表现为stm32cubeide识别不了，因此还需要一个额外动作： stm32cubeide help/stlink upgrade 进行升级refresh。之后才OK。
 
@@ -563,6 +563,17 @@ int main(void)
 ### stm32 HAL driver
 
 - 通过stm32MX模板生成的裸机项目，其中Drivers目录可以不用，因此liteos中已经包含了HAL，例如“$(LITEOSTOPDIR)\targets\bsp\drivers\STM32F4xx_HAL_Driver”。 如果还是希望使用stm32MX模板携带的HAL，那就要修改“$(LITEOSTOPDIR)\targets\bsp.mk”，看了下，内容不是很多，应该比较容易修改。
+
+- 对stm32 可以使用HAL或LL, 如果使用LL，则需要注意它的头文件、src都依赖“-DUSE_FULL_LL_DRIVER”，这点和HAL不同，HAL仅仅是头文件依赖“-DUSE_HAL_DRIVER”，下面的例子是使用了LL的“$(LITEOSTOPDIR)\targets\bsp.mk”
+```makefile
+######################### STM32F411RETx Options #######################
+else ifeq ($(LOSCFG_PLATFORM_STM32F411RETX_NUCLEO), y)
+    #由于LITEOS_CMACRO直接影响CFLAGs,因此对他赋值，可以避免在模块中重复去定义STM32F411xE
+    LITEOS_CMACRO += -DSTM32F411xE
+    HAL_DRIVER_TYPE := STM32F4xx_HAL_Driver
+    PLATFORM_DEFS += -DUSE_FULL_LL_DRIVER
+endif
+```
 
 ### 书写main
 
@@ -687,6 +698,7 @@ SUB_MODULE_BUILD: $(MODULE_y)
   ```
   其中的`add_lib_to_baselib_file`行为会收集它们的列表记录到`$(BASELIB_FILE)`。LD在链接的时候会去链接它们。 这意味着只要是按照“MODULE_y”来构建的module，liteos build mk会自动去链接它们。
 
+
 - 对不是“MODULE_y”施加构建的模块，那就要手工添加到“$(LITEOSTOPDIR)/targets/bsp.mk”中的`$(LITEOS_BASELIB)`里面，比如
   ```makefile
       ifeq ($(LOSCFG_DEMOS_GUI), y)
@@ -695,6 +707,21 @@ SUB_MODULE_BUILD: $(MODULE_y)
   ```
   LD在链接的时候会去链接`$(LITEOS_BASELIB)`. 当然，有些是肯定会去链接的，它们在“$(LITEOSTOPDIR)/targets/bsp.mk”中已经写好了，例如`LITEOS_BASELIB += -l$(LITEOS_PLATFORM) -lsec -lbase -linit -lbsp -lc -lm -losdepends`这些就不用你再手动写了。
  
+  例外：上面对`$(LITEOS_BASELIB)`描述，是针对linux环境，如果是非linux环境，自己增加的module_y，需要手工在“$(LITEOSTOPDIR)/targets/bsp.mk”中添加
+  ```makefile
+  #determine libs to link for windows
+  ifneq ($(OS), Linux)
+      LITEOS_BASELIB += -l$(LITEOS_PLATFORM) -lsec -lbase -linit -lbsp -lc -lm -losdepends
+      ...
+  ```
+
+  因为自动更新`$(LITEOS_BASELIB)`的脚本仅仅支持在linux环境下使用，相关代码见“$(LITEOSTOPDIR)/Makefile”中的下面语句：
+  ```makefile
+  $(LITEOS_TARGET):
+  ifeq ($(OS), Linux)
+    $(call update_from_baselib_file)
+  endif
+  ```
 
 
 ### 启用at esp8266

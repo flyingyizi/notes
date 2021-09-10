@@ -1,8 +1,97 @@
 
+[第31章 TIM—基本定时器—零死角玩转STM32-F429系列](https://www.cnblogs.com/firege/p/5805886.html)
 
+[第32章 TIM—高级定时器—零死角玩转STM32-F429系列](https://www.cnblogs.com/firege/p/5805894.html)
+
+# code sample
+
+## Timer time-base configuration
+```c++
+#define ANY_DELAY_RQUIRED 0x0FFF
+/* Hardware-precision delay loop implementation using TIM6 timer
+peripheral. Any other STM32 timer can be used to fulfill this function, but
+TIM6 timer was chosen as it has the less integration level. Other timer
+peripherals may be reserved for more complicated tasks */
+/* Clear the update event flag */
+// TIM6->SR = 0
+LL_TIM_ClearFlag_UPDATE(TIM6);
+/* Set the required delay */
+/* The timer presclaer reset value is 0. If a longer delay is required the
+presacler register may be configured to */
+/*TIM6->PSC = 0 */
+// TIM6->ARR = ANY_DELAY_RQUIRED
+LL_TIM_SetAutoReload(TIM6, ANY_DELAY_RQUIRED);
+/* Start the timer counter */
+// TIM6->CR1 |= TIM_CR1_CEN//
+LL_TIM_EnableCounter(TIM6);
+
+/* Loop until the update event flag is set */
+// while (!(TIM6->SR & TIM_SR_UIF));
+while(!LL_TIM_IsActiveFlag_UPDATE(TIM6));
+/* The required time delay has been elapsed */
+/* User code can be executed */
+```
+
+## Timer channel-configuration in input mode
+```c++
+/* Variable to store timestamp for last detected active edge */
+uint32_t TimeStamp;
+/* The ARR register reset value is 0x0000FFFF for TIM3 timer. So it should
+be ok for this snippet */
+/* If you want to change it uncomment the below line */
+/* TIM3->ARR = ANY_VALUE_YOU_WANT */
+/* Set the TIM3 timer channel 1 as input */
+/* CC1S bits are writable only when the channel1 is off */
+/* After reset, all the timer channels are turned off */
+TIM3->CCMR1 |= TIM_CCMR1_CC1S_0;
+/* Enable the TIM3 channel1 and keep the default configuration (state after
+reset) for channel polarity */
+// TIM3->CCER |= TIM_CCER_CC1E;
+LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH1);
+/* Start the timer counter */
+// TIM3->CR1 |= TIM_CR1_CEN;
+LL_TIM_EnableCounter(TIM3);
+/* Clear the Capture event flag for channel 1 */
+// TIM3->SR = ~TIM_SR_CC1IF;
+LL_TIM_ClearFlag_CC1(TIM3);
+/* Loop until the capture event flag is set */
+// while (!(TIM3->SR & TIM_SR_CC1IF));
+WHILE(!LL_TIM_IsActiveFlag_CC1(TIM3));
+/* An active edge was detected, so store the timestamp */
+// TimeStamp = TIM3->CCR1;
+TimeStamp = LL_TIM_OC_GetCompareCH1(TIM3);
+```
+
+## Timer channel-configuration in output mode
+```c++
+/* The ARR register reset value is 0x0000FFFF for TIM3 timer. So it should
+be ok for this snippet. If you want to change it uncomment the below line */
+/* TIM3->ARR = ANY_VALUE_YOU_WANT */
+/* The TIM3 timer channel 1 after reset is configured as output */
+/* TIM3->CC1S reset value is 0 */
+/* To select PWM2 output mode set the OC1M control bit-field to '111' */
+TIM3->CCMR1 |= TIM_CCMR1_OC1M_0 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2;
+/* Set the duty cycle to 50% */
+TIM3->CCR1 = TIM3->ARR / 2;
+/* By default, after reset, preload for channel 1 is turned off */
+/* To change it uncomment the below line */
+/* TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
+/* Enable the TIM3 channel1 and keep the default configuration (state after
+reset) for channel polarity */
+// TIM3->CCER |= TIM_CCER_CC1E;
+LL_TIM_CC_EnableChannel(TIM3,LL_TIM_CHANNEL_CH1);
+/* Start the timer counter */
+// TIM3->CR1 |= TIM_CR1_CEN;
+LL_TIM_EnableCounter(TIM3);
+
+```
+
+#
 ### 时基
 
 https://blog.csdn.net/m0_38064214/article/details/84285587
+
+
 
 在基于STM32 HAL的项目中，一般需要维护的 “时基” 主要有2个：
 
@@ -93,6 +182,20 @@ PWM
 -  HAL_RCC_GetHCLKFreq 对应 HCLK(MHZ)
 
 apb1 timer clocks mhz
+
+
+# SysTick (Coretex system timer(MHz) )
+
+stm32cubemx配置结果中Coretex system timer(MHz) 是systick,也就是通常说的嘀嗒定时器。
+
+嘀嗒定时器 比通用定时器TIMx 简单很多。
+
+Systick是一个24位的递减计数器，用户仅需掌握ARM的CMSIS软件提供的一个函数`__STATIC_INLINE uint32_t SysTick_Config(uint32_t)`
+函数的形参表示内核时钟多少个周期后触发一次Systick定时中断，比如形参配置为如下数值。 
+- - SystemCoreClock / 1000 表示定时频率为 1000Hz， 也就是定时周期为 1ms。 
+- - SystemCoreClock / 500 表示定时频率为 500Hz， 也就是定时周期为 2ms。 
+- - SystemCoreClock / 2000 表示定时频率为 2000Hz， 也就是定时周期为 500us。
+
 
 
 ## PWM 原理：
