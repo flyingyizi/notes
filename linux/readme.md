@@ -39,3 +39,10 @@
 |dpkg -P                    |全部卸载(但是还是不能解决软件包的依赖性的问题)|
 |dpkg -reconfigure          | 重新配置|
 
+
+## 必要
+
+```shell
+sudo apt-get install build-essential make
+sudo apt-get install openssh-server
+```

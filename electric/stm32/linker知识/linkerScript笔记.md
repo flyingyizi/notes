@@ -64,7 +64,10 @@ $ ls -lh t.out
 -rw-r--r-- 1 tu_xu 197609 1.3K 4月  30 20:53 t.out
 ```
 
-如果是将lds文件中的`    .data        :     {  *(.data) }  > rom`更改为`    .data        :  AT ( LOADADDR (.text) + SIZEOF (.text) )   {  *(.data) }  > rom`,重新执行上面的命令得到的结果是：
+如果是将lds文件中的`    .data        :     {  *(.data) }  > rom`更改为
+                  `    .data        :  AT ( LOADADDR (.text) + SIZEOF (.text) )   {  *(.data) }  > rom`,
+                  
+重新执行上面的命令得到的结果是：
 ```text
 $ /c/Users/tu_xu/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-objdump -h t
 t:     file format elf32-littlearm

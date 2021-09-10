@@ -1,6 +1,6 @@
 
 [rsync常见问题及解决办法](https://blog.whsir.com/post-392.html)
-
+[rsyncd.conf配置参数介绍](https://blog.csdn.net/u010132847/article/details/103791921?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.essearch_pc_relevant&spm=1001.2101.3001.4242)
 ## 客户端使用
 
 [下载 cwrsync客户端](https://www.itefix.net/cwrsync-free-edition)
