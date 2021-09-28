@@ -3,6 +3,8 @@
 
 ## ref
 
+[关于Linux安装RT-PREEMPT实时补丁](https://blog.csdn.net/weixin_43455581/article/details/103899362?utm_term=preemptrt%E5%AE%89%E8%A3%85&utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~sobaiduweb~default-1-103899362&spm=3001.4430)， [相应应用例程](https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base)
+
 - [getting-started-with-machinekit-on-the-chip](https://machinekoder.com/getting-started-with-machinekit-on-the-chip/)
 - [machinekit-on-the-c-h-i-p-9-computer](https://machinekoder.com/machinekit-on-the-c-h-i-p-9-computer/), 
 - [PICnc_5axis](http://www.wire2wire.org/PICnc_5axis/PICnc_5axis.html) ， [github](https://github.com/Wireb/PICnc-5axis)
