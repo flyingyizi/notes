@@ -483,10 +483,6 @@ clean:
 
 # debug
 
-## gdb 备忘
-
-- next命令用于单步执行，类似VC++中的step over。next的单步不会进入函数的内部，
-- 与next对应的step（缩写s）命令则在单步执行一个函数时，会进入其内部，类似VC++中的step into
 
 ## openocd
 

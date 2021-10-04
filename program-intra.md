@@ -24,7 +24,6 @@
     - [Could not find a configuration file for package](#could-not-find-a-configuration-file-for-package)
     - [opencv](#opencv)
   - [atuomake makefile](#atuomake-makefile)
-  - [使用GDB查看core文件](#使用gdb查看core文件)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
   - [查找缺失文件](#查找缺失文件)
@@ -686,19 +685,6 @@ AC_OUTPUT
 
    将361行的左大括号“}”删掉即可，这时因为新版的perl不在支持左大括号的使用，删掉大括号，问题解决。
 
-
-## 使用GDB查看core文件
-
-默认编译出来的程序在出现Segmentation fault 时并没有生成core崩溃文件，可以在gcc/g++编译时增加-g选项, 比如在cmakefile.txt中设置"`set(CMAKE_BUILD_TYPE Debug)  #vs Release`"。
-
-如果仍然没有生成core文件，则可能是因为系统设置了core文件大小为0，可以通过："`ulimit -a`" 查询得知。
-
-执行 "`ulimit -c unlimited`" 命令后可以使core文件大小不受限制。此时再次运行程序应该就能在同级目录看到core.XXX文件了
-
-使用 "`gdb ./a.out core.XXX`" 可以查看出错所在行信息，这样就进入了 gdb core 调试模式。
-
-通过"`gdb>bt`"追踪产生segmenttation fault的位置及代码函数调用情况。
-  
   
 # c and cplusplus 编程语言
 
