@@ -173,7 +173,7 @@ rm-rf  tmpfs
 # 4. 启动、关闭虚拟机
 
 ## 启动
-### 正常启动
+
 ```shell
 # -M vexpress-a9 模拟vexpress-a9单板，你能够使用-M ?參数来获取该qemu版本号支持的全部单板
 # -smp 4 启动4个cpu
@@ -190,39 +190,6 @@ $ qemu-system-arm -M vexpress-a9 -m 512M -kernel arch/arm/boot/zImage -dtb arch/
 #$ qemu-system-arm -M vexpress-a9 -smp 4 -m 1024M -kernel arch/arm/boot/zImage -append "rdinit=/linuxrc console=ttyAMA0 #loglevel=8" -dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb -nographic
 #
 ```
-### gdb调试启动
-
-前提：对kernel的make menuconfig，应额外增加以下配置:
-```text
-kernel hacking --->
-   compile-time checks and compiler options --->
-     [*] compile the kernel with debug info
-```
-
-首先携带额外的"-S -s"参数启动虚拟机
-```shell
-# -S ： 表示qemu虚拟机会冻结cpu，直到远程的gdb输入相应控制命令
-# -s ： 表示在1234端口接受gdb的调试连接
-$ qemu-system-arm -M vexpress-a9 -m 512M -kernel arch/arm/boot/zImage -dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb -nographic -append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8" -sd ../busybox/a9rootfs.ext3 -S -s
-```
-
-然后在另外一个终端启动arm gdb
-```shell
-~/$ cd kernel
-~/kernel $ arm-linux-gnueabi-gdb --tui vmlinux
-
-(gdb) target remote localhost:1234
-  Reading symbols from vmlinux...
-(gdb) b start_kernel
-  Breakpoint 1 at 0x80b00960: file init/main.c, line 931.
-(gdb) c
-  Continuing.
-
-Breakpoint 1, start_kernel () at init/main.c:931
-(gdb) 
-
-```
-
 
 
 ## 关闭

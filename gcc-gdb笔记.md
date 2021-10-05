@@ -260,7 +260,6 @@ No watchpoints.
 
 通过"`gdb>bt`"追踪产生segmenttation fault的位置及代码函数调用情况。
   
-  
 ## 使用GDB调试kernel
 
 前提：对kernel的make menuconfig，应额外增加以下配置:
