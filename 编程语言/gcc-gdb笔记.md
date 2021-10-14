@@ -158,6 +158,8 @@ gdbserver提供一个网络服务，gdb remote到gdbserver上后进行调试
 
 # gdb常见用法
 
+[调试器GDB的基本使用方法](https://www.cnblogs.com/arnoldlu/p/9633254.html)
+
 ## stepping
 
 step steps into subroutines, but next will step over subroutines.
@@ -240,7 +242,17 @@ No watchpoints.
 - `break [file:]function`	在(file文件的)function函数中设置一个断点
 - `rbreak [file:]function` : Set a breakpoint for all functions matching REGEXP. 正则表达式和grep中使用的一样
 
-比如设置断点到一个文件中的所有函数上："`(gdb) rbreak file.c:. `"
+   - 比如设置断点到一个文件中的所有函数上："`(gdb) rbreak file.c:. `"
+   - `(gdb) break 函数名`
+   - `(gdb) break 行号`
+   - `(gdb) break 文件名:函数名`
+   - `(gdb) break 文件名:行号`
+   - `(gdb) break +偏移量`
+   - `(gdb) break -偏移量`
+   - `(gdb) break *地址`
+   - `break 断点 if 条件；比如break sum if value==9，当输入的value为9的时候才会断住`
+   - `condition 断点编号 条件：给指定断点添加触发条件`
+   - `condition 断点编号：给指定断点删除触发条件`
 
 
 ### 删除/disable断点
