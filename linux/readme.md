@@ -1,4 +1,6 @@
 
+[从无盘启动看 Linux 启动原理](https://www.cnblogs.com/ludongguoa/p/15332857.html)
+
 ## apt 管理命令
 
 重点命令： dpkg -L 查看安装包安装到哪里了
