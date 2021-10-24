@@ -8,13 +8,12 @@
 
 这个内核start VA在起始引导建立映射的时候很重要，所以我们在程序中有引用 KERNEL_RAM_VADDR （“KERNEL_RAM_VADDR被定义为(PAGE_OFFSET + TEXT_OFFSET)”）。
 
+以下内容涉及linux source版本为“4.14.21”
 
-## 解读入口ENTRY(stext)
-入口： linux\arch\arm\kernel\head.S
-
-
+## 1.解读入口ENTRY(stext)
 
 ```c++
+//linux\arch\arm\kernel\head.S
     ...
     /**
      * "initial page table"(由swapper_pg_dir指向)将保存的地方
@@ -32,6 +31,8 @@ ENTRY(stext)
 	mrc	p15, 0, r9, c0, c0		@ get processor id
     /**
      * 根据cpu-id 去查找procinfo，结果放在r5
+	 * 原理是查询"`[__proc_info_begin,__proc_info_end]`"区域得到信息
+	 * 该区域的内容是编译链接时填充的静态内容
     */
 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
     ...
@@ -119,8 +120,9 @@ ENTRY(stext)
 	add	r12, r12, r10
     /**
      * 跳转到r12指定的函数去指向
-     * 当该过程返回时由于前面指定了lr，所以接着跳转去__enable_mmu，又因为在"__enable_mmu-->__turn_mmu_on"里面
-     * 指定了"ret r13"，最终最后执行__mmap_switched
+     * 当该过程返回时由于前面指定了lr，所以接着跳转去__enable_mmu，又因为在"`__enable_mmu-->__turn_mmu_on`"里面
+     * 指定了"ret r13"（实际代码是“`mov	r3, r13 以及ret r3`”），最终最后执行 __mmap_switched
+     * 
     */
 	ret	r12
 1:	b	__enable_mmu
@@ -134,7 +136,7 @@ ENDPROC(stext)
 
 
 
-## 解读__fixup_pv_table
+## 2.解读__fixup_pv_table
 
 
 
@@ -185,7 +187,7 @@ ENDPROC(__fixup_pv_table)
 	.long	__pv_offset
 ```
 
-## 解读__create_page_tables
+## 3.解读__create_page_tables
 
 ```c++
 /*
@@ -220,7 +222,7 @@ __create_page_tables:
      * __turn_mmu_on被声明放入在一个名为 ".idmap.text"的单独section。 这里所以我们只为这段代码映射一个完整的 1MB 部分
     */
 	adr	r0, __turn_mmu_on_loc //r0保存__turn_mmu_on_loc的物理地址
-	ldmia	r0, {r3, r5, r6}  //取得__turn_mmu_on_loc，__turn_mmu_on，__turn_mmu_on_end的VA，保存至r3, r5, r6中，
+	ldmia	r0, {r3, r5, r6}  //取得__turn_mmu_on_loc，__turn_mmu_on，__turn_mmu_on_end 的VA，保存至r3, r5, r6中，
 	sub	r0, r0, r3			@ virt->phys offset //取得VA/PA 之间的offset
 	add	r5, r5, r0			@ phys __turn_mmu_on //取得__turn_mmu_on PA
 	add	r6, r6, r0			@ phys __turn_mmu_on_end //取得__turn_mmu_on_end PA
@@ -356,7 +358,7 @@ __turn_mmu_on_loc:
 
 ```
 
-## 解读__enable_mmu 与__turn_mmu_on
+## 4.解读__enable_mmu 与__turn_mmu_on
 
 [CP15协处理器寄存器说明](https://blog.csdn.net/ooonebook/article/details/52860186)
 
@@ -446,7 +448,7 @@ ENDPROC(__turn_mmu_on)
 	.popsection
 ```
 
-## 解读__lookup_processor_type
+## 5.解读__lookup_processor_type
 ```c++
 /*
  * Read processor ID register (CP#15, CR0), and look up in the linker-built
