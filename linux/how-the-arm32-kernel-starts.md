@@ -37,13 +37,16 @@ ENTRY(stext)
 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
     ...
     /**
-     * 利用"lable 2"获取得到PHYS_OFFSET并放在r8
+     * 利用"lable 2"这个存放了链接地址(VA)的地方，获取得到PHYS_OFFSET并放在r8
      * 为理解可参考[PHYS_OFFSET与PAGE_OFFSET示意](https://dflund.se/~triad/images/phys-virtual-1.jpg)
+	 * 对同属于相同线性映射的任意一个地址x
+	 * 成立：PA_label2 -VA_label2 = PA_x -VA_x
+	 * 因此: PA_x = (PA_label2 -VA_label2) + VA_x
     */
-	adr	r3, 2f              @
-	ldmia	r3, {r4, r8}
-	sub	r4, r3, r4			@ (PHYS_OFFSET - PAGE_OFFSET)
-	add	r8, r8, r4			@ PHYS_OFFSET
+	adr	r3, 2f              @  //将label 2处物理地址(PA)值放入r3
+	ldmia	r3, {r4, r8}       //将 label 2处地址(VA)放入r4， PAGE_OFFSET值放入r8
+	sub	r4, r3, r4			@ (PHYS_OFFSET - PAGE_OFFSET) // 物理地址与虚拟地址差值  (PA-VA)
+	add	r8, r8, r4			@ PHYS_OFFSET  //得到虚拟地址PAGE_OFFSET对应的物理地址
     ...
 	/*
 	 * r1 = machine no, r2 = atags or dtb,
@@ -138,7 +141,7 @@ ENDPROC(stext)
 
 ## 2.解读__fixup_pv_table
 
-
+原理与head.s中求解“虚拟地址PAGE_OFFSET对应的物理地址”原理一样
 
 ```c++
 /* __fixup_pv_table - patch the stub instructions with the delta between
@@ -168,7 +171,7 @@ __fixup_pv_table:
 	add	r5, r5, r3	@ adjust table end address            //r5 points to __pv_table_end
 	add	r6, r6, r3	@ adjust __pv_phys_pfn_offset address //r6 point to __pv_phys_pfn_offset
 	add	r7, r7, r3	@ adjust __pv_offset address          //r7 points to __pv_offset
-	mov	r0, r8, lsr #PAGE_SHIFT	@ convert to PFN
+	mov	r0, r8, lsr #PAGE_SHIFT	@ convert to PFN   // r0 = r8 >> PAGE_SHIFT
 	str	r0, [r6]	@ save computed PHYS_OFFSET to __pv_phys_pfn_offset
 	strcc	ip, [r7, #HIGH_OFFSET]	@ save to __pv_offset high bits
 	mov	r6, r3, lsr #24	@ constant for add/sub instructions
@@ -519,8 +522,43 @@ __lookup_processor_type_data:
 
 ```
 
+# ARM 汇编
+
+[arm汇编编程(示例)](http://www.eepw.com.cn/article/201611/317880.htm)
 
 
-## arm 协处理器mcr/mrc指令说明
+## LDR和STR 指令
 
-参见 [proc info的获取](https://blog.csdn.net/ooonebook/article/details/52791202)
+LDR R1, =COUNT 意思是将 COUNT 变量的地址放到 R1中
+LDR R1, COUNT 意思是将 COUNT 变量地址里面的内容赋给 R1
+
+ldr (load register) 将内存内容载入通用寄存器
+
+str (store register) 将寄存器内容写入内存
+
+例：
+
+"`LDR R1,[R2]; @将R2指向的存储单元的数据读出，保存在R1中R2相当于指针变量`"
+
+"`STR R1,[R2]; @将R1的值写入到R2所指向的内存`"
+
+"`LDR R2,[R3,#4];  @读取R3+4地址上的存储单元的内容，放入R2`"
+
+"`LDR R2,[R3,#4]!; @读取R3+4地址上的存储单元的内容，放入R2，然后R3内的地址变为R3+4,即R3=R3+4`"
+
+"!"表示回写
+
+
+
+## STM??/LDR?? 压栈/出栈指令
+
+压栈( stm** sp )
+
+出栈( ldr** sp )
+
+指令后缀：
+   - FD: Full Descending
+   - ED: Empty Descending
+   - FA: Full Ascending
+   - EA: Empty Ascending
+
