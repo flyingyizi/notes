@@ -1,5 +1,8 @@
 
+[ARM 开发手册以及 ARMv7 架构手册](https://github.com/BiscuitOS/Documentation/tree/master/Datasheet/ARM)
+
 在ARMv7以及以前的架构中，只有32位。在2013年ARM推出64位架构ARMv8，寄存器是64位宽，相应的寄存器名称为x0,x1,x2,x3等。
+
 
 ## ARMv7 与 ARM7 概念区别：
 
@@ -24,6 +27,13 @@ Cortex-A系列： A-Profile，即“Application”-Profile，侧重于应用功�
 |ARMv7 |  ARM Cortex-A,ARM Cortex-M,ARM Cortex-R    |      
 |ARMv8 |  ARM Cortex-A35,ARM Cortex-A50,ARM Cortex-A72,ARM Cortex-A73,    |      
 
+## T1/T2/T3/A1/A2 encodings 编码概念
+
+在查看指令时，常常见到同一条指令（e.g. MOV）给出了多种encoding，这里澄清下它概念。
+
+那些 T1、T2、T3... 编码是指同一条指令有许多不同的编码，通常取决于可以使用的寄存器，编译器或汇编器将自动选择正确的编码来使用。也就是说编译器会自动根据所使用的寄存器/助记符...等多种因素对一个指令选择它认为合适的encoding。
+
+这个问题的解答参见 [Which instruction format does Cortex-R support,encoding A1 orA2?](https://community.arm.com/support-forums/f/architectures-and-processors-forum/3550/which-instruction-format-does-cortex-r-support-encoding-a1-ora2)
 
 
 ## 汇编语言基本结构

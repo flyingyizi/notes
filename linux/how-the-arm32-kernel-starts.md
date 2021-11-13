@@ -1,7 +1,7 @@
 
 [how-the-arm32-kernel-starts](https://people.kernel.org/linusw/how-the-arm32-kernel-starts)
 
-
+这还有另一篇解读，比较侧重关联知识 [ARM Linux 5.0 -- arch/arm/kernel/head.S](https://biscuitos.github.io/blog/ARM-SCD-kernel-head.S/)
 
 
 在“linux\arch\arm\kernel\vmlinux.lds.S”中可以看到，内核（vmlinux）的start VA被定义为“PAGE_OFFSET + TEXT_OFFSET”，其中PAGE_OFFSET来自kconfig的配置， TEXT_OFFSET来自"arch/arm/Makefile"中定义的"`textofs-y`"并且通常是0x8000。
@@ -523,6 +523,49 @@ __lookup_processor_type_data:
 ```
 
 # ARM 汇编
+
+
+```lds
+//linux\arch\arm\kernel\vmlinux.lds.S
+SECTIONS
+{
+	...
+	.init.data : {
+		INIT_DATA
+		INIT_SETUP(16)
+		INIT_CALLS
+		CON_INITCALL
+		SECURITY_INITCALL
+		INIT_RAM_FS
+	}
+	...
+}
+```
+
+```c++
+...
+
+#define INIT_CALLS_LEVEL(level)						\
+		VMLINUX_SYMBOL(__initcall##level##_start) = .;		\
+		KEEP(*(.initcall##level##.init))			\
+		KEEP(*(.initcall##level##s.init))			\
+
+#define INIT_CALLS							\
+		VMLINUX_SYMBOL(__initcall_start) = .;			\
+		KEEP(*(.initcallearly.init))				\
+		INIT_CALLS_LEVEL(0)					\
+		INIT_CALLS_LEVEL(1)					\
+		INIT_CALLS_LEVEL(2)					\
+		INIT_CALLS_LEVEL(3)					\
+		INIT_CALLS_LEVEL(4)					\
+		INIT_CALLS_LEVEL(5)					\
+		INIT_CALLS_LEVEL(rootfs)				\
+		INIT_CALLS_LEVEL(6)					\
+		INIT_CALLS_LEVEL(7)					\
+		VMLINUX_SYMBOL(__initcall_end) = .;
+...
+```
+
 
 [arm汇编编程(示例)](http://www.eepw.com.cn/article/201611/317880.htm)
 
