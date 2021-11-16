@@ -31,6 +31,7 @@
   - [控制语句举例](#控制语句举例)
   - [变量作用域](#变量作用域)
   - [数组array](#数组array)
+    - [linux内核数组初始化艺术](#linux内核数组初始化艺术)
   - [指针](#指针)
 - [mingw gcc常用命令](#mingw-gcc常用命令)
     - [[[dump class layout]](https://stackoverflow.com/questions/2549618/is-there-any-g-option-to-dump-class-layout-and-vtables)](#dump-class-layout)
@@ -866,6 +867,17 @@ $$ array[i][j] == array[i \ast n + j]  $$
             return 0;
         }
     ```
+### linux内核数组初始化艺术
+
+下面kernel中源代码例子演示了如何设置数组初始化值，以及指定下标的对应值方法
+```c++
+void * const compat_sys_call_table[__NR_compat_syscalls] = {
+	[0 ... __NR_compat_syscalls - 1] = sys_ni_syscall,
+    [0] = sys_restart_syscall,
+    [1] = sys_exit,
+    ...
+};
+```
 
 ## 指针
 
