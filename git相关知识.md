@@ -134,4 +134,23 @@ git reset --hard origin/master
 
 ### git diff 查看所有文件具体被修改的地方
 
+git diff命令可以查看当前工作区与暂存区的差别，也就是说可以查看到当前我们修改或者是添加的，但是还没有add进暂存区的代码。它会列出改动前后的对比，方便我们进行查看和修改。e.g. "`git diff shell/prepare_data.sh`"
 
+注意：在不加任何参数的情况下查看的是工作区（add命令之前）的代码和暂存区的差别
+
+暂存区和本地git仓库的差别，也就是已经add了还没commit的改动。这个时候我们可以通过--cached参数来实现，--cached参数后面同样可以再跟上文件名，查看某一个具体的文件。
+
+其他：
+```text
+# 比较工作区和某一个提交的差别
+git diff <commitid>
+
+# 比较工作区和某一个提交某一个文件的差别
+git diff <commitid> <filepath>
+
+# 比较暂存区和某一个提交的差别
+git diff --cached <commitid>
+
+# 比较暂存区和某一个提交某一个文件的差别
+git diff --cached <commitid> <filepath>
+```
