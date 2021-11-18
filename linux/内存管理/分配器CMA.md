@@ -9,7 +9,7 @@ cma，全称（contiguous memory allocation）,在内存初始化时预留一块
 CMA的初始化必须在伙伴系统（buddy system）工作之前和memblock分配器初始化完成之后；
 
 为了在内核中使用 CMA，在内核配置中请确保相关的宏已经启用, 如下:
-```text
+```
 CONFIG_CMA
 CONFIG_CMA_AREAS
 CONFIG_DMA_CMA
@@ -43,7 +43,7 @@ bootargs = "cma= 0x400000@0x70000000-0x80000000"
 目的是保证内存被复用。 CMA 通过在启动阶段预先保留内存。这些内存叫做 CMA 区域或 CMA 上下文，稍后返 回给伙伴系统从而可以被用作正常申请。如果要保留内存，则需要恰好在底层 MEMBLOCK 分配器初始化之后，及大量内存被占用之前调用，并在伙伴系统建立 之前调用“dma_contiguous_reserve”：
 
 在内核启动的过程中会声明CMA内存，具体流程如下：
-```text
+```
 start_kernel
  –>setup_arch
   –>arm_memblock_init
@@ -54,7 +54,7 @@ start_kernel
 ```
 
 ### CMA driver初始化
-```text
+```
 early_initcall(cma_init_reserved_areas);
  –>cma_activate_area 针对每一个page向下调用
   –>init_cma_reserved_pageblock  这里会将将页设置为MIGRATE_CMA类型

@@ -5,7 +5,7 @@
 下面的内容与"`http://files.cnblogs.com/files/pengdonglin137/etc.tar.gz`"一致。
 
 ### 目录文件
-```text
+```
 etc/
 etc/profile
 etc/inittab

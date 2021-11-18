@@ -378,7 +378,7 @@ EXPORT_SYMBOL_GPL(device_reset);
 
 Required properties:
 - #reset-cells:	Number of cells in a reset specifier; Typically 0 for nodes with a single reset output and 1 for nodes with multiple reset outputs.
-```text
+```
 For example:
 
 	rst: reset-controller {
@@ -400,7 +400,7 @@ Optional properties:
 		match reset signal names with reset specifiers.
 
 For example:
-```text
+```
 	device {
 		resets = <&rst 20>;
 		reset-names = "reset";
@@ -449,7 +449,7 @@ struct reset_controller_dev {
 1）首先，提供描述系统中reset资源的方法（参考下面第3章的介绍），这样consumer可以基于这种描述在自己的dts node中引用所需的reset信号。
 
 2）然后，consumer设备在自己的dts node中使用“resets”、“reset-names”等关键字声明所需的reset的资源，例如[1]（“resets”字段的具体格式由reset provider决定”）：
-```text
+```
 device {                                                               
         resets = <&rst 20>;                                            
         reset-names = "reset";                                         

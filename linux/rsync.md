@@ -9,7 +9,7 @@
 
 
 与rsync命令一起使用的一些常见选项
-```text
+```
 -v：详细
 -r：将数据递归（但不保存时间戳和权限，同时传输数据
 -a：归档模式下，归档模式允许递归地拷贝文件，同时也保留了符号链接，文件权限，用户组所有权和时间戳
@@ -83,7 +83,7 @@ atmel:/etc/default$dpkg -L rsync
 
 下面是配置文件中的一个模块举例,这里需要特别注意的是secrets file的权限模式必须是600. 并且该文件的内容是“username:passwd”模式
 
-```text
+```
 [common]
 path = /home/user/input
 comment = Web content

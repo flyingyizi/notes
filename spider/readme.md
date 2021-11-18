@@ -21,7 +21,7 @@ Java的几个爬虫实现方式：HttpClients+jsoup，Jsoup，htmlunit，Headles
 
 [Headless chrome + ignore-certificate-errors](https://stackoverflow.com/questions/45510973/headless-chrome-ignore-certificate-errors)
 
-```text
+```
 Simply said, Crawler4j is static crawler. Meaning that it can't parse the JavaScript on a page. So there is no way of getting the content you want by crawling that specific page you mentioned. Of course there are some workarounds to get it working.
 
 If it is just this page you want to crawl, you could use a connection debugger. Check out this question for some tools. Find out which page the AJAX-request calls, and crawl that page.
@@ -29,7 +29,7 @@ If it is just this page you want to crawl, you could use a connection debugger. 
 If you have various websites which have dynamic content (JavaScript/ajax), you should consider using a dynamic-content-enabled crawler, like [Crawljax](http://www.crawljax.com/) (also written in Java).
 ```
 
-```text
+```
 http://www.cnblogs.com/majianguo/p/8325314.html
 
 gcocolly+goquery可以非常好地抓取HTML页面中的数据，但碰到页面是由Javascript动态生成时，用goquery就显得捉襟见肘了。解决方法有很多种，一，最笨拙但有效的方法是字符串处理，go语言string底层对应字节数组，复制任何长度的字符串的开销都很低廉，搜索性能比较高；二，利用正则表达式，要提取的数据往往有明显的特征，所以正则表达式写起来比较简单，不必非常严谨；三，使用浏览器控件，比如webloop；四，直接操纵浏览器，比如chromedp。一和二需要goquery提取javascript，然后再提取数据，速度非常快；三和四不需要分析脚本，在浏览器执行JavaScript生成页面后再提取，是比较偷懒的方式，但缺点是执行速度很慢，如果在脚本非常复杂、懒得分析脚本的情况下，牺牲下速度也是不错的选择。

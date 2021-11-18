@@ -145,7 +145,7 @@ blockquote与cite：
 
 ## 有序、无序列表,以及描述列表
 
-```text
+```
 <ul>  
    <li>   </li>
 </ul>   
@@ -156,7 +156,7 @@ blockquote与cite：
 ```
 
 描述列表 (description list)中包含：描述部分（description description）和描述术语（description terms）
-```text
+```
 <dl>
   <dt></dt>
     <dd></dd>

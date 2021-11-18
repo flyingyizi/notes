@@ -158,7 +158,7 @@ atmel:~$scrapy shell
 
 国内常用的几个镜像完整列表是：
 
-    ```text
+    ```
     http://pypi.douban.com/simple/ 豆瓣 
     https://mirrors.aliyun.com/pypi/simple/ 阿里 
     http://pypi.hustunique.com/simple/ 华中 

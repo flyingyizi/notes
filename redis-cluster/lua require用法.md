@@ -62,12 +62,12 @@ require "foo"
 ```
 在搜索一个文件时，require所使用的路径与传统的路径有所不同“大部分程序所使用的路径就是一连串目录，指定了某个文件的具体位置。然而，ANSIc却没有任何关于目录的概念。所以，require采用的路径是一连串的模式(pattern)，其中每项都是一种将模块名转换为文件名的方式。进一步说，这种路径中的每项都是一个文件名，每项中还可以包含一个可选的
 问号“require会用模块名来替换每个“？”，然后根据替换的结果来检查是否存在这样一个文件。如果不存在，就会尝试下一项。路径中的每项以分号隔开。例如，假设路径为：
-```text
+```
 ?;?.lua;c:\windows\?;/usr/local/lua/?/?.lua
 ```
 
 那么，调用require"sql"就会试着打开以下文件：
-```text
+```
 sql
 sql.lua
 c:\windows\sql
@@ -75,7 +75,7 @@ c:\windows\sql
 ```
 require函数只处理了分号（作为各项之间的分隔符）和问号。其他例如目录分隔符或文件扩展名，都由路径自己定义，
 require用于搜索Lua文件的路径存放在变量package.path中。 例如：
-```text
+```
 > =package.path
 .\?.lua;C:\prog\openresty-1.13.6.1-win32\lualib\?.lua;C:\prog\openresty-1.13.6.1-win32\lua\?.lua;C:\prog\openresty-1.13.6.1-win32\lua\?\init.lua;
 >
@@ -85,12 +85,12 @@ require用于搜索Lua文件的路径存放在变量package.path中。 例如：
 默认路径来初始化。在使用LUA_PATH时，Lua会将其中所有的子串“;;”替换成默认路径。例如，假设LUA_PATH为"mydir/?.lua;;",那么最终路径就是"mydir/?.lua"，并紧随默认路径．
 
 如果require无法找到与模块名相符的Lua文件，它就会找c程序库。这类搜索会从变量package.cpath（相对于package.path)获取路径。而这个变量则是通过环境变量LUA_CPATH (相对于LUA_PATH)来初始化。在UNIX中，它的值一般是这样的:
-```text
+```
 ./?.so;/usr/local/lib/lua/5.1/?.so
 ```
 
 注意，文件的扩展名是由路径定义的（例如，上例中使用的.so .而在Windows中，此路径通常可以是这样的：
-```text
+```
 ./?.dll;c:\program files\lua501\dll\?.dll
 ```
 

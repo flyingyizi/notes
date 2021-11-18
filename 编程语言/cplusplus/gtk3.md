@@ -88,7 +88,7 @@ Gtk::GlArea
 
 ### libGL error
 下面两个问题：
-```text
+```
 libGL error: No matching fbConfigs or visuals found
 libGL error: failed to load driver: swrast
 ```

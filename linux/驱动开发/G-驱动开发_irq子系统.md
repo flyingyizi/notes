@@ -8,7 +8,7 @@
 针对一个irq controller而言，一个irq controller可以包含多个hw irq line，而一个hw irq line上可以由多个外设共用（共享中断），因此针对一个hw irq line，需支持提供多个action，实现针对不同外设的中断响应。
 
  “irq-controller”级联扩展概念示意：
-```text
+```
 soc--> “irq-controller” ------> “irq-controller”
              |                           |
              |                           |------> “irq-controller”
@@ -81,7 +81,7 @@ soc--> “irq-controller” ------> “irq-controller”
 };
 ```
 根据上面DTS所表达的级联关系，我们可以知道“级联多个irq controller”如下所示：
-```text
+```
         nvic-controoler  === usart1-device 
             |      |
             |      |----->exti-controller  === rtc-device
@@ -109,7 +109,7 @@ soc--> “irq-controller” ------> “irq-controller”
 - `interrupts-extended` - 当一个节点需要引用多个中断控制器中的中断时，可以使用 interrupts-extended 属性。 interrupts-extended 的每个入口包含了中断控制器的 phandle 和中断标识。 interrupts-extended 只有节点需要多个中断控制器的中断时才使用，其他均不适用。例如"`interrupts-extended = <&intc1 5 1>, <&intc2 1 0>;`"
 - `interrupts`- 包含中断描述符列表的设备节点的属性，列表中每个元素代表一个该设备中断输出的中断描述符。 例如`interrupts = <0 48 4>,  <0 49 4>;` ，显然该例子中，对应中断控制器的`#interrupt-cells = <3>`。 这里要注意中断描述符完全是设备自己定义的，不存在适用所有设备的中断描述符，例如对stm32，中断描述符就是IRQn_Type的合法值。
 	例如，有下面的设备节点：
-	```text
+	```
 		exti: interrupt-controller@40013c00 {
 			compatible = "st,stm32-exti";
 			interrupt-controller;

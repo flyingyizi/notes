@@ -13,7 +13,7 @@
 ## 启动elasticsearch
 
 - 修改 C:\prog\elasticsearch-6.2.1\config\elasticsearch.yml 注意保存为nobom UTF-8,例如：
-```text
+```
 cluster.name: es-6.2.1-test 
 node.name: node-es-103      
 #node.master: false
@@ -46,7 +46,7 @@ http://localhost:9100
 
 - 安装gradle， 设置GRADLE_HOME，并添加%GRADLE_HOME%/bin加到PATH的环境变量。 由于当前gradle-logger-x.x.x最新的只是到4.3，所以gradle不要安装高于gradle4.3版本。
 - step1:源码安装慢，可以在根目录的build.gradle文件中的allprojects内添加阿里云的镜像：
-```text
+```
 allprojects {
   repositories {  
     maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
@@ -54,7 +54,7 @@ allprojects {
 }
 ```
 同时在~/.gradle下新增一个init.gradle文件,内容是:
-```text
+```
 allprojects { 
     repositories {
         def REPOSITORY_URL = 'http://maven.aliyun.com/nexus/content/groups/public/'

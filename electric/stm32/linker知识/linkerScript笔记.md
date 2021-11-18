@@ -45,7 +45,7 @@ SECTIONS
 ```
 得到结果为：
 
-```text
+```
 $ /c/Users/tu_xu/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-objdump -h t
 
 t:     file format elf32-littlearm
@@ -68,7 +68,7 @@ $ ls -lh t.out
                   `    .data        :  AT ( LOADADDR (.text) + SIZEOF (.text) )   {  *(.data) }  > rom`,
                   
 重新执行上面的命令得到的结果是：
-```text
+```
 $ /c/Users/tu_xu/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-objdump -h t
 t:     file format elf32-littlearm
 Sections:
@@ -132,7 +132,7 @@ SECTIONS
 这里强调下“定位符号器”，连接器每读完一个section描述后, 将定位器符号的值*增加*该section的大小.
 
 ## 1.ENTRY
-```text
+```
 ENTRY(SYMBOL)
 ```
 
@@ -147,7 +147,7 @@ ENTRY(SYMBOL)
 ## 2.EXPRESSION
 
 表达式格式如下：
-```text
+```
 SYMBOL = EXPRESSION
 SYMOBL += EXPRESSION
 SYMBOL -= EXPRESSION
@@ -169,7 +169,7 @@ SECTIONS
 
 ### 链接脚本相关的内建函数：
 
-```text
+```
 ABSOLUTE(EXP): 转换成绝对值
 
 ADDR(SECTION): 返回某 section 的 VMA 值
@@ -193,7 +193,7 @@ SIZEOF_HEADERS: 返回输出文件的文件头大小，用以确定第一个 sec
 ```
 
 ## 3.PHDRS
-```text
+```
 PHDRS {
     NAME TYPE [FILEHDR][PHDRS][AT(ADDRESS)]
     [FLAGS(FLAGS)]
@@ -204,7 +204,7 @@ PHDRS 命令仅仅在生成 ELF 目标文件时有效。ELF 目标文件格式�
 
 ## 4.SECTIONS
 
-```text
+```
 SECTIONS
 {
     SECTIONS-COMMAND
@@ -229,7 +229,7 @@ SECTIONS 命令告诉 ld 如何把输入文件的 sections 映射到输出文件
 [overlay description](https://biscuitos.github.io/blog/LD-SECTIONS/#Section%20%E5%8F%A0%E5%8A%A0%E6%8F%8F%E8%BF%B0)
 
 overlay语法，以及与SECTIONS 之间的层级关系：
-```text
+```
 SECTIONS
 {
     //NOCROSSREFS 关键字指定各 section 之间不能交叉引用，否则报错
@@ -258,7 +258,7 @@ SECTIONS
 对于 OVERLAY 描述的每个 section，链接器定义两个符号 __load_start_SECNAME 和 __load_stop_SECNAME，这两个符号的分别代表 SECNAME section 的 LMA 地址开始和结 束。链接器处理完 OVERLAY 描述语句之后，将定位符号的值加上所有覆盖图内 section 大小的最大值。
 
 一个简单例子,针对这个例子，会定义符号 __load_start_DemoText 与 __load_stop_DemoText； 以及 __load_start_DemoData 与  __load_stop_DemoData
-```text
+```
 SECTIONS
 {
     OVERLAY 0x10000 : AT(0x4000)
@@ -274,7 +274,7 @@ SECTIONS
 
 输出 section 描述的具体格式如下,以及输出 section 描述 与 SECTIONS 之间的关系如下：
 
-```text
+```
 SECTIONS
 {
   ...
@@ -304,7 +304,7 @@ SECTIONS
 ## 输出 section 名字(SECTION)
 
 输出 section 名字简单例子如下：
-```text
+```
 SECTIONS
 {
     DemoText : { *(.text) }
@@ -326,7 +326,7 @@ SECTION 左右的空白，圆括号，冒号是必须的，换行符合其他空
 - OVERLAY：向后兼容保留下来的，这种类型的 section 必须被标记为 “不可被加载 的”，以便在程序运行不为它们分配内存。
 
 一个简单例子如下：
-```text
+```
 SECTIONS
 {
     DemoText (NOLOAD) : { *(.comment) }
@@ -340,7 +340,7 @@ ADDRESS 是一个表达式，它的值用于设置 VMA，VMA 表示可执行程�
 - 如果没 有该选项且有 REGION 选项，那么链接器根据 REGION 设置 VMA。
 - 如果也没有 REGION 选 项，那么链接器将根据定位符号 “.”的值设置该 section 的 VMA.
 
-```text
+```
 简单例子：
 
 SECTIONS
@@ -358,7 +358,7 @@ SECTIONS
 LMA 为程序的加载地址，默认情况下，LMA 等于 VMA，但可以通过关键字 AT() 指定 LMA。 如果不用 AT() 关键字，那么可以用 AT>LMA_REGION 表达式设置指定该 section 加载地 址的范围。
 
 一个简单例子：
-```text
+```
 SECTIONS
 {
     DemoText : AT(0x0848000) { *(.text) }
@@ -391,7 +391,7 @@ LMA和VMA进行说明：每个output section都有一个LMA和一个VMA，LMA是
 
 任何输出 section 描述内的未指定的内存区域内的未指定内存区域，链接器用该模板填 充该区域。用法 =FILEEXP，前两字节有效，当区域大于两个字节时，重复使用这两个字 节以其填满
 
-```text
+```
 一个简单例子：
 
 SECTIONS
@@ -415,7 +415,7 @@ SECTIONS
 ### 输入 section 描述
 
 最常见的输出 section 命令就是输入 section 描述。输入 section 描述的最基本的链 接脚本描述，基本语法如下：
-```text
+```
 //FILENAME 表示文件名，可以是一个特定的文件的名字，也可以是一个特定的字符串
 FILENAME(EXCLUDE_FILE(FILENAME1 FILENAME2 ...) SECTION1 SECTION2 ...)
 ```
@@ -428,7 +428,7 @@ FILENAME(EXCLUDE_FILE(FILENAME1 FILENAME2 ...) SECTION1 SECTION2 ...)
 
 ### 垃圾回收/丢弃
 在链接命令行内使用了选项 –gc-section 后，链接器可能将某些它认为没有用的 section 过滤掉，此时就有必要强制链接器保留一些 section，可用 KEEP 关键字，简 单例子如下：
-```text
+```
 SECTIONS
 {
     DemoText : { *(.text) }
@@ -437,7 +437,7 @@ SECTIONS
 ```
 
 通过 DISCARD 关键字，将所有输入 文件的 .comment section 丢弃
-```text
+```
 SECTIONS
 {
     DemoText : { *(.text) }
@@ -469,7 +469,7 @@ SECTIONS
 - CREATE_OBJECT_SYMBOLS ： 为每个输入文件建立一个符号，符号名为输入文件的名字。每个符号所在的 section 是 出现该关键字的 section。
 
   一个简单的例子：
-  ```text
+  ```
   SECTIONS
   {
       DemoData : { 
@@ -490,7 +490,7 @@ SECTIONS
 
 可以将输出 section 放入预先定义的程序段 (Program Segment) 内。如果某个输出 section 设置了它所在的一个或多个程序段，那么接下来定义的输出 section 的默认 程序段与该输出 section 的相同。除非再次显示地指定。可以通过 :NONE 指定链接器 不把该 section 放入任何程序段内。
 
-```text
+```
 PHDRS
 {
     headers PT_PHDR PHDRS;

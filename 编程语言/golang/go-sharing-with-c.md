@@ -23,7 +23,7 @@ In this article we will explore two major ways to share libraries between Go and
 ## Using shared library in Go
 
 Assume that GOPATH contains this structure:
-```text
+```
 .
 ├── calc
 │   └── calc.go
@@ -232,7 +232,7 @@ $ ldd ./app
 
 - /usr/bin/ld: cannot find crti.o: No such file or directory
 
-```text
+```
 This is a BUG reported in launchpad, byt there is a workaround :
 
 compiling 64 bits program in 32 bits platform :

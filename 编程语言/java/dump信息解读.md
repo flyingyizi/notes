@@ -63,7 +63,7 @@ origin： [How to Read a Thread Dump](https://dzone.com/articles/how-to-read-a-t
 ## 1. Introductory information
 
 首行：dump文件产生时间；第二行： dump信息所在JVM的诊断信息
-```text
+```
 2020-04-26 13:48:48
 Full thread dump Java HotSpot(TM) 64-Bit Server VM (11.0.6+8-LTS mixed mode):
 ```
@@ -72,7 +72,7 @@ Full thread dump Java HotSpot(TM) 64-Bit Server VM (11.0.6+8-LTS mixed mode):
 
 下面第二部分开始提供转储dump信息时运行的线程（thread）信息
 
-```text
+```
 Threads class SMR info:
 _java_thread_list=0x00000000638371a0, length=12, elements={
 0x0000000061e75800, 0x0000000061e7f000, 0x0000000061ea0800, 0x0000000061ea3800,
@@ -83,7 +83,7 @@ _java_thread_list=0x00000000638371a0, length=12, elements={
 
 这部分包括线程列表安全内存回收（thread list Safe Memory Reclamation (SMR) ）信息, 这部分枚举了所有非JVM内部线程的地址（例如，non-VM and non-Garbage Collection (GC)）。如果我们检查这些地址，就会发现它们对应于转储中每个编号的线程的tid值（即本机线程对象的地址，而不是线程ID，我们将很快看到）（注意，省略号用于隐藏多余的信息）：
 
-```text
+```
 "Reference Handler" #2 daemon prio=10 os_prio=2 cpu=0.00ms elapsed=40.20s tid=0x0000000061e75800 nid=0x3fa0 waiting on condition  [0x000000006222f000]
    java.lang.Thread.State: RUNNABLE
 	at java.lang.ref.Reference.waitForReferencePendingList(java.base@11.0.6/Native Method)
@@ -141,7 +141,7 @@ _java_thread_list=0x00000000638371a0, length=12, elements={
 ### 3.3 Thread Stack Trace
 之后的部分是包含stack trace。它类似于在发生未捕获异常时打印的堆栈跟踪. 这部分是可选的，例如在`"Thread-0" #12`就可以看到和其他标准线程stack trace不一样的地方
 
-```text
+```
 "Thread-0" #12 prio=5 os_prio=0 cpu=46.80ms elapsed=3822.52s tid=0x0000000063a72000 nid=0x4444 waiting for monitor entry  [0x000000006479e000]
    java.lang.Thread.State: BLOCKED (on object monitor)
 	at DeadlockProgram$DeadlockRunnable.run(DeadlockProgram.java:26)
@@ -166,7 +166,7 @@ _java_thread_list=0x00000000638371a0, length=12, elements={
 ## 4. JVM Threads
 下一部分包含的是绑定到操作系统的JVM内部（非应用程序）线程。由于这些线程不存在于Java应用程序中，因此它们没有线程ID。这些线程通常由GC线程和JVM用来运行和维护Java应用程序的其他线程组成：
 
-```text
+```
 |"VM Thread"| os_prio=2 cpu=0.00ms elapsed=40.21s tid=0x0000000061e2e800 nid=0x2b40 runnable  
 
 "GC Thread#0" os_prio=2 cpu=0.00ms elapsed=40.23s tid=0x00000000004dc000 nid=0x504 runnable  
@@ -193,7 +193,7 @@ _java_thread_list=0x00000000638371a0, length=12, elements={
 
 本节显示的是JVM通过JNI维护的全局引用的数量。在某些情况下，这些引用可能会导致内存泄漏，并且不会自动垃圾回收。
 
-```text
+```
 JNI global refs: 8, weak refs: 0
 ```
 
@@ -203,7 +203,7 @@ JNI global refs: 8, weak refs: 0
 
 最后一部分包含有关已发现死锁（discovered deadlocks）的信息。情况并非总是这样：如果应用程序没有一个或多个检测到的死锁，则不会有这部分。由于我们的示例应用程序会发生死锁，因此有下面的`eadlocked Threads`信息：
 
-```text
+```
 Found one Java-level deadlock:
 =============================
 "Thread-0":

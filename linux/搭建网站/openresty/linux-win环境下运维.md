@@ -166,7 +166,7 @@ $ ln -s /usr/local/openresty/nginx/sbin/nginx /usr/sbin/nginx
 
 从[官网](http://openresty.org/cn/download.html)下载windows版本，解压即可。以下假设安装在“C:\prog\openresty”
 
-```text
+```
 C:\prog\openresty>tree
 ├─conf
 ├─fastcgi_temp

@@ -486,7 +486,7 @@ int main(void)
 
 - lowpower：
 
-  ```text
+  ```
   1. ifconfig 操作：
   首先勾选：kernel  -> enable low power management framework
   基于第一步，会出现"kernel->low power management configure" menu。 在该menu中勾选“ enable default mplementation of low poser manager framework
@@ -921,7 +921,7 @@ endif
 下面记录了testcase如何被引入到$(LITEOSTOPDIR)/makefile中被编译的，显然只要配置了`LOSCFG_PLATFORM_OSAPPINIT`，就会编译testcase：
 
 - 1. 首先有下面的文件包含关系：
-```text
+```
 "$(LITEOSTOPDIR)/Makefile.mk"
      |--"$(LITEOSTOPDIR)/build/mk/config.mk"
         |--"$(LITEOSTOPDIR)/build/mk/los_config.mk"

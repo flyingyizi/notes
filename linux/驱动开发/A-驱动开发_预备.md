@@ -1,74 +1,16 @@
 [The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/index.html)
 
 
- 1288  wget -c https://busybox.net/downloads/busybox-1.34.0.tar.bz2
- 1289  ls
- 1290  rm -rf busybox-1.24.0.tar.bz2  busybox-1.31.0  busybox-1.31.0.tar.bz2
- 1291  ls
- 1292  tar jxvf busybox-1.34.0.tar.bz2 
- 1293  cd busybox-1.34.0/
- 1294  make menuconfig
- 1295  make install
- 1296  uname -a
- 1297  cd ..
- 1298  ls
- 1299  wget -c https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.0.tar.gz
- 1300  ls
- 1301  tar zxvf linux-4.0.tar.gz 
- 1302  ls
- 1303  cd linux-4.0/
- 1304  ls
- 1305  cp   ../busybox-1.34.0/_install  .
- 1306  cp -r  ../busybox-1.34.0/_install  .
- 1307  ls
- 1308  cd _install/
- 1309  ls
- 1310  mkdir etc
- 1311  mkdir dev
- 1312  mkdir mnt
- 1313  mkdir -p etc/init.d/
- 1314  touch etc/init.d/rcS
- 1315  vi etc/init.d/rcS
- 1316  chmod +x  etc/init.d/rcS
- 1317  vi etc/fstab
- 1318  vi etc/inittab
- 1319  cd dev
- 1320  ls
- 1321  sudo mknod console c 5 1
- 1322  sudo mknod null c 1 3
- 1323  cd ../..
- 1324  make vexpress_defconfig
- 1325  make menuconfig
- 1326  make bzImage -j4 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
- 1327  make bzImage -j4 
- 1328  cd ..
- 1329  ls
-
- 1348  sudo apt-get install qemu
- 1349  which qemu-system-arm
- 1350  apt search qemu
- 1351  locate qemu
- 1352  cd
- 1353  locate qemu-system-arm
- 1354  apt search qemu-system
- 1355  sudo apt-get install qemu-system-arm
- 1356  ls
- 1357  cd Downloads/qemu/linux-5.9/
- 1358  ls
-
- 1360  qemu-system-arm -M vexpress-a9 -smp 4 -m 1024M -kernel arch/arm/boot/zImage -append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" -dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb -nographic
-
-
-
-
 # 1.预备
 
 ## A.1.环境准备
 
-```shell
-# kernel-package: utility for building Linux kernel
-sudo apt-get install build-essential  bison flex autoconf automake kernel-package libncurses5-dev libssl-dev
-# download kernel source with version same as the system
+```bash
+#kernel-package: utility for building Linux kernel
+sudo apt-get install build-essential  bison flex autoconf \
+     automake kernel-package libncurses5-dev libssl-dev
+
+#download kernel source with version same as the system
 $ uname -r
 5.11.0-27-generic
 $ apt-cache search linux-source
@@ -81,11 +23,11 @@ linux-hwe-5.8-source-5.8.0 - Linux kernel source for version 5.8.0 with Ubuntu p
 # will generate /lib/modules/5.11.0-27-generic/build -> /usr/src/linux-headers-5.11.0-27-generic
 $ sudo apt-get install linux-hwe-5.11-source-5.11.0
 
-sudo make oldconfig
-sudo make
+$ sudo make oldconfig
+$ sudo make
 # 生成和构建设备树 $make modules, $make modules_install两条指令
-make modules
-make modules_install
+$ make modules
+$ make modules_install
 ```
 
 ## A.2. 简单驱动实践
@@ -335,4 +277,66 @@ CONFIG_CMDLINE_FORCE=y
 	```
 
 上面演示的方法不是通过类似libc/glibc库函数进行系统调用（使用库函数时，用户空间可以通过 “syscall()” 函数调用系统调用。）；不同架构是通过不同的软中断方式将指定信息传递给内核；例如 x86 通过 0x80 软中断进入内核系统调用处理， 例如 arm 通过 swi 指令进入内核的系统调用处理。当然无论以何种方式进入内核系统 调用处理程序，内核系统调用处理程序都会由用户态切换到内核态，并根据传递的 系统调用号信息，在内核中查找系统调用的入口。
+
+## A.5 qemu环境准备
+
+
+```shell
+$ wget -c https://busybox.net/downloads/busybox-1.34.0.tar.bz2
+$ ls
+$ rm -rf busybox-1.24.0.tar.bz2  busybox-1.31.0  busybox-1.31.0.tar.bz2
+$ ls
+$ tar jxvf busybox-1.34.0.tar.bz2 
+$ cd busybox-1.34.0/
+$ make menuconfig
+$ make install
+$ uname -a
+$ cd ..
+$ ls
+$ wget -c https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.0.tar.gz
+$ ls
+$ tar zxvf linux-4.0.tar.gz 
+$ ls
+$ cd linux-4.0/
+$ ls
+$ cp   ../busybox-1.34.0/_install  .
+$ cp -r  ../busybox-1.34.0/_install  .
+$ ls
+$ cd _install/
+$ ls
+$ mkdir etc
+$ mkdir dev
+$ mkdir mnt
+$ mkdir -p etc/init.d/
+$ touch etc/init.d/rcS
+$ vi etc/init.d/rcS
+$ chmod +x  etc/init.d/rcS
+$ vi etc/fstab
+$ vi etc/inittab
+$ cd dev
+$ ls
+$ sudo mknod console c 5 1
+$ sudo mknod null c 1 3
+$ cd ../..
+$ make vexpress_defconfig
+$ make menuconfig
+$ make bzImage -j4 ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-
+$ make bzImage -j4 
+$ cd ..
+$ ls
+
+ $ sudo apt-get install qemu
+ $ which qemu-system-arm
+ $ apt search qemu
+ $ locate qemu
+ $ cd
+ $ locate qemu-system-arm
+ $ apt search qemu-system
+ $ sudo apt-get install qemu-system-arm
+ $ ls
+ $ cd Downloads/qemu/linux-5.9/
+ $ ls
+
+ $ qemu-system-arm -M vexpress-a9 -smp 4 -m 1024M -kernel arch/arm/boot/zImage -append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" -dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb -nographic
+```
 

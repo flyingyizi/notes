@@ -61,7 +61,7 @@ func TestMWManager_ProcessChain(t *testing.T) {
 
 在vscode中通过`"go.testFlags": ["-v"],`配置来设置。 对应GUI 入口是找到下面的位置，然后根据提示去编辑settings.json文件
 
-```text
+```
 Go: Test Flags
 Flags to pass to `go test`. If null, then buildFlags will be used.
 ```

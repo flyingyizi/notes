@@ -161,7 +161,7 @@ Creating kafka_msg_sender_1
 atmel@atmel-virtual-machine:~/docker_build/kafka$
 ```
 为了更好的观察效果，我们要打开三个终端对不同的容器做操作，在后面我们用编号来表达不同的终端，编号对应如下：
-```text
+```
     1号 : kafka server
     2号 : 消息生产者(producer)
     3号 : 消息消费者(consumer)
@@ -210,7 +210,7 @@ atmel@atmel-virtual-machine:~/docker_build/kafka$
   ```
 
   rdkafka.pc 文件内容
-  ```text
+  ```
   prefix=c:/
   libdir=C:/tools/msys64/usr/lib/
   includedir=C:/tools/msys64/usr/include

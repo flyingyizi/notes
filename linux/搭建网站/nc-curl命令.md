@@ -476,6 +476,6 @@ Options: (H) means HTTP/HTTPS only, (F) means FTP only
 
  用curl命令获取http://baidu.com网站的响应码
 
-```text
+```
 root@localhost:~# curl -I -s -w "%{http_code}\n" -o /dev/null http://baidu.com
 ```

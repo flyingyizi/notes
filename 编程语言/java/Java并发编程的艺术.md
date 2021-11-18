@@ -368,7 +368,7 @@ public class App {
 
 Class Hierarchy:
 
-```text
+```
 java.lang.Object
  ↳ java.util.AbstractCollection<E>
     ↳ java.util.AbstractQueue<E>

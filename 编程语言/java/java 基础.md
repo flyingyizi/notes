@@ -184,7 +184,7 @@ String 类是不可改变的，所以你一旦创建了 String 对象，那它�
 整数的转换方式包括：d-十进制 o-八进制 x或X-十六进制
 
 浮点数的转换方式包括：
-  ```text
+  ```
     'e', 'E' -- 结果被格式化为用计算机科学记数法表示的十进制数
     'f' -- 结果被格式化为十进制普通表示方式
     'g', 'G' -- 根据具体情况，自动选择用普通表示方式还是科学计数法方式
@@ -681,7 +681,7 @@ myl ==> zh_CN
 注：类文件的尝试了发现无法生效，不知道原因，后续看看 TODO
 
 资源文件示例, mess_zh_CN.properties
-```text
+```
 hello=你好
 ```
 
@@ -935,7 +935,7 @@ allprojects {
 执行Gradle 命令的时候，会默认加载当前目录下的build.gradle 脚本文件。当然你也可以通过'- b' 参数指定想要加载执行的文件。
 
 执行`gradle wrapper`命令（Gradle 提供了内置的Wrapper task） 帮助我们自动生成Wrapper 所需的目录文件。生成的文件如下：
-```text
+```
 │  
 │  gradlew
 │  gradlew.bat
@@ -1074,7 +1074,7 @@ hello33.doFirst {
 }
 ```
 执行的结果是：
-```text
+```
 $.\gradlew hello3
 
 > Task :hello3
@@ -1115,7 +1115,7 @@ ex2.onlyIf {
 }
 ```
 执行结果就是
-```text
+```
 c:\home\android-gradle-book-code>.\gradlew total
 
 > Task :ex2
@@ -1169,7 +1169,7 @@ c:\home\android-gradle-book-code>
 [Compile gradle project with another project as a dependency](https://looksok.wordpress.com/2014/07/12/compile-gradle-project-with-another-project-as-a-dependency/)
 
 - 场景1：Your project is a root project and dependency is under its root
-    ```text
+    ```
     Project
         |--build.gradle
         |--settings.gradle
@@ -1187,7 +1187,7 @@ c:\home\android-gradle-book-code>
     }
     ```
 - 场景2：You have two independent projects and you need to use one of them as a dependency
-    ```text
+    ```
     Project
        |--build.gradle
        |--settings.gradle    
@@ -1334,7 +1334,7 @@ The first column is the local virtual machine identifier (Local VM ID, i.e. lvmi
 相关参数
 
 
-```text
+```
 -v  输出传递给JVM的参数 
 
 -l 参数输出应用程序main class的完整package名 或者 应用程序的jar文件完整路径名

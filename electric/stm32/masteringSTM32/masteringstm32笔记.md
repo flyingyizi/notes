@@ -15,7 +15,7 @@
      对其中的code area(0.5G)中，FLASH固定是0x0800 0000开始，结束依据厂家而定，即不同行号的flash大小不一样。
      
      对其中的sram(0.5G)其中最关键的是bitband。采用bit-band访问的地址可以总结为下面的公式:
-     ```text
+     ```
      This is the formula to compute the addresses for alias regions:
      bit_band_address = alias_region_base + (region_base_offset x 32) + (bit_number x 4)
      ```
@@ -24,7 +24,7 @@
      - alias_region_base == 0x42000000
      - region_base_offset == 地址（e.g. GPIOA） - - 0x40000000
      - 举例，对GPIOA PIN5采用bit-band访问的地址应该是
-     ```text
+     ```
      alias_region_base = 0x42000000
      region_base_offset = 0x40020014 - 0x40000000 = 0x20014
      bit_band_address = 0x42000000 + 0x20014*32 + (0x5 x 0x4) = 0x42400294
@@ -85,7 +85,7 @@ re-entrant. So they cannot be called recursively¹⁷.
 uart可以工作的模式：polling（blocking）, interrupt（no-blocking） and DMA mode.
 
 在“8.3.1 Installing a Serial Console in Windows”章节介绍了在集成环境安装serial terminal工具，如果集成工具是stm32cubeide，有些特殊，请按照下面步骤按照
-```text
+```
 Go to menu Help -> Install New Software
 Select Work with -> All available sites
 In the search box type "terminal"

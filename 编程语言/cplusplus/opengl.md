@@ -13,7 +13,7 @@ opengl内置提供四种矩阵：GL_MODELVIEW，GL_PROJECTION，GL_TEXTURE和GL_
 
 opengl内置矩阵是采用列存储，这与eigen的默认storage刚好是一样的，因此“Eigen::Matrix.data()”方式传递数据给opengl是完全匹配的。所谓列存储，
 
-```text
+```
 std::vector<float> {
 m0  m1  m2  m3
 m4  m5  m6  m7
@@ -207,7 +207,7 @@ projection matrix转换矩阵的推导见[推导过程](http://www.songho.ca/ope
 - 绕X轴旋转 roll
 - 绕y轴旋转 
 -
-```text
+```
     Z                              Y                                X
  //then yaw                    then pitch                      First roll:
  | cos(yaw), -sin(yaw), 0 |  | cos(pitch), 0, -sin(pitch) |  | 1 ,   0     ,     0      | 

@@ -167,7 +167,7 @@ step steps into subroutines, but next will step over subroutines.
 https://sourceware.org/gdb/onlinedocs/gdb/Continuing-and-Stepping.html
 
 ### step into
-   ```text
+   ```
     (gdb) help step
     step, s
     Step program until it reaches a different source line.
@@ -177,7 +177,7 @@ https://sourceware.org/gdb/onlinedocs/gdb/Continuing-and-Stepping.html
    sample "`for(i=0;i<10;i++) { printf("%d\n",i); }`" is one source line but multiple instructions.
 
 ### step over
-   ```text
+   ```
     (gdb) help next
     Step program, proceeding through subroutine calls.
     Usage: next [N]
@@ -192,7 +192,7 @@ https://sourceware.org/gdb/onlinedocs/gdb/Continuing-and-Stepping.html
 
     2.如果想让程序执行到当前函数返回之后停止，用finish，当前函数的剩余语句将会正常运行
 
-   ```text
+   ```
     (gdb) help return
     Make selected stack frame return to its caller.
     Control remains in the debugger, but when you continue
@@ -220,7 +220,7 @@ https://sourceware.org/gdb/onlinedocs/gdb/Continuing-and-Stepping.html
 指令：“`delete <断点号>`”，“`disable <断点号>`”。disable了的，可以通过enable指令重新使能。
 
 例如：
-```text
+```
 (gdb) info watchpoints 
 Num     Type           Disp Enb Address    What
 1       acc watchpoint keep y              init_task
@@ -277,7 +277,7 @@ No watchpoints.
 
 前提：对kernel的make menuconfig，应额外增加以下配置:
 
-```text
+```
 kernel hacking --->
    compile-time checks and compiler options --->
      [*] compile the kernel with debug info

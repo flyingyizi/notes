@@ -54,7 +54,7 @@ C:/MyApplication>
 
 最新版AS会有类似下面的警告提示,即将jks格式建议变换为PKCS12格式：
 
-```text
+```
 Warning:
 JKS 密钥库使用专用格式。建议使用 "keytool -importkeystore -srckeystore C:\Users\atmel\AndroidStudioProjects\recyclerViewDemo\myApp.keystore.jks -destkeystore C:\Users\atmel\AndroidStudioProjects\recyclerViewDemo\myApp.keystore.jks -deststoretype pkcs12" 迁移到行业标准格式 PKCS12。
 ```
@@ -112,7 +112,7 @@ $jarsigner -verbose -keystore C:\Users\tu_xu\Desktop\myApp.keystore  -signedjar 
 ## 签名APP 中的 MANIFEST.MF xx.SF和 xx.RSA文件
 
 对比签名App与未签名App，对apk中META-INF目录，签名app会多出xx.SF和 xx.RSA两个文件。同时MANIFEST.MF文件中会多出下面的类似多条记录：
-```text
+```
 Name: res/color/material_on_surface_disabled.xml
 SHA-256-Digest: uDclNBC5vr2p6GrFgezJvF/aLDTikc7LJUSbNnc71NU=
 

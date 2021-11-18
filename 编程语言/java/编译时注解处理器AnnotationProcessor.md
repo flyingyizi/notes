@@ -22,7 +22,7 @@ javax.annotation.processing.Processor` 文件。 例如自己写的processor无�
 找到解决方案[annotation-processor-in-intellij-and-gradle](https://stackoverflow.com/questions/42441844/annotation-processor-in-intellij-and-gradle) 中提到的[gavenkoas answer](https://stackoverflow.com/a/54611475/1041641)，如其中描述的，采用新版本gradle(This is becoming a reality with Gradle 5.2 and IntelliJ IDEA 2019.1.)，使用其中的`annotationProcessor`能力方式最简单。
 
 例如下面的目录是实验代码目录，其中root project是helloWord(`helloWord/build.gradle`), annotions(helloWord/annotions/build.gradle)与processors(helloWord/processors/build.gradle)是root project的两个依赖模块。
-```text
+```
 └─helloWord
     │  build.gradle
     │  gradlew

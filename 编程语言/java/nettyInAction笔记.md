@@ -69,7 +69,7 @@ netty这几个概念之间的关系是：
 - ■ 在每个EventLoops中处理的所有I/O事件都是在它唯一确定的线程中处理。
 - ■ 每个Channel在生命周期内仅能注册到一个EventLoop.一个EventLoop可以对应一个或多个Channels.
 
-```text
+```
                 1     *           1     *    
 EventLoopGroup<---------EventLoop--------->Channel
                            ^                 |

@@ -297,7 +297,7 @@ public class MasterTestSuite {}
 $./gradlew   test   --tests  MasterTestSuite
 ```
 
-```text
+```
 $ ./gradlew help --task  test  
 > Task :help
 Detailed task information for test
@@ -893,7 +893,7 @@ control.verify();
 
 
 在 执行测试用例 中将可以看到：
-```text
+```
 Message:
 N/A
 Stack trace:

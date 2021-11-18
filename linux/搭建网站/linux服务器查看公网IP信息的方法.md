@@ -13,7 +13,7 @@ linux服务器查看公网IP信息的方法
 
 首先确认下电信宽带没有封禁25端口
 
-```text
+```
 atmel@atmel:~$ telnet smtp.163.com 25
 Trying 220.181.12.13...
 Connected to smtp.163.com.
@@ -40,7 +40,7 @@ make && make install UCBINSTALL=/usr/bin/install
 
 vi /etc/nail.rc（在配置文件最后添加）
 
-```text
+```
 set bsdcompat
 set from=flyingyizi@163.com
 set smtp=smtp.163.com
@@ -96,7 +96,7 @@ ubuntu下crontab启动，重启，关闭命令
 
 4. 没有cron.log的问题
 
-```text
+```
     crontab在/var/log/目录下没有cron.log文件
     1、修改rsyslog文件：
 

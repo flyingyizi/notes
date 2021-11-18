@@ -16,7 +16,7 @@ STM32系列单片机在startup_stm32fxx.s文件中，定义了Heap_Size 和 Stac
 [linux上搭建stm32开发环境 vscode+gcc+stm32cubeMX 和 vscode+platformIO](https://blog.csdn.net/baidu_36482169/article/details/80457184)
 
 补充：VSCode的PlatformIO IDE插件里Platform选项安装“ST STM32”家目录下会自动安装相应工具，看下面：
-```text
+```
     ~/.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-gcc -v
 ```
 如果你用PlatformI,不用另外装arm-none-eabi工具集了，
@@ -113,7 +113,7 @@ mkdir -p ./user && cp -r ${STDPERIPHV18}/../Project/STM32F4xx_StdPeriph_Template
 
 https://community.st.com/s/question/0D50X0000BNv7IQ/does-stm32cubeide-offer-a-serial-terminal-this-functionality-was-available-in-the-atollic-truestudio-product
 
-```text
+```
 Go to menu Help -> Install New Software
 Select Work with -> All available sites
 In the search box type "terminal"

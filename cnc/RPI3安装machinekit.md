@@ -217,7 +217,7 @@ checking usability of /home/atmel/rpi-kernel/machinekit-hal/lib/python/machineki
 ######################################################################
 ```
 - 单纯编译hal与编译整体的生成bin文件的区别
-```text
+```
 atmel@atmel-virtual-machine:~/machinekit-hal/bin$ ls
 5axisgui      gs2_vfd            halsampler        hal_temp_atlas  linmove     position    scaragui
 adxl345       halcmd             halshow           hal_temp_bbb    maho600gui  puma560gui  shuttlexpress

@@ -5,7 +5,7 @@
 
 在DTS中，每个设备(device)在设备树中是一个节点(node)。一个node定义为：
   
-```text
+```
 [label:] node-name[@unit-address] {
 [properties definitions]
 [child nodes]
@@ -41,7 +41,7 @@
         - 64MB of NOR flash based at 0x30000000
 
     基于上面的信息,我们将每个节点来填充设备树，当前每个节点还是空的。
-    ```text
+    ```
     /dts-v1/;
 
     / {
@@ -143,7 +143,8 @@ Table 2-4 Values for status property 8
 注意`#address-cells and #size-cells` 属性并不会有继承处理，它们必须需要使用它们的节点中显式的定义。
 
 虽然有上面的规范要求，为了安全起见，约定如果缺失，则应假定`#address-cells = <2>; #size-cells=<1>;`
-..
+
+
 ## reg  property
 
 `reg`属性用于描述 在其父总线域中的 设备资源的地址,通常理解为`<offset, length>`。
@@ -213,7 +214,6 @@ If the property is not present in a bus node, it is assumed that no mapping exis
 };
 ```
 ## "Path Names"
-## "Property"
 ## "virtual-reg"
 ## "dma-ranges"
 
@@ -244,8 +244,12 @@ If the property is not present in a bus node, it is assumed that no mapping exis
 例如：
 ```cpp
 / {
-        #address-cells = <0x1>;    // 在 root node 下的sub-node使用 1 个 u32 來代表 address。
-        #size-cells = <0x0>;       // 在 root node 下的sub-node使用 0 个 u32 來代表 size。
+        /**
+         * 在 root node 下的sub-node使用 1 个 u32 來代表 address。
+         * 在 root node 下的sub-node使用 0 个 u32 來代表 size。
+        */
+        #address-cells = <0x1>;    
+        #size-cells = <0x0>; 
         ...
         memory {        // memory device
                 ... 
@@ -258,9 +262,8 @@ If the property is not present in a bus node, it is assumed that no mapping exis
 
 ```c++
 / {
-        #address-cells = <0x2>;    // 在 root node 下的sub-node使用 2 个 u32 來代表 address。
-        #size-cells = <0x1>;       // 在 root node 下的sub-node使用 1 个 u32 來代表 size。
-        ...
+        #address-cells = <0x2>;  
+        #size-cells = <0x1>;  
         ...
         memory@90000000,00000000 {        // memory device
             ... 
@@ -271,14 +274,13 @@ If the property is not present in a bus node, it is assumed that no mapping exis
   }
 ```
 
-对非内存映射设备，
-
 ## 地址转换
 
 注意非根直接子节点设备分配的地址仅仅是设备域（device domain）的，和CPU使用的地址（cpu domain）是不同的域，因此涉及设备地址到CPU可以使用地址的转换。
 
 约定：
-- 不是根的直接子节点的节点不使用 CPU 的地址域。为了获得内存映射地址，设备树必须指定如何将地址从一个域转换为另一个域。ranges物业用于此目的。
+
+- 如果节点不是根的直接子节点，显然该节点不使用 CPU 的地址域。为了获得内存映射地址，设备树必须指定如何将地址从一个域转换为另一个域。ranges物业用于此目的。
 
 - 根节点总是描述 CPU 对地址空间的看法。根的直接子节点已经在使用 CPU 的地址域，因此不需要任何显式映射。
 
@@ -388,12 +390,12 @@ alias节点必须位于根，而且名字必须是aliases，即该节点全路�
 ## 列表
 
 下面两种列表表达方式是等效的
-```text
+```
 			clocks = <&clk_osc>,
 				<&dsi0 0>, <&dsi0 1>, <&dsi0 2>,
 				<&dsi1 0>, <&dsi1 1>, <&dsi1 2>;
 ```
-```text
+```
 			clocks = <&clk_osc &dsi0 0 &dsi0 1 &dsi0 2 &dsi1 0 &dsi1 1 &dsi1 2>;
 ```
 

@@ -12,7 +12,7 @@
 
 例如登记以下信息：
 
-```text
+```
 application name: my-oauth2-demo
 homepage url:     http://localhost:8080
 application description: 实验oAuth2
@@ -21,7 +21,7 @@ authorization callback url：http://localhost:8080/oauth2/redirect
 
 登记完成，提交表单以后，GitHub 应该会返回客户端 ID（client ID）和客户端密钥（client secret），这就是应用的身份识别码。
 
-```text
+```
 Client ID
     f577fa3d6d2e3748ce75
 Client Secret

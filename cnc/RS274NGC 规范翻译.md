@@ -412,7 +412,7 @@ with one mode from each modal group being in effect. The modal groups are shown 
     |group 13 = {G61, G61.1, G64} |path control mode|
 
 - The modal groups for M codes are:
-```text
+```
 group 4 = {M0, M1, M2, M30, M60} stopping
 group 6 = {M6} tool change
 group 7 = {M3, M4, M5} spindle turning
@@ -420,7 +420,7 @@ group 8 = {M7, M8, M9} coolant (special case: M7 and M8 may be active at the sam
 group 9 = {M48, M49} enable/disable feed and speed override switches
 ```
 - In addition to the above modal groups, there is a group for non-modal G codes:
-```text
+```
 group 0 = {G4, G10, G28, G30, G53, G92, G92.1, G92.2, G92.3}
 ```
 对于这些模态组（modal group）, 当加工中心准备接受命令时, 模态组组中的某个成员必须有效。这些模式组有默认设置。当该加工中心开启或以其他方式重新初始化时, 默认值自动生效。

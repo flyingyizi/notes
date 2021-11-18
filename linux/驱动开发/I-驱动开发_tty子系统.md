@@ -4,7 +4,7 @@
 [tty驱动分析](http://www.wowotech.net/sort/tty_framework)
 
 下面表达的是tty子系统的不同层间的交互示意：
-```text
+```
 用户空间：  write()
               |
 			  v
@@ -25,7 +25,7 @@ tty驱动：   tty_driver.write()
 
 显然对于uart这种硬件，完全可以按照上面的方式来实现其驱动。但考虑到uart这类设备有其特殊的共性，为给开发者提供更多便利，针对uart硬件，linux对tty驱动支撑api（e.g.tty_register_driver...）进行了封装，提供了独有的uart驱动支撑(e.g.uart_register_driver...),这个我们可以查看“uart_register_driver”代码得知，它内部还是调用的“tty_register_driver”。 因此针对uart这类硬件上图就可以表达为：
 
-```text
+```
 用户空间：  write()
               |
 			  v

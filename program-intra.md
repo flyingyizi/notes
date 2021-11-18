@@ -131,7 +131,7 @@ search "window 10 bash"
 
 -  在  <<程序员的自我修养-链接装载与库>>一书中曾提到ld默认使用的链接脚本说默认在/usr/lib/ldscripts/下结果我找了半天没找到  我的系统是fedora 8  find / -name *lds*  找不到 找script也找不到 晕了后来查了下发现可以用ld -verbose查看默认的lds
 输出如下：
-    ```text
+    ```
     GNU ld version 2.19.51.0.14-34.fc12 20090722
     Supported emulations:
     elf_i386
@@ -231,7 +231,7 @@ $vcpkg.exe import vcpkg-export-20201119-213739.zip
 - Downloading https://raw.githubusercontent.com/boostorg/boost/boost-1.73.0/LICENSE_1_0.txt... Failed. Status: 6;"Couldn't resolve host name"
 
     解决方法：DNS被污染了，需要在hosts文件中加上github相关的真实ip地址
-```text
+```
     140.82.114.3 github.com
     199.232.69.194 github.global.ssl.fastly.net
     199.232.68.133 raw.githubusercontent.com
@@ -350,7 +350,7 @@ target_link_directories(  test_machine_learning PRIVATE
 ```
 
 下面的几个[变量](https://cmake.org/cmake/help/v3.0/module/FindPkgConfig.html),是需要经常使用的。
-```text
+```
 <XPREFIX>_FOUND          ... set to 1 if module(s) exist
 <XPREFIX>_LIBRARIES      ... only the libraries (w/o the '-l')
 <XPREFIX>_LIBRARY_DIRS   ... the paths of the libraries (w/o the '-L')
@@ -564,7 +564,7 @@ sudo ldconfig
   msys2_shell.cmd -mingw64
   ```
     以下面例子为例演示
-    ```text
+    ```
     $ mkdir test 
     $ cd test
     $ cp ../helloword.c ./ 

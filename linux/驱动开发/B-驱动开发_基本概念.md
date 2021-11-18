@@ -7,7 +7,7 @@
 ### 应用程序 与设备驱动
 
 应用程序和 VFS 之间的接口是系统调用． 而VFS与文件系统以及设备文件之间的接口是自file_operations 结构体成员函数．这个结构体包含对文件进行打开、关闭、读写、控制的一系列成员函数．
-```text
+```
           系统调用            file_opertion
 应用程序 -------------> VFS -------------------> 设备驱动 -------->  硬件
 ```
@@ -133,13 +133,13 @@ struct bus_type {
 
 - 调用内部的device_add_attrs接口，将由bus->dev_attrs指针定义的默认attribute添加到内核中，它们会体现在/sys/devices/xxx/xxx_device/目录中
 - 调用sysfs_create_link接口，将该device在sysfs中的目录，链接到该bus的devices目录下，例如：
-   ```text
+   ```
 	xxx# ls /sys/bus/spi/devices/spi1.0 -l                                                        
 	lrwxrwxrwx root     root              2014-04-11 10:46 spi1.0 -> ../../../devices/platform/s3c64xx-spi.1/spi_master/spi1/spi1.0
 	其中/sys/devices/…/spi1.0，为该device在sysfs中真正的位置，而为了方便管理，内核在该设备所在的bus的xxx_bus/devices目录中，创建了一个符号链接
    ```
 - 调用sysfs_create_link接口，在该设备的sysfs目录中（如/sys/devices/platform/alarm/）中，创建一个指向该设备所在bus目录的链接，取名为subsystem，例如：
-   ```text
+   ```
 	xxx # ls /sys/devices/platform/alarm/subsystem -l                                                
 	lrwxrwxrwx root     root              2014-04-11 10:28 subsystem -> ../../../bus/platform
    ```	

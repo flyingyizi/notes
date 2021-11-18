@@ -228,7 +228,7 @@ void __init setup_arch(char **cmdline_p)
 ## 2.1.物理内存初始化
 
 Node->Zone->Page的层级进行初始化，直到内存达到可用状态。关于Nodes、Zones、Pages三者之间的关系，[《ULVMM》](https://www.kernel.org/doc/gorman/html/understand/understand005.html) Figure 2.1介绍。它们的关系为：
-```text
+```
      1 n       1  n
 Node ---> Zone ---> Page
 ```
@@ -407,7 +407,7 @@ PGD中包含若干PUD的地址，PUD中包含若干PMD的地址，PMD中又包�
 64bit的Linux采用四级映射：PGD-->PUD-->PMD-->PTE，多了个PUD。
 
 在ARM32 Linux采用两层映射, 所以PGD->PMD->PTE中间的PMD被省略的.,除非在定义了CONFIG_ARM_LPAE才会使用3级映射。参见kconfig中的配置：
-```text
+```
 config PGTABLE_LEVELS
 	int
 	default 3 if ARM_LPAE
@@ -1301,7 +1301,7 @@ Slab 分配器有三个主要目标：
 - 通过将对象与 L1 或 L2 缓存对齐，更好地利用硬件缓存。
 
 在kconfig中相关配置如下,比如选择了“CONFIG_SLUB”，那相应实现就是“obj-$(CONFIG_SLUB) += slub.o”：
-```text
+```
 choice
 	prompt "Choose SLAB allocator"
 	default SLUB
