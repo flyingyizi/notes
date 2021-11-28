@@ -1,6 +1,8 @@
 
 
-# 设备树overlay
+# 设备树overlays (dtbo)
+
+For more information about format of Device Tree Overlay, see https://www.kernel.org/doc/Documentation/devicetree/overlay-notes.txt
 
 ## A.1.静态设置 
 
@@ -96,6 +98,14 @@
     ```
 
 ## A.2.动态设置
+
+[Enabling new hardware on Raspberry Pi with Device Tree Overlays](https://bootlin.com/blog/enabling-new-hardware-on-raspberry-pi-with-device-tree-overlays/)
+
+[Creating device tree overlays](https://www.centennialsoftwaresolutions.com/post/creating-device-tree-overlays)
+
+[Using device tree overlays with Linux/Petalinux](https://www.centennialsoftwaresolutions.com/post/using-device-tree-overlays-with-petalinux)
+
+[GPIOs on the Beaglebone Black using the Device Tree Overlays](http://derekmolloy.ie/gpios-on-the-beaglebone-black-using-device-tree-overlays/)
 
 ref：linux\Documentation\devicetree\overlay-notes.txt
 
@@ -209,7 +219,10 @@ dtoverlay  bar.dtbo
 
 ### kernel支持原理
 
-对DTS overlay是通过linux configfs进行支持的，使用的核心API是：
+对DTS overlay是通过linux configfs进行支持的，首先需要kernel支持Device tree overlay，它可以通过menuconfig来配置"CONFIG_OF_OVERLAY and CONFIG_CONFIGFS"。
+
+
+使用的核心API是：
 overlays 的调用位置
 ```c++
 drivers/of/overlay.c 核心代码。
@@ -235,26 +248,52 @@ Device Tree Overlays 核心定义：
 
 
 
-## A.3.手工使用 device tree overlays
+# A.3.使用 device tree overlays
 
-### 直接操作
+## 通用做法
+
+首先需要kernel支持Device tree overlay，它可以通过menuconfig来配置"CONFIG_OF_OVERLAY and CONFIG_CONFIGFS"。
+
+配置后，生成的kernel将会出现"/sys/kernel/config/device-tree/overlays/ "目录，它的mount是"`mount -t configfs none /sys/kernel/config`".
+
 通过外文网站获取到一些内容：
 device tree overlays 的实际用法是，系统启动后 root 用户修改dtb文件，不需要重启！即可生效。
-在 /sys/kernel/config/device-tree/overlays/ 目录下创建目录，创建完成后目录内自动会有三个文件 dtbo path status
-直接复制 已经编译好的 *.dtbo 文件覆盖 dtbo 文件.
-并对 status 赋值 1 即可(好像是不需要的，cp文件覆盖直接生效,如果 status 是只读文件 获取当前 dtbo 是否OK)。
-```shell
-root@npi:/sys/kernel/config/device-tree/overlays# mkdir test
-root@npi:/sys/kernel/config/device-tree/overlays# cd test
-root@npi:/sys/kernel/config/device-tree/overlays/test# ls
-root@npi:/sys/kernel/config/device-tree/overlays/test# dtbo path status
-root@npi:/sys/kernel/config/device-tree/overlays/test# cat status
-root@npi:/sys/kernel/config/device-tree/overlays/test# unapplied
-root@npi:/sys/kernel/config/device-tree/overlays/test# cp /lib/firmware/test.dtbo dtbo
-root@npi:/sys/kernel/config/device-tree/overlays/test# cat status
-root@npi:/sys/kernel/config/device-tree/overlays/test# applied
-```
-加载完成后，dtbo 内的设备会自动由系统安装。可以在 /dev 看到具体内容。
+
+- step1：
+
+    在 /sys/kernel/config/device-tree/overlays/ 目录下创建目录，创建完成后,该新创建的目录内自动会有三个文件 dtbo path status
+
+- step2：
+    
+    直接复制 已经编译好的 *.dtbo 文件覆盖 dtbo 文件.
+    
+    然后查看status 的赋值，可以确认已经生效。它可以起到确认覆盖dtbo 是否OK。
+
+    ```shell
+    root@npi:/sys/kernel/config/device-tree/overlays# mkdir test
+    root@npi:/sys/kernel/config/device-tree/overlays# cd test
+    root@npi:/sys/kernel/config/device-tree/overlays/test# ls
+    root@npi:/sys/kernel/config/device-tree/overlays/test# dtbo path status
+    root@npi:/sys/kernel/config/device-tree/overlays/test# cat status
+    root@npi:/sys/kernel/config/device-tree/overlays/test# unapplied
+    root@npi:/sys/kernel/config/device-tree/overlays/test# cp /lib/firmware/test.dtbo dtbo
+    root@npi:/sys/kernel/config/device-tree/overlays/test# cat status
+    root@npi:/sys/kernel/config/device-tree/overlays/test# applied
+    ```
+
+    加载完成后，dtbo 内的设备会自动由系统安装。可以在 /dev 看到具体内容。
+
+## raspberry 独有操作
+
+### 启动时覆盖
+
+Raspberry Pi 的一个特殊特点是启动流程从 GPU 内核开始，而不是像大多数嵌入式处理器那样从 ARM 内核开始:
+
+"`GPU load 1st bootloader --> load 2rd bootloader(bootcode.bin) from eMMC/SD --> execting start.elf`". This GPU firmware finally reads and parses a file stored in the boot partition (config.txt), which is used to set various boot parameters such as the image to boot on.
+
+大家知道，通用传递启动参数是通过[kernel command line](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html)来传递的。该config.txt文件除了方便设置启动参数，更有趣的是可以在里面配置设备树覆盖，配置语法是"`dtoverlay=overlay-name,overlay-arguments`". 
+
+注： GPU的日志信息可以通过["vcdbg(is an application to help with debugging the VideoCore GPU from Linux running on the the ARM.) "](https://gitee.com/li0544/RPI_documentation/blob/master/raspbian/applications/vcdbg.md)查看.
 
 ### 工具操作
 参考树莓派的使用方式：
@@ -262,11 +301,72 @@ https://www.raspberrypi.org/documentation/configuration/device-tree.md
 
 dtdiff dtoverlay dtparam 应该是一组工具。 这里不再描述。
 
-### 工具操作：dtoverlay
-
 loads and removes overlays while the system is running
 
 [dtoverlay source](https://github.com/raspberrypi/userland)
 
-### 工具操作：dtoverlay
+
+
+
+## A.4 实战例子
+
+- 准备dts文件，取名命phyDriver.dts
+    
+    ```cpp
+    /dts-v1/;
+    /* allow undefined label references and record them */
+    /plugin/;
+
+    / {
+        /* first child node */
+        fragment@0 {
+            /* target of the overlay */
+            target = <&amba>;
+            __overlay__ {
+                #address-cells = <0x1>;
+                #size-cells = <0x1>;
+                /* add to an existing, or create a node 
+                 * named custom_port_phy 
+                 */
+                custom_port_phy {
+                    #address-cells = <1>;
+                    #size-cells = <0>;
+                    compatible = "custom,custom-port-phy";
+                    Dummy_Port_Phy0: dummy_port_phy@0 {
+                                    reg = <0>;
+                                    speed = <1000>;
+                    };
+                    
+                    Dummy_Port_Phy1: dummy_port_phy@1 {
+                                    reg = <1>;
+                                    speed = <1000>;
+                    };
+                };
+            };
+        };
+    };
+    ```
+
+-  编译获得dtbo
+
+    ```bash
+    # Remember, you need to use -@ DTC flag so that it can use 
+    # the existing symbol from the device tree.
+    $ dtc -o dtb -o phyDriver.dtbo -@ ./phyDriver.dts	
+    ```
+
+- 加载DTBO
+
+    ```bash
+    # First, create a directory inside the overlays
+    $ mkdir -p /sys/kernel/config/device-tree/overlays/phyDriver
+
+    # Afterwards, copy the contents of the phyDriver.dtbo 
+    # to the dtbo file there.
+    $ cat /home/root/phyDriver.dtbo  > /sys/kernel/config/device-tree/overlays/phyDriver/dtbo
+    ```
+
+- unload DTBO
+
+    To unload the overlay, just delete the folder created in /sys/kernel/config/device-tree/overlays. This change will also be reflected immediately; everything which was created in /sys/class/xxx and in other /sys folders will disappear. Note, you need to use rmdir to delete the folder, not rm -r:
 

@@ -50,3 +50,65 @@ rpi-kernels/linux/arch/arm/boot/dts/bcm2710-rpi-3-b.dts
 
 - 在soc层面gpiomem对应的地址,也就是我们前面要求解的“GPIO_BASE”
 
+## 得到引脚信息 
+
+- 得到一些关于正在使用的引脚的信息
+
+	```bash
+	root@raspberrypi:/sys/kernel/debug/pinctrl/3f200000.gpio# cat pingroups 
+	registered pin groups:
+	group: gpio0
+	pin 0 (gpio0)
+
+	group: gpio1
+	pin 1 (gpio1)
+
+	group: gpio2
+	pin 2 (gpio2)
+
+	group: gpio3
+	pin 3 (gpio3)
+
+	```
+
+- 获得有关哪些引脚正在使用（已分配）的信息
+
+	```shell
+	root@raspberrypi:/sys/kernel/debug/pinctrl/3f200000.gpio# cat pinmux-pins 
+	Pinmux settings per pin
+	Format: pin (name): mux_owner gpio_owner hog?
+	pin 0 (gpio0): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+	...
+	pin 31 (gpio31): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+	pin 32 (gpio32): 3f201000.serial (GPIO UNCLAIMED) function alt3 group gpio32
+	pin 33 (gpio33): 3f201000.serial (GPIO UNCLAIMED) function alt3 group gpio33
+	pin 34 (gpio34): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio34
+	pin 35 (gpio35): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio35
+	pin 36 (gpio36): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio36
+	pin 37 (gpio37): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio37
+	pin 38 (gpio38): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio38
+	pin 39 (gpio39): 3f300000.mmc (GPIO UNCLAIMED) function alt3 group gpio39
+	pin 40 (gpio40): soc:audio (GPIO UNCLAIMED) function alt0 group gpio40
+	pin 41 (gpio41): soc:audio (GPIO UNCLAIMED) function alt0 group gpio41
+	pin 42 (gpio42): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+
+	```
+
+- 得到完整的引脚列表
+
+	```bash
+	root@raspberrypi:/sys/kernel/debug/pinctrl/3f200000.gpio# cat pins |more
+	registered pins: 54
+	pin 0 (gpio0) function gpio_in in hi; irq 0 (none)
+	pin 1 (gpio1) function gpio_in in hi; irq 0 (none)
+	pin 2 (gpio2) function gpio_in in hi; irq 0 (none)
+	pin 3 (gpio3) function gpio_in in hi; irq 0 (none)
+	pin 4 (gpio4) function gpio_in in hi; irq 0 (none)
+	pin 5 (gpio5) function gpio_in in hi; irq 0 (none)
+	pin 6 (gpio6) function gpio_in in hi; irq 0 (none)
+	pin 7 (gpio7) function gpio_in in hi; irq 0 (none)
+	pin 8 (gpio8) function gpio_in in hi; irq 0 (none)
+	pin 9 (gpio9) function gpio_in in lo; irq 0 (none)
+	pin 10 (gpio10) function gpio_in in lo; irq 0 (none)
+
+	```

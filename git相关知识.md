@@ -67,6 +67,13 @@ git  commit -m  "comment"
 git archive --format tar.gz --output "./output.tar.gz" master
 ```
 
+### 统计
+
+Linux 5.10.11 sources:
+- 70,639 files (git ls-files | wc -l)
+- 29,746,102 lines (git ls-files | xargs cat | wc -l)
+- 962,810,769 bytes (git ls-files | xargs cat | wc -c)
+
 ## git pre-commit hook
 
 每次git commit的时，git会主动调用project根目录下的` .git/hooks/pre-commit` 这个脚本(默认的*.sample不执行)，脚本可以是shell、python、ruby等可执行脚本，只要是 以非零状态 退出会导致中止，就commit失败。
@@ -104,35 +111,35 @@ git show v0.0
 git tag --delete v0.0
 ```
 
-### 撤销还没有提交的代码
+## 撤销还没有提交的代码
 
 就是对编辑了，还没有通过`git add xxx`进行提交的可以通过该命令撤销
 ```sh
 git checkout app/xx/xx/abc.java
 ```
 
-### 撤销已经提交的代码
+## 撤销已经提交的代码
 
 ```sh
 git restore HEAD  app/xx/xx/abc.java
 ```
 
-### 查看远程库地址
+## 查看远程库地址
 
 ```sh
 git remote -v
 ```
 
-### 放弃本地修改，强制拉取更新
+## 放弃本地修改，强制拉取更新
 
 ```shell
 git fetch --all
 git reset --hard origin/master
 ```
 
-### git status 查看哪些文件被修改
+## git status 查看哪些文件被修改
 
-### git diff 查看所有文件具体被修改的地方
+## git diff 查看所有文件具体被修改的地方
 
 git diff命令可以查看当前工作区与暂存区的差别，也就是说可以查看到当前我们修改或者是添加的，但是还没有add进暂存区的代码。它会列出改动前后的对比，方便我们进行查看和修改。e.g. "`git diff shell/prepare_data.sh`"
 
