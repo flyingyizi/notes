@@ -1,5 +1,6 @@
 [The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/index.html)
 
+[linux-kernel-slides](https://bootlin.com/doc/training/linux-kernel/linux-kernel-slides.pdf)
 
 # 1.预备
 
@@ -30,7 +31,94 @@ $ make modules
 $ make modules_install
 ```
 
-## A.2. 简单驱动实践
+或镜像方式：
+
+```bash
+
+# 查看可用的镜像
+$ apt-cache search linux | grep linux-image
+# 选择一个进行安装,这里我们安装4.15的,安装image和headers
+sudo apt-get install linux-image-4.15.0-99-generic linux-headers-4.15.0-99-generic
+
+# 安装后重启,在grub的advance选项选择内核即可
+sudo reboot
+```
+
+### Initial configuration
+
+编译linux kernel时，需要.config configuration。 如何获取Initial configuration？
+
+- Desktop or server case: Advisable to start with the configuration of your running kernel:
+"cp /boot/config-`uname -r` .config"
+
+- Embedded platform case:
+	- Default configurations stored in-tree as minimal configuration files (only listing settings that are different with the defaults) in arch/<arch>/configs/
+	- make help will list the available configurations for your platform
+	- To load a default configuration file, just run "`make foo_defconfig`" (will erase your current .config!)
+		- On ARM 32-bit, there is usually one default configuration per CPU family
+		- On ARM 64-bit, there is only one big default configuration to customize
+
+
+# A.2. 简单驱动实践
+
+## makefile
+
+The below Makefile should be reusable for any single-file out-of-tree Linux
+module
+```
+ifneq ($(KERNELRELEASE),)
+# The source file is hello.c
+obj-m := hello.o
+else
+# KDIR: kernel source or headers directory (see next slides)
+KDIR := /path/to/kernel/sources
+#
+PWD:=$(shell pwd)
+all:
+<tab>$(MAKE) -C $(KDIR) M=$$PWD
+clean:    
+<tab>$(MAKE) -C $(KDIR) M=$$PWD clean
+
+endif
+
+```
+
+```makefile
+# KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在第一次读取执行此Makefile时，KERNELRELEASE没有被定义，
+# 所以make将读取执行else之后的内容，如果make的目标是clean，直接执行clean操作，然后结束。
+# 当make的目标为all时，-C $(KDIR)指明跳转到内核源码目录下读取那里的Makefile；M=$(PWD) 表明然后
+# 返回到当前目录继续读入、执行当前的Makefile。当从内核源码目录返回时，KERNELRELEASE已被定义，
+# kbuild也被启动去解析kbuild语法的语句，make将继续读取else之前的内容。else之前的内容为kbuild语法
+# 的语句，指明模块源码中各文件的依赖关系，以及要生成的目标模块名。param-objs := file1.o file2.o 
+# 表示param.o由file1.o与file2.o 连接生成，obj-m := param.o表示编译连接后将生成param.o模块。
+
+
+# 避免错误：module verification failed: signature and/or required key missing - tainting kernel
+CONFIG_MODULE_SIG=n
+
+ifneq ($(KERNELRELEASE),)
+
+# obj-m表示把文件test.o作为"模块"进行编译，不会编译到内核，但是会生成一个独立的 "test.ko" 文件；
+# obj-y表示把test.o文件编译进内核;
+obj-m := test.o
+
+else
+PWD:=$(shell pwd)
+KVER?=$(shell uname -r)
+# KDIR: kernel source or headers directory
+KDIR:=/lib/modules/$(KVER)/build
+
+## Use make M=dir or set the environment variable KBUILD_EXTMOD to 
+## specify the directory of external module to build. Setting M= takes precedence.
+
+modules:
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
+
+clean:    
+    $(MAKE) -C $(KDIR) M=$$PWD clean
+
+endif
+```
 
 ### sample1
 测试程序: `~/Documents$ cat test.c`
@@ -63,40 +151,7 @@ MODULE_PARM_DESC(panel_type, "Select the panel type: 37, 6, 97");
 ```
 
 测试程序对应编译脚本： `~/Documents$ cat Makefile `
-```makefile
-# KERNELRELEASE是在内核源码的顶层Makefile中定义的一个变量，在第一次读取执行此Makefile时，KERNELRELEASE没有被定义，
-# 所以make将读取执行else之后的内容，如果make的目标是clean，直接执行clean操作，然后结束。
-# 当make的目标为all时，-C $(KDIR)指明跳转到内核源码目录下读取那里的Makefile；M=$(PWD) 表明然后
-# 返回到当前目录继续读入、执行当前的Makefile。当从内核源码目录返回时，KERNELRELEASE已被定义，
-# kbuild也被启动去解析kbuild语法的语句，make将继续读取else之前的内容。else之前的内容为kbuild语法
-# 的语句，指明模块源码中各文件的依赖关系，以及要生成的目标模块名。param-objs := file1.o file2.o 
-# 表示param.o由file1.o与file2.o 连接生成，obj-m := param.o表示编译连接后将生成param.o模块。
 
-
-# 避免错误：module verification failed: signature and/or required key missing - tainting kernel
-CONFIG_MODULE_SIG=n
-
-ifneq ($(KERNELRELEASE),)
-
-# obj-m表示把文件test.o作为"模块"进行编译，不会编译到内核，但是会生成一个独立的 "test.ko" 文件；
-# obj-y表示把test.o文件编译进内核;
-obj-m := test.o
-
-else
-PWD:=$(shell pwd)
-KVER?=$(shell uname -r)
-KDIR:=/lib/modules/$(KVER)/build
-
-## Use make M=dir or set the environment variable KBUILD_EXTMOD to 
-## specify the directory of external module to build. Setting M= takes precedence.
-
-modules:
-	make -C $(KDIR) M=$(PWD) modules
-clean:
-	rm -f *.ko *.o *.mod.o *.mod.c *.symvers
-
-endif
-```
 
 
 加载/卸载：
@@ -194,7 +249,7 @@ test/
 └── uevent
 ```
 
-## A.3. Linux kernel开启DEBUG选项
+# A.3. Linux kernel开启DEBUG选项
 
 kernel不会将这些日志输出到控制台上，除非：
 - 1）开启了DEBUG宏，并且
@@ -339,4 +394,39 @@ $ ls
 
  $ qemu-system-arm -M vexpress-a9 -smp 4 -m 1024M -kernel arch/arm/boot/zImage -append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" -dtb arch/arm/boot/dts/vexpress-v2p-ca9.dtb -nographic
 ```
+
+# 补充
+
+## linux source目录说明
+
+- include/ ：Kernel headers
+- include/linux/ ：Linux kernel core headers
+- include/uapi/ ：User space API headers
+- tools/ ：Code for various user space tools (mostly C, example: perf)
+- usr/ ： Code to generate an initramfs cpio archive
+- virt/ ：Virtualization support (KVM)
+- scripts/ ：Executables for kernel building and debugging
+
+
+## language
+
+- Implemented in C like all UNIX systems
+- A little Assembly is used too:
+  - CPU and machine initialization, exceptions
+  - Critical library routines.
+- No C++ used, see http://vger.kernel.org/lkml/#s15-3
+- All the code compiled with gcc. Many gcc specific extensions used in the kernel code, any ANSI C compiler will not compile the kernel, See https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/C-Extensions.html
+- Ongoing work to compile the kernel with the LLVM C compiler (Clang) too:  https://clangbuiltlinux.github.io/
+- There are also plans to create new code in Rust too: https://lwn.net/Articles/829858/
+
+## user space device drivers
+
+- Possibilities for user space device drivers:
+  - USB with libusb, https://libusb.info/
+  - SPI with spidev, [spi/spidev](https://www.kernel.org/doc/html/latest/spi/spidev.html)
+  - I2C with i2cdev, [i2c/dev-interface](https://www.kernel.org/doc/html/latest/i2c/dev-interface.html)
+  - Memory-mapped devices with UIO, including interrupt handling, driver-api/uio-howto
+
+- Certain classes of devices (printers, scanners, 2D/3D graphics acceleration) are
+typically handled partly in kernel space, partly in user space.
 

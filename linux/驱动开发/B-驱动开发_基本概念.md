@@ -1,8 +1,63 @@
 
 
+
+In Linux, a driver is always interfacing with framework and the bus infrastructure:
+
+```
+        ┌──────────────┐
+        │ Application  │
+        └──────▲───────┘   userspace
+    ───────────┼──────────────────────
+        ┌──────▼───────┐   kernel
+        │ system call  │
+        │  interface   │
+        └──────▲───────┘
+               │
+        ┌──────▼───────┐   a framework that allows the driver to expose the
+        │   framework  │   hardware features in a generic way
+        └──────┬───────┘
+     ┌─────────┼─────────────────┐
+     │  ┌──────▼───────┐         │
+     │  │    Driver    │         │
+     │  └──────▲───────┘         │
+     │         │                 │
+     │  ┌──────▼───────────┐  a bus infrastructure, part of the device model, to
+     │  │Bus infrastructure│  detect/communicate with the hardware.
+     │  └──────▲───────────┘     │
+     │         │                 │
+     └─────────┼─────────────────┘
+               │
+    ───────────┼──────────────────────
+        ┌──────▼───────┐
+        │ Hardware     │
+        └──────────────┘
+```
+
+
 # 2.基本概念
 
 内核下的`Documentation/CodingStyle` 描述了Linux 内核对编码风格的要求，内核下的`scripts/checkpatch.pl` 提供了1 个检查代码风格的脚本。
+
+### Non-discoverable/discoverable buses
+
+On embedded systems, devices are often not connected through a bus allowing
+enumeration, hotplugging, and providing unique identifiers for devices.
+
+For example, the devices on I2C buses or SPI buses, or the devices directly part of
+the system-on-chip.
+
+However, we still want all of these devices to be part of the device model.
+
+Such devices, instead of being dynamically detected, must be statically described
+in either:
+- The kernel source code
+- The Device Tree, a hardware description file used on some architectures.
+- BIOS ACPI tables (x86/PC architecture)
+
+Amongst the non-discoverable devices, a huge family are the devices that are directly part of a system-on-chip: UART controllers, Ethernet controllers, SPI or I2C controllers, graphic or audio devices, etc.
+
+In the Linux kernel, a special bus, called the platform bus has been created to handle such devices. The driver implements a struct platform_driver structure 
+
 
 ### 应用程序 与设备驱动
 
@@ -79,12 +134,22 @@ kobject_uevent_env(&dev->kobj, KOBJ_CHANGE, envp);
 
 ### sysfs与procfs
 
+The bus, device, drivers, etc. structures are internal to the kernel. The sysfs virtual filesystem offers a mechanism to export such information to user space.
+
 内核的结构化设备模型在用户空间就称为sysfs 。与procfs类似。sysfs 虚拟文件系统提供了一种比 proc 更为理想的访问内核数据的途径。新设计的内核机制应该尽量使用 sysfs 机制，而将 proc 保留给纯净的“进程文件系统”。
 
 sysfs 文件系统总是被挂载在 /sys 挂载点上。
 
 [使用 /sys 文件系统访问 Linux 内核](https://blog.csdn.net/halazi100/article/details/39961467)
 
+
+sysfs used for example by udev to provide automatic module loading, firmware loading, mounting of external media, etc.
+
+- sysfs is usually mounted in /sys
+- /sys/bus/ contains the list of buses
+- /sys/devices/ contains the list of devices
+- /sys/class enumerates devices by the framework they are registered to (net, input, block...), whatever bus they are connected to. Very useful!
+- Take your time to explore /sys on your workstation.
 
 
 ### DTS （device tree source）

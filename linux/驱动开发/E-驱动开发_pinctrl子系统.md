@@ -1,12 +1,46 @@
 
 
-# 7.pinctrl 子系统
+# pin muxing
+
+解决pins数量有限，但需要使用pin的hardware blocks太多的矛盾。The pins are multiplexed: they expose either the functionality of hardware block A or the functionality of hardware block B
+
+在linux中有pinctrl subsystem处理pin muxing，pinctrl要求在DT中描述pin muxing。 
+
+pinctrl subsystem diagram:
+```
+ ┌─────────────┐
+ │device driver├────────┐
+ └─────────────┘        │
+ ┌─────────────┐ request pin muxing
+ │device driver├────────┐
+ └─────────────┘        │
+ ┌─────────────┐        │
+ │device driver├────────┤             ┌─────────────────────────────┐
+ └─────────────┘        │             │ Soc-specific pinctrl driver │
+                        │             │ drivers/pinctrl/pinctrl-*.c │
+ ┌──────────────────────▼──────┐      │ ┌────────────────┐          │
+ │   pinctrl subsystem         │      │ │   pinctrl_desc │          │
+ │         core                │      │ │pinctrl_ops     │          │
+ │drivers/pinctrl/{core,pinconf◄──────┼─┤pinmux_ops      │          │
+ │  ,devicetree,pinmux}.c      │      │ │pinconf_ops     │          │
+ └─────────────────────────────┘      │ │                │          │
+                                      │ └────────────────┘   BSP    │
+                                      └────────▲────────────────────┘
+    ┌──────────────────┐                       │
+    │soc/board DT file ├───────────────────────┘
+    └──────────────────┘                               
+notes:
+   - pinctrl_ops: list pins and pin groups
+   - pinmux_ops: control muxing of pins
+   - pinconf_ops: control configuration of pins
+
+```
 
 注意： pinctrl的实现不许用我们在驱动里调用任何它提供的api，pinctrl api对于驱动工程师是透明的，对于驱动工程师只需要通过设备树文件就可以起到配置整个系统pin的目的。。pinctrl在代码层级只与bsp工程师有关。
 
 “other drivers” --------> gpio subsystem --------"pin controller dirver (BSP)" --- hardware layer
 
-## pinctrl DTS相关
+# pinctrl DTS相关
 
 "Documentation\devicetree\bindings\pinctrl\pinctrl-bindings.txt"
 
@@ -18,16 +52,49 @@ See pinmux-node.yaml
 
 See pincfg-node.yaml
 
-### A.1.定义Pin controller节点，client device节点
+
+
+## A.1.定义Pin controller节点
 
 - pin controller：前者提供服务：可以用它来复用引脚、配置引脚。
-
-- client device： 后者使用服务：声明自己要使用哪些引脚的哪些功能，怎么配置它们。 Pinctrl系统的客户，那就是使用Pinctrl系统的设备，使用引脚的设备。它在设备树里会被定义为一个节点，在节点里声明要用哪些引脚。
 
 Required properties: See the pin controller driver specific documentation
 
 Pin controller devices should contain the pin configuration nodes that client
 devices reference.
+
+## A.2.定义client device节点(consumer)
+
+
+- client device： 使用服务：声明自己要使用哪些引脚的哪些功能，怎么配置它们。 Pinctrl系统的客户，那就是使用Pinctrl系统的设备，使用引脚的设备。它在设备树里会被定义为一个节点，在节点里声明要用哪些引脚。
+
+Device Tree properties for consumer devices
+The devices that require certains pins to be muxed will use the `pinctrl-<x>` and
+`pinctrl-names` Device Tree properties.
+
+- The `pinctrl-<x>` properties link to a pin configuration for a given state of the device.
+- The `pinctrl-names` property associates a name to each state. The name default is special, and is automatically selected by a device driver, without having to make an explicit pinctrl function call.
+
+See Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt for details.
+
+```c++
+// Most common case (arch/arm/boot/dts/kirkwood.dtsi)
+i2c0: i2c@11000 {
+...
+pinctrl-0 = <&pmx_twsi0>;
+pinctrl-names = "default";
+...
+};
+
+// Case with multiple pin states (arch/arm/boot/dts/sama5d4.dtsi)
+i2c0: i2c@f8014000 {
+...
+pinctrl-names = "default", "gpio";
+pinctrl-0 = <&pinctrl_i2c0>;
+pinctrl-1 = <&pinctrl_i2c0_gpio>;
+...
+};
+```
 
 ```c++
 /{
@@ -90,12 +157,13 @@ devices reference.
 };
 ```
 
-### A.3.定义pin configuration节点
+## A.3.定义pin configuration节点
 见“\Documentation\devicetree\bindings\pinctrl\pinctrl-bindings.txt”中“Generic pin configuration node content”章节
 
 例子见上章节
 
-### A.4.解析pin configuration nodes
+## A.4.解析pin configuration nodes
+
 注意：kernel pinctrl subsystem并不关心configuration的具体内容是什么，它只提供pin configuration get/set的通用机制，至于get到的东西，以及set的东西，到底是什么，是pinctrl driver自己的事情。
 
 通常是在pinctrl probe中调用"`pinconf_generic_parse_dt_config`"来解析pin-configuration节点，比如出现了属性“bias-bus-hold”，那该api会解析它为字典值“PIN_CONFIG_BIAS_BUS_HOLD”。该类节点支持的参数见“\Documentation\devicetree\bindings\pinctrl\pinctrl-bindings.txt”中“Generic pin configuration node content”章节 
@@ -132,7 +200,7 @@ static const struct pinconf_generic_params dt_params[] = {
 };
 ```
 
-- 如果pin-configuration节点默认支持解析的参数不满足，希望新增其他参数,可以通过pinctrl_desc向内核传递，下面代码片段演示了例子：
+- 如果pin-configuration节点默认支持解析的参数不满足，希望新增其他参数,可以通过pinctrl_desc中的"custom_params"向内核传递，下面代码片段演示了例子：
 	```c++
 	...
 	enum lpc18xx_pin_config_param {
@@ -150,16 +218,17 @@ static const struct pinconf_generic_params dt_params[] = {
 	...
 	```
 
-### 2.2 pinctrl子系统设备树：
+## 2.2 pinctrl子系统设备树：
 
 ```c++
 device_node {
-                    ...
-                    pinctrl-names = "gpio_active", "gpio_sleep";    //分别对用pinctrl-0和pinctrl-1
-                    pinctrl-0 = <&gpio_active>;                               //引用
-                    pinctrl-1 = <&gpio_sleep>;                                //引用
-                    ...
-        };
+    ...
+    /*分别对用pinctrl-0和pinctrl-1*/
+    pinctrl-names = "gpio_active", "gpio_sleep";  
+    pinctrl-0 = <&gpio_active>;         //引用
+    pinctrl-1 = <&gpio_sleep>;          //引用
+    ...
+};
 ```
 
 ```c++
@@ -225,3 +294,9 @@ int pinmux_enable_setting(const struct pinctrl_setting *setting)
     ...
 }
 ```
+
+# 驱动工程师视角使用pinctrl子系统
+
+对于驱动工程师，只需要通过设备树文件就可以起到配置整个系统pin的目的。
+
+pinctrl的实现不许用我们在驱动里调用任何它提供的api，所有的pinctrl动作都是在通用内核代码里完成了，对于驱动工程师是透明的。驱动工程师只需要通过设备树文件就能掌控整个系统的pin管理
