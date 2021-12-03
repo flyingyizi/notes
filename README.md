@@ -23,3 +23,14 @@
 说到学习美国的黑人俚语和口音，练自己的听力和口语，那部电视剧也是首选。
 
 也有人说，这个城市才是“blue”音乐的发源地。
+
+
+[最后一个捞偏传人](http://www.borafuste.com/bqg/15509/4188373.html)
+
+## 监控
+
+电信定制版萤石
+
+[萤石C6HN电信定制版上手并连接群晖NAS](https://post.smzdm.com/p/a3d4573k/)
+
+[卸载IVMS4200](https://www.advanceduninstaller.com/iVMS-4200-Video-Wall-ccc92b55570eb8652759242cca3414b3-application.htm)
