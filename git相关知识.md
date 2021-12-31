@@ -161,3 +161,17 @@ git diff --cached <commitid>
 # 比较暂存区和某一个提交某一个文件的差别
 git diff --cached <commitid> <filepath>
 ```
+
+## 使用gitmodules
+
+子模块允许你将一个 Git 仓库作为另一个 Git 仓库的子目录。 它能让你将另一个仓库克隆到自己的项目中，同时还保持提交的独立。
+
+下面是一个典型的sub module的描述文件, 文件名固定是"`.gitmodules`". 该文件由“`git submodule add https://github.com/GPUOpen-LibrariesAndSDKs/Cauldron  xyz/efg`”生成。
+```
+[submodule "xyz/efg"]
+	path = xyz/efg
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/Cauldron
+```
+注意，该命令不仅增加/更新"`.gitmodules`"，并且会下载该submodule
+
+Clone submodules by running 'git submodule update --init --recursive'

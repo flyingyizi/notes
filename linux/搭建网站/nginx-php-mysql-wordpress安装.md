@@ -709,6 +709,8 @@ alias /var/lib/mysql/ -> /mnt/volume-nyc1-01/mysql/,
 
 下面开始修改“vsftpd.conf”配置文件。这个配置文件在什么地方，可以通过“dpkg -L vsftpd”的结果查看得到，也可以直接通过“locate vsftpd.conf”查找得到。
 
+VSFTPD所有支持配置参数可从 `man vsftpd.conf`得到
+
 ```sh
 #执行以下命令打开配置文件“vsftpd.conf”。
 $sudo vi /etc/vsftpd.conf
