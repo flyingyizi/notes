@@ -2,17 +2,30 @@ X包括Graphics，input，play，sound，show，setup，media objects等组件�
 
 因此Direct3D于OpenGL才是对等的比较。
 
+https://enjoyphysics.cn/Soft/NotXNA
+
+[IGP-DirectX12-Chinese DirectX12龙书](https://github.com/LinkClinton/IGP-DirectX12-Chinese), [related source code](https://github.com/d3dcoder/d3d12book)
+
 [tutorial](http://www.rastertek.com/)
 
 [Tutorial 1: Setting up DirectX 12 with Visual Studio](http://www.rastertek.com/dx12tut01.html)
 
 [DirectX 12 Programming Guide](https://docs.microsoft.com/en-us/windows/win32/direct3d12/directx-12-programming-guide)
 
+An introduction to writing a simple "Hello Triangle" DirectX 12 application. 
+
+  - https://alain.xyz/blog/raw-directx12
+  - https://github.com/alaingalvan/directx12-seed
+
 DirectX诊断工具： DxDiag
 
 DirectX功能查看器：DirectX Caps Viewer
 
 纹理转换工具：texconv.exe
+
+A "VBO" is just a vertex buffer, which in DirectX 11 is a ID3D12Buffer with a bind flag of D3D11_BIND_VERTEX_BUFFER which contains the vertex data.
+
+There is no direct equivalent to the OpenGL "Vertex Attribute Array". In DirectX 11, you just submit a distinct Draw for each group of like state settings (a.k.a material attribute).
 
 ## Setting up DirectX 12 with Visual Studio
 
@@ -89,3 +102,28 @@ The main features could be grouped in 4 categories:
 - **Commons & OS-specific code**
   - Swapchain - *handles resizing, fullscreen/windowed modes, etc.*
   - FrameworkWindows - *creates a window, processes windows message pump*
+
+
+
+## What are the difference between IDXGIFactory and other IDXGIFactory version?
+
+- IDXGIFactory1 adds DXGI 1.1 support to the application, which is available on Windows 7, Windows Server 2008 R2, and as an update to Windows Vista with Service Pack 2 (SP2) and Windows Server 2008. DXGI 1.1 provides new functionality like Synchronized Shared Surfaces Support, BGRA etc.
+
+- IDXGIFactory2 adds DXGI 1.2 support and includes methods to create a newer version swap chain IDXGISwapChain1 with more features than IDXGISwapChain and to monitor stereoscopic 3D capabilities.
+
+If you require DirectX 12, use IDXGIFactory4
+
+## cauldron 记录
+
+CAULDRON_DX12::Device::OnCreate
+
+1. factory是 DirectX 12 API 的入口点，可让您找到可用于执行 DirectX 12 命令的adapter。
+    创建factory： CreateDXGIFactory2 创建pFactory
+2. adpater提供在给定的DirectX装置的物理属性的信息。您可以查询您当前的 GPU、它有多少内存等。
+    adapter就是我们平时常说的显卡
+    创建adapter：pFactory->EnumAdapters(0, &m_pAdapter) 
+3. device是您的DirectX 12 API主入口点，让您使用API的内部零件。这是访问重要数据结构和功能（例如管道、着色器 blob、渲染状态、资源障碍等）的关键。 
+   创建device：  D3D12CreateDevice(m_pAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pDevice))
+4. 命令队列允许您提交绘制调用，被称为组命令列出，一起为了执行，从而允许GPU保持忙碌并优化其执行速度。命令队列的类型见D3D12_COMMAND_LIST_TYPE
+   创建commandQueue： m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pDirectQueue))
+

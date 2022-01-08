@@ -1,5 +1,7 @@
 
-https://openglbook.com/
+https://openglbook.com/ 
+
+[LearnOpenGL教程英文版](https://learnopengl.com/) [中文版](https://learnopengl-cn.github.io/)
 
 https://learnopengl-cn.github.io/01%20Getting%20started/01%20OpenGL/
 
