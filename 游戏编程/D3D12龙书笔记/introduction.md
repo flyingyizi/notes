@@ -3,6 +3,8 @@ Direct3D 12 起始平台为win10， 特别的，对win7支持，见下面“on w
 
 ## 资料链接
 
+[ntroduction to 3D Game Programming with DirectX 12书籍下载](https://enjoyphysics.cn/Soft/Program)
+
 [Direct3D 12 编程指南 ](https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/directx-12-programming-guide?redirectedfrom=MSDN)   
 
 [Direct3D 12 sample programs](https://github.com/Microsoft/DirectX-Graphics-Samples)
