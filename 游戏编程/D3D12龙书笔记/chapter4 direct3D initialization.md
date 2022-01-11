@@ -65,6 +65,25 @@ void D3DApp::LogAdapterOutputs(IDXGIAdapter* adapter)
     }
 }
 ```
+
+## 概念
+
+```
+
+device->CreateCommandQueue 
+  |---->CreateCommandAllocator
+  |---->device->CreateFence
+
+
+```
+- CommandQueue: A Command Queue allows you to submit groups of draw calls, known as command lists, together to execute in order, thus allowing a GPU to stay busy and optimize its execution speed.
+
+- CommandAllocator: A Command Allocator allows you to create command lists where you can define the functions you want the GPU to execute.
+
+- Fence: A Fence lets your program know when certain tasks have been executed by the GPU, be it uploads to GPU exclusive memory, or when you've finished presenting to the screen.
+
+在SwapChain中，为了渲染图像，硬件预制了前置缓存和后置缓存。为了保证渲染效率，采用指针不断交替指向前置后置就可以了。这个时候指针所指向的对象，就是Render Target
+
 ## Resources and Descriptors
 
 Descriptors have a type, and the type implies how the resource will be used. The types
