@@ -80,6 +80,15 @@ We use both interchangeably in this book; for example, constant buffer view and 
 
 descriptor heap是个descriptor array。存储同类型的descriptors
 
+### Committed Resources
+使用ID3D12Device::CreateCommittedResource来创建committed resource。这个方法会同时创建资源和implicit heap，后者非常大足以包含整个资源。资源同时也会映射到heap上。
+
+
+
+
+### Placed Resource
+placed resource位于一个heap中，但它还有另外一个属性叫偏移量。不过在创建resource之前需要先用ID3D12Device::CreateHeap来创建heap。然后用ID3D12Device::CreatePlacedResouce来在heap里创建资源。
+
 
 
 ## The Command Queue and Command Lists
