@@ -86,6 +86,8 @@ device->CreateCommandQueue
 
 ## Resources and Descriptors
 
+渲染目标视图( RTV )、着色器资源视图( SRV )、无序访问视图( UAV ) 或常量缓冲区视图( CBV)
+
 Descriptors have a type, and the type implies how the resource will be used. The types
 of descriptors we use in this book are:
 - 1. CBV/SRV/UAV descriptors describe constant buffers, shader resources and unordered access view resources.
@@ -263,7 +265,7 @@ void CreateDevice()
 		D3D_FEATURE_LEVEL_11_0,
 		IID_PPV_ARGS(&md3dDevice));
 
-	// Fallback to WARP device.
+	// Fallback to WARP(Windows Advanced Rasterizer) device.
 	if(FAILED(hardwareResult))
 	{
 		ComPtr<IDXGIAdapter> pWarpAdapter;
@@ -474,7 +476,10 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 
 ### CreateRTV
 
-首先在heap上创建RTV。具体过程是，先从RTV堆中拿到首个RTV句柄，然后获得存于交换链中的RT资源，
+在D3D12中，RTV 存储在描述符堆(ID3D12DescriptorHeap)中。
+![](https://www.3dgep.com/wp-content/uploads/2017/11/Descriptor-Heaps.png)
+
+创建RTV具体过程是，先从RTV堆中拿到首个RTV句柄，然后获得存于交换链中的RT资源，
 最后创建RTV将RT资源和RTV句柄联系起来，并在最后根据RTV大小做了在堆中的地址偏移。
 
 下面的例子创建了2个RTV描述符，放在swapChainBuffer
@@ -488,7 +493,7 @@ void CreateRTV()
     ComPtr<ID3D12Resource> swapChainBuffer[2];
     for (int i = 0; i < 2; i++)
     {
-        //获得存于交换链中的后台缓冲区资源
+        //获得存于交换链中的查询到交换链的back buffe指针
         swapChain->GetBuffer(i, IID_PPV_ARGS(swapChainBuffer[i].GetAddressOf()));
         //创建RTV
         d3dDevice->CreateRenderTargetView(
@@ -500,6 +505,8 @@ void CreateRTV()
     }
 }
 ```
+
+ render target view (RTV)是用来描述swap chain中的back buffer textures. 对GPU内存中的纹理资源， RTV记录了纹理资源的location, dimensions (width and height), format of the texture.
 
 
 ### CreateDSV

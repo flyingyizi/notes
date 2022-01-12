@@ -4,6 +4,8 @@ X包括Graphics，input，play，sound，show，setup，media objects等组件�
 
 https://enjoyphysics.cn/Soft/NotXNA
 
+[Learning DirectX 12](https://www.3dgep.com/learning-directx-12-1/)
+
 [IGP-DirectX12-Chinese DirectX12龙书](https://github.com/LinkClinton/IGP-DirectX12-Chinese), [related source code](https://github.com/d3dcoder/d3d12book)
 
 [tutorial](http://www.rastertek.com/)
@@ -126,4 +128,5 @@ CAULDRON_DX12::Device::OnCreate
    创建device：  D3D12CreateDevice(m_pAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pDevice))
 4. 命令队列允许您提交绘制调用，被称为组命令列出，一起为了执行，从而允许GPU保持忙碌并优化其执行速度。命令队列的类型见D3D12_COMMAND_LIST_TYPE
    创建commandQueue： m_pDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_pDirectQueue))
+
 
