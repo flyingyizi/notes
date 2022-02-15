@@ -3,6 +3,8 @@
 
 [Learning DirectX 12](https://www.3dgep.com/learning-directx-12-1/)
 
+ (Windows Advanced Rasterization Platform – WARP) or not. The software rasterizer allows the graphics programmer to access the full set of advanced rendering features that may not be available in the hardware (for example, when running on older GPUs). The WARP device can also be used to verify the results of a rendering technique if the quality of the vendor supplied display driver is in question.
+ 
 # DirectX 12 组件
 
 DirectX SDK 实际上是应用程序编程接口 (API) 的集合。

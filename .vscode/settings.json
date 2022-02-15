@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "C:\\tools\\Anaconda3\\envs\\neural\\python.exe",
     "files.associations": {
         "io.h": "c",
         "arduino.h": "c",

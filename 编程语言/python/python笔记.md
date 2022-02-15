@@ -227,11 +227,11 @@ Python3改变了"除"运算符行为。细节请看网站.
 #创建一个存放虚拟环境的目录：
 $mkdir python-env
 $cd python-env
-#创建一个虚拟环境：
-$pyvenv env_A
+#创建一个虚拟环境： (在win下应执行python -m venv env_A)
+$pyvenv env_A  
 #上面的命令将会导致生成"python-env/env_A"目录，里面有bin，include，lib...等目录，以及pyvenv.cfg...等文件
 
-#使用创建的虚拟环境env_A：
+#使用创建的虚拟环境env_A：(在win下应执行  env_A\Scripts\activate.bat)
 $source env_A/bin/activate
 ```
 

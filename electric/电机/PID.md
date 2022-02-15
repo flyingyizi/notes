@@ -1,3 +1,5 @@
+
+
 ## 积分离散化处理
 
 
@@ -28,6 +30,8 @@ $$y(x_{n+1}) = y(x_n) +hy'(x_n)$$
 
 
 # PID
+
+[PID Control Library](https://github.com/geekfactory/PID)
 
 ## 公式结论
 
