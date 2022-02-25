@@ -40,6 +40,9 @@ fence用于同步发布到command queue的commands。它记录了向fence发送�
 
 command list被用于发布copy, compute (dispatch), or draw commands. 
 A Command List is used to issue copy, compute (dispatch), or draw commands. In DirectX 12 commands issued to the command list are not executed immediately like they are with the DirectX 11 immediate context. All command lists in DirectX 12 are deferred; that is, the commands in a command list are only run on the GPU after they have been executed on a command queue.
+- D3D12_COMMAND_LIST_TYPE_DIRECT：命令队列可用于执行绘制、计算和复制命令。这是最通用的命令队列类型，将在大多数情况下使用。
+- D3D12_COMMAND_LIST_TYPE_COMPUTE：命令队列可用于执行计算和复制命令。
+- D3D12_COMMAND_LIST_TYPE_COPY：命令队列可用于执行复制命令。
 
 通常需要单个命令列表来使用单个线程记录 GPU 命令。通常使用主线程记录所有 GPU 命令，在这种情况下只定义了一个命令列表。
 
