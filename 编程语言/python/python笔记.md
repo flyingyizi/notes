@@ -347,7 +347,18 @@ conda search beautifulsoup4
 
 sytax:  `L[start:end:step] # start through not past stop, by step`
 
+一个完整的切片表达式包含两个“:”，用于分隔三个参数(start_index、end_index、step)。当只有一个“:”时，默认第三个参数step=1；当一个“:”也没有时，start_index=end_index，表示切取start_index指定的那个元素。
+
+   - step：正负数均可，其绝对值大小决定了切取数据时的‘‘步长”，而正负号决定了“切取方向”，正表示“从左往右”取值，负表示“从右往左”取值。当step省略时，默认为1，即从左往右以步长1取值。“切取方向非常重要！step的正负影响了start/end应该填写什么样的值才有意义。
+
+   - start_index：表示起始索引（包含该索引对应值）；该参数省略时，表示从对象“端点”开始取值，至于是从“起点”还是从“终点”开始，则由step参数的正负决定，step为正从“起点”开始，为负从“终点”开始。
+
+   - end_index：表示终止索引（不包含该索引对应值）；该参数省略时，表示一直取到数据“端点”，至于是到“起点”还是到“终点”，同样由step参数的正负决定，step为正时直到“终点”，为负时直到“起点”。
+
+
 或   ： `L[slice(start, stop, step)]`
+
+注意start/end的方向应与step指定的方向一致，否则两者矛盾会导致取不到数据，具体见下面的例子说明
 
 工厂函数： slice
 
@@ -371,6 +382,14 @@ a[::-1]    # all items in the array, reversed
 a[1::-1]   # the first two items, reversed
 a[:-3:-1]  # the last two items, reversed
 a[-3::-1]  # everything except the last two items, reversed
+```
+
+例子：
+```python
+>>> a=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>>a[1:6:-1]
+>>> [] #输出为空列表，说明没取到数据。step=-1，决定了从右往左取值，
+       #而start_index=1到end_index=6决定了从左往右取值，两者矛盾，所以为空。而类似a[6:1:-1]是有意义的
 ```
 
 切片最好采用命名方式
@@ -466,6 +485,16 @@ sb = bytes(s, encoding = "utf8")  #或sb = str.encode(s)
 # bytes to str
 bs = str(b, encoding = "utf8")    #或bs = bytes.decode(b)
 ```
+
+### 2.1.7 “is”和“==”的区别
+
+   - ==：判断两个量的“值”是否相同
+    基本语法：A == B
+    返回bool值，当A和B的值相同时，返回True，否则返回False。
+
+   - is：判断两个量的“内存地址”是否相同
+    基本语法：A is B（即判断id(A)是否等于id(B)）
+    返回bool值，当A和B的内存地址相同时，返回True，否则返回False。
 
 
 ### for控制形式
@@ -606,11 +635,38 @@ isinstance('abc', Iterable) # str是否可迭代
 
 ## 2.2.函数
 
-### 2.2.1-python3 引入注解
+### 2.2.1-python3 引入静态类型注解
 
 ```python
 a:str = "abc"
 def xyz(x:int) -> int:
+```
+
+使用list、tuple复杂类型需要引用typing中的类型
+```python
+from typing import List
+
+# 参数names为list类型并且元素都是str类型
+# 返回为None
+def greet_all(names: List[str]) -> None:
+    for name in names:
+        print('Hello ' + name)
+
+names = ["Alice", "Bob", "Charlie"]
+ages = [10, 20, 30]
+
+greet_all(names)   # Ok!
+greet_all(ages)    #出错了 Error due to incompatible types 
+```
+
+```python
+from typing import Dict
+
+# Dict[int, str] int代表key类型， str代表val类型
+def test(t: Dict[int, str]) -> Dict:
+    return t
+
+test({1: '234'}) # {1: '234'}
 ```
 
 你可以通过 mypy 库来检验最终代码是否符合注解。
