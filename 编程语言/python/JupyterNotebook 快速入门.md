@@ -1,5 +1,30 @@
 
-## 简单使用
+# install 
+
+## option1： 安装ipython notebook
+
+```shell
+pip install ipython
+pip install “ipython[notebook]”
+ipython notebook #浏览器会打开jupyter页面
+```
+或
+```
+pip install jupyter
+jupyter notebook
+```
+
+## option2: 使用anaconda
+
+安装 Anaconda，从开始菜单中打开 jupyter notebook 的快捷方式
+
+或打开 Anaconda Prompt（CMD，PowerShell 等均可），执行"`jupyter notebook`"命令
+
+## option3: NTERACT，所有ipynb文件直接双击打开。
+
+https://github.com/nteract/nteract
+
+# 简单使用
 
 ```shell
 jupyter notebook
