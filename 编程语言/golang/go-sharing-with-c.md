@@ -266,3 +266,7 @@ hhlp@hhlp:~$
 LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LIBRARY_PATH 
 export LIBRARY_PATH
 ```
+
+# call Rust code from Golang
+
+[call Rust code from Golang](https://github.com/mediremi/rust-plus-golang)。 This repository shows how, by combining cgo and Rust's FFI capabilities, we can call Rust code from Golang.

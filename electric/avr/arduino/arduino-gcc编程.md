@@ -5,6 +5,7 @@
 
 建议仔细看“doc\avr-libc\avr-libc-user-manual\group__demo__project.html”
 
+
 - blink例子
 
 ```shell
@@ -21,21 +22,6 @@ c:\home>C:\prog\Arduino\hardware\tools\avr\bin\avr-objcopy.exe  -j .text -j .dat
 c:\home>
 ```
 
-## AVR-GCC 8.3.0 for Windows 32 and 64 bit 
-
-[AVR-GCC 8.3.0 for Windows 32 and 64 bit](http://blog.zakkemble.net/avr-gcc-builds/)
-
-### upgrading the Arduino IDE
-
-Upgrading the Arduino IDE is pretty easy, though there could be some incompatibilities with certain libraries. I’ve only tested this with Arduino 1.8.2.
-
-- Download and extract one of the downloads above
-- Navigate to your Arduino IDE folder
-- Go to hardware/tools
-- Move the avr folder somewhere else, like to your desktop (renaming the folder won’t work, Arduino has some auto-detect thing which sometimes gets confused)
-- Move the extracted folder from earlier to the tools folder and rename it to avr
-- Copy the builtin_tools_versions.txt file and etc folder from the old avr folder to the new one
-- Done! Open up the Arduino IDE, load up the Blink example, upload it to your Arduino and make sure the LED is blinking!
 
 
 ## vscode avr-gcc环境
@@ -616,3 +602,35 @@ $(shell mkdir $(OBJDIR) 2>/dev/null)
 build elf hex eep lss sym coff extcoff \
 clean clean_list program debug gdb-config
 ```
+
+
+# 附 工具链
+
+## AVR-GCC for linux 
+
+如果是在linux环境，直接通过apt安装即可
+```shell
+#C库的手册在 /usr/share/doc/avr-libc/avr-libc-user-manual/index.html 。
+$ apt-get install gcc-avr avr-libc avrdude
+```
+
+
+## AVR-GCC for Windows 32 and 64 bit 
+
+如果在windows环境，安装arduino IDE后就安装了avr-gcc，但avr-libc需要自己去下载安装，因此建议使用下面的发行版：
+
+[AVR-GCC 8.3.0 for Windows 32 and 64 bit](http://blog.zakkemble.net/avr-gcc-builds/)
+
+该发行版中包含了Binutils, AVR-LibC, AVRDUDE, Make and GDB. 因此建议如果在windows环境下使用该工具链
+
+### upgrading the Arduino IDE
+
+Upgrading the Arduino IDE is pretty easy, though there could be some incompatibilities with certain libraries. I’ve only tested this with Arduino 1.8.2.
+
+- Download and extract one of the downloads above
+- Navigate to your Arduino IDE folder
+- Go to hardware/tools
+- Move the avr folder somewhere else, like to your desktop (renaming the folder won’t work, Arduino has some auto-detect thing which sometimes gets confused)
+- Move the extracted folder from earlier to the tools folder and rename it to avr
+- Copy the builtin_tools_versions.txt file and etc folder from the old avr folder to the new one
+- Done! Open up the Arduino IDE, load up the Blink example, upload it to your Arduino and make sure the LED is blinking!

@@ -343,7 +343,7 @@ conda search beautifulsoup4
 
 涉及到使用`len`取长度的，需要记住它不支持`None`, 因此典型使用常常是 `if o and len(o) >= xx `
 
-### 2.1.1-取切片
+### 2.1.1-取切片slice
 
 sytax:  `L[start:end:step] # start through not past stop, by step`
 
@@ -402,7 +402,7 @@ PRICE = slice(11, 17)
 cost = int(record[SHARES]) * float(record[PRICE])
 ```
 
-###  2.1.3-列表
+###  2.1.3-列表list
 
     `list:  []`，工厂函数list
 
@@ -422,7 +422,7 @@ cost = int(record[SHARES]) * float(record[PRICE])
     (<class 'tuple'>, (['a', 'b', 'c', 'd'], 'a', 'd'))
     ```
 
-### 2.1.2-元组
+### 2.1.2-元组tuple
 
     tuple: (,)  是不可变的 。工厂函数tuple
 
@@ -436,11 +436,11 @@ cost = int(record[SHARES]) * float(record[PRICE])
     - `L[:10:2]`代表前10个元素每2个取1个；
     - `L[::5]`代表所有数，每5个取一个：
 
-### 2.1.4-集合
+### 2.1.4-集合set
 
     set: {}
 
-### 2.1.5-字典
+### 2.1.5-字典dict
 
     dict :{x:y}  工厂函数dict
 
@@ -457,18 +457,6 @@ cost = int(record[SHARES]) * float(record[PRICE])
 
 - isinstance () 它允许检查某个特定标识符是否包含某个特定类型的数据
 
-### range
-
-语法是`range(start, stop[, step]) -> range object`
-
-例如:
-
-```python
-In [60]: list(range(1,4))
-Out[60]: [1, 2, 3]
-```
-
-- range(4)生成0，1，2，3这四个数字
 
 ### 2.1.6-str与bytes
 
@@ -495,6 +483,19 @@ bs = str(b, encoding = "utf8")    #或bs = bytes.decode(b)
    - is：判断两个量的“内存地址”是否相同
     基本语法：A is B（即判断id(A)是否等于id(B)）
     返回bool值，当A和B的内存地址相同时，返回True，否则返回False。
+
+### 2.1.8 range
+
+语法是`range(start, stop[, step]) -> range object`
+
+例如:
+
+```python
+In [60]: list(range(1,4))
+Out[60]: [1, 2, 3]
+```
+
+- range(4)生成0，1，2，3这四个数字
 
 
 ### for控制形式

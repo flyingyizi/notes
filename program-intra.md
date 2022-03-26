@@ -24,6 +24,7 @@
     - [Could not find a configuration file for package](#could-not-find-a-configuration-file-for-package)
     - [opencv](#opencv)
   - [atuomake makefile](#atuomake-makefile)
+  - [makefile 调试](#makefile-调试)
 - [c and cplusplus 编程语言](#c-and-cplusplus-编程语言)
   - [获取软件源码](#获取软件源码)
   - [查找缺失文件](#查找缺失文件)
@@ -685,6 +686,10 @@ AC_OUTPUT
    Unescaped left brace in regex is deprecated, passed through in regex; marked by <-- HERE in m/\${ <-- HERE [^\}]*}/ at /usr/bin/autoscan line 361.
 
    将361行的左大括号“}”删掉即可，这时因为新版的perl不在支持左大括号的使用，删掉大括号，问题解决。
+
+## makefile 调试
+
+调试Makefile的工具——[remake](http://bashdb.sourceforge.net/remake/)
 
   
 # c and cplusplus 编程语言

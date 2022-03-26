@@ -1,12 +1,38 @@
-# USB ISP
+# 1.最小系统
+
+[参考](https://www.geek-workshop.com/thread-1647-1-1.html)，主要是下载isp口，晶振，电源等
+
+例如使用USBTINYISP下载器，ICSP接口将会是如下的连线：
+```
+           ┌──────────┐
+   MISO    │          │    vcc(5v)
+  ──────── │1        2├──────────
+   SCK     │          │    MOSI
+  ──────── │3        4├───────────
+   RESET   │          │    GND
+  ──────── │5        6├──────────
+           └──────────┘
+```
+
+注意，有两种方式可供上传到Arduino：
+
+- ICSP(In-Circuit Serial Programming)
+- 使用Bootloader，消耗2KB的程序存储器。如果使用bootload，则应确保“熔丝的BOOTRST=0，如果不是，Bootloader在复位后不会启动。”。BOOTRST熔丝位解释: 复位入口选择 1 1 程序从0x0000 地址开始执行0
+程序从引导区确定的入口地址开始执行
+
+实际上，第一个选项也并没有绝对优势。除非你只需要一个USB线，而不是两个。
+
+# 2.USB ISP
 
 硬件是淘宝买的[51+AVR AVR转接板 ISP下载线 isp ](https://detail.tmall.com/item.htm?id=40116348521&spm=a1z09.2.0.0.4c072e8dhDMo6O&_u=31861sba041),使用软件是progisp，是免驱动的。
 
-# usbtinyISP
+# 3.usbtinyISP
 
 硬件是淘宝购买的USBtinyisp v2.0,  软件使用avrdude, 也可以通过gui来操作，[AVRDUDESS – A GUI for AVRDUDE ](http://blog.zakkemble.net/avrdudess-a-gui-for-avrdude/)
 
 驱动是C:\download\AVR单片机学习资料打包共享\usbtinyisp驱动资料\usbtinyisp，也可以从https://learn.adafruit.com/usbtinyisp/download 处下载。
+
+注：如果使用Arduino GUI，需要向avr下载arduino bootloader：[图解如何使用 USBTinyIsp](https://www.arduino.cn/thread-21619-1-1.html)中说明了如何下载bootloader
 
 ## 使用usbtiny 记录
 
@@ -156,3 +182,8 @@ program: $(TARGET).hex $(TARGET).eep
 
 ```
 
+# 4.熔丝位设置
+
+[AVR® Fuse Calculator](https://www.engbedded.com/fusecalc/)网站提供了可视化的帮助手段让我们获得可以通过avrdude去设置熔丝位的值。
+
+再次推荐[AVRDUDESS – A GUI for AVRDUDE ](http://blog.zakkemble.net/avrdudess-a-gui-for-avrdude/)，有它上面的AVR® Fuse Calculator网址都不用记了，它里面会有提示。

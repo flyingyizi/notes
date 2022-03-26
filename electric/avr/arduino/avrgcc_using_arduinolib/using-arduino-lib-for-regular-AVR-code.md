@@ -41,3 +41,9 @@
 }
 
 ```
+
+# arduino cmake
+
+对使用arduino硬件但不想使用arduino IDE的情况，还有一个选择，见：
+
+https://github.com/queezythegreat/arduino-cmake
