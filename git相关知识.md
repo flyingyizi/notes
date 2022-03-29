@@ -54,6 +54,16 @@ git config --global user.email
 git init
 ```
 
+### 创建原创仓库
+
+echo "# rust_embed_scratch" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/<name>/<repository>.git
+git push -u origin main
+
 ### 提交本地代码
 
 ```sh

@@ -196,6 +196,55 @@ $ qemu-system-arm -M vexpress-a9 -m 512M -kernel arch/arm/boot/zImage -dtb arch/
 
 在另外的console(即非启动虚拟机的console)中执行"`$ killall qemu-system-arm`"
 
+## 嵌入式开发时建议
+在嵌入式开发时，往往需要直接debug，所以上面开串口通信的方式不太合适，下面演示了对LM3S6965 板子直接开通gdb debug的操作：
+
+Testing it
+This program is a valid LM3S6965 program; we can execute it in a virtual microcontroller (QEMU) to test it out.
+
+在一个终端开启
+```shell
+$ # this program will block
+$ qemu-system-arm \
+      -cpu cortex-m3 \
+      -machine lm3s6965evb \
+      -gdb tcp::3333 \
+      -S \
+      -nographic \
+      -kernel target/thumbv7m-none-eabi/debug/app
+```
+
+在另外一个终端调试
+```shell
+$ # on a different terminal
+$ arm-none-eabi-gdb -q target/thumbv7m-none-eabi/debug/app
+Reading symbols from target/thumbv7m-none-eabi/debug/app...done.
+
+(gdb) target remote :3333
+Remote debugging using :3333
+Reset () at src/main.rs:8
+8       pub unsafe extern "C" fn Reset() -> ! {
+
+(gdb) # the SP has the initial value we programmed in the vector table
+(gdb) print/x $sp
+$1 = 0x20010000
+
+(gdb) step
+9           let _x = 42;
+
+(gdb) step
+12          loop {}
+
+(gdb) # next we inspect the stack variable `_x`
+(gdb) print _x
+$2 = 42
+
+(gdb) print &_x
+$3 = (i32 *) 0x2000fffc
+
+(gdb) quit
+```
+
 
 # 杂项
 

@@ -59,9 +59,18 @@ c:\home>
 
 因为`#include <avr/io.h>`中是通过定义不同的mcu引入的，为了查看代码所以任意定义了个`__AVR_ATmega328P__`.
 
-## makefile 调试
+## 调试
 
-调试Makefile的工具——[remake](http://bashdb.sourceforge.net/remake/)
+通常调试都采用串口输出方式，如果需要类似单步那就需要使用硬件（avarice）或软件模拟（simulavr,simavr）了。
+
+从[avr simulavr homepage](https://www.nongnu.org/simulavr/)看window version已经很久没有更新过了，例如atmega328p不支持。在linux环境下可以使用"apt-get install simavr"，看它支持的模拟列表还是挺多的
+
+[simavr homepage](https://github.com/buserror/simavr),
+[Debugging-AVR-code-in-Linux-with-simavr](http://www.instructables.com/id/Debugging-AVR-code-in-Linux-with-simavr/),[simavr get started](http://fabricesalvaire.github.io/simavr/gitorious-get-started.html)
+
+
+AVaRICE is a program which interfaces the GNU Debugger GDB with the AVR JTAG ICE available from Atmel. [AVR-GDB_and_AVaRICE_Guide](http://winavr.sourceforge.net/AVR-GDB_and_AVaRICE_Guide.pdf)
+
 
 
 ## AVRGCC通用Makefile（带注释）

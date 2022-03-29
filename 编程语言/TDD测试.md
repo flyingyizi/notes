@@ -484,49 +484,4 @@ clean:
 # debug
 
 
-## openocd
-
-https://stackoverflow.com/questions/42612329/executing-code-from-ram-in-stm32
-
-[OpenOCD User’s Guide](http://openocd.org/doc-release/html/index.html#SEC_Contents)
-
-```shell
-$openocd -f stlink-v2-1.cfg -f stm32f4x.cfg
-$C:\Users\xxxxx\.vscode\extensions\iotlink.iot-studio-1.1.0\bin\openocd>bin\openocd.exe -f interface/stlink-v2-1.cfg -f target/stm32f4x.cfg
-xPack OpenOCD, 32-bit Open On-Chip Debugger 0.10.0+dev (2019-07-17-07:34)
-Licensed under GNU GPL v2
-For bug reports, read
-        http://openocd.org/doc/doxygen/bugs.html
-WARNING: interface/stlink-v2-1.cfg is deprecated, please switch to interface/stlink.cfg
-Info : auto-selecting first available session transport "hla_swd". To override use 'transport select <transport>'.
-Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
-Info : Listening on port 6666 for tcl connections
-Info : Listening on port 4444 for telnet connections
-Info : clock speed 2000 kHz
-Info : STLINK V2J37M26 (API v2) VID:PID 0483:374B
-Info : Target voltage: 3.258383
-Info : stm32f4x.cpu: hardware has 6 breakpoints, 4 watchpoints
-Info : Listening on port 3333 for gdb connections
-
-
-
-# 在另一个窗口
-
-telnet localhost 4444
-
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-Open On-Chip Debugger
-> 
-> resume 0 #从0地址开始运行
-> halt #暂停cpu
-> mdw 0 12 #从0地址读12个数（32位）
->mww 地址 写的数 #向某地址写数（32位）
->reg #查看寄存器
->flash write_image erase /home/liuyang/Projects/Nuttx/nuttx/nuttx.hex #下载
-```
-
-
-
 

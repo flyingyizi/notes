@@ -90,7 +90,6 @@ TODO 轴的公差配合  H/K?  轴的粗糙度标注
 
 # 钣金
 
-[手工制作钣金折弯器](https://haokan.baidu.com/v?pd=wisenatural&vid=3156855818125321691)
 
 ## 钣金模块命令
 

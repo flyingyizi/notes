@@ -183,6 +183,11 @@ program: $(TARGET).hex $(TARGET).eep
 ```
 
 # 4.熔丝位设置
+熔丝位是ATMEL公司AVR单片机比较独到的特征。在每一种型号的AVR单片机内部都有一些特定含义的熔丝位，其特性表现为多次擦写的E²PROM。用户通过配置（编程）这些熔丝位，可以固定地设置AVR的一些特性，参数以及I/O配置等。
+
+特别注意：LB(lock bits)中的LB2/LB1两位不要设置为“10、或00”，这样就加密了。这两位是加密位设置，一旦加密就不能通过任何方式读取芯片内部的flash和eeprom数据。
+
+在AVR的器件手册中，对熔丝位使用已编程（Programmed）和未编程（Unprogrammed）定义熔丝位的状态，“Unprogrammed”表示熔丝状态为“1”（禁止）；“Programmed”表示熔丝状态为“0”（允许）。因此，配置熔丝位的过程实际上是“配置熔丝位成为未编程状态“1”或成为已编程状态“0””。
 
 [AVR® Fuse Calculator](https://www.engbedded.com/fusecalc/)网站提供了可视化的帮助手段让我们获得可以通过avrdude去设置熔丝位的值。
 

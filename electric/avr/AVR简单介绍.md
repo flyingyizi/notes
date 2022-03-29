@@ -3,6 +3,7 @@
 - [Make: AVR Programming book source code](https://github.com/hexagon5un/AVR-Programming)
 
 - AVR单片机GCC程序设计.pdf
+- [The AVR-Rust Guidebook](https://book.avr-rust.com/)
 
 ATMega16 也是个用量较多的器件，它的引脚兼容AT90S8535，可以取代产品中的AT90S8535芯片.AT90S8515的引脚则兼容51单片机，在设计中很容易的替代51单片机
 
@@ -106,3 +107,7 @@ void sei(void) 和 void cli(void)。它们是经常用到的。
 ## Quantum Mechanical Keyboard Firmware
 
 [Quantum Mechanical Keyboard Firmware](https://github.com/qmk/qmk_firmware). This is a keyboard firmware based on the tmk_keyboard firmware with some useful features for Atmel AVR and ARM controllers, and more specifically, the OLKB product line, the ErgoDox EZ keyboard, and the Clueboard product line. document see  [the official documentation on docs.qmk.fm](https://docs.qmk.fm/)
+
+## avr-hal
+
+[avr-hal](https://github.com/Rahix/avr-hal) Hardware Abstraction Layer for AVR microcontrollers and common boards (for example Arduino). Based on the avr-device crate.
