@@ -4,7 +4,7 @@
 
 [rust-raspberrypi-OS-tutorials](https://github.com/rust-embedded/rust-raspberrypi-OS-tutorials)
 
-[Embedded Rust resource](https://github.com/rust-embedded/awesome-embedded-rust)
+[Curated list of resources for Embedded and Low-level development in the Rust programming language](https://github.com/rust-embedded/awesome-embedded-rust)
 
 # 0.预准备
 
