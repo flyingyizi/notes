@@ -3,6 +3,14 @@
 
 [第32章 TIM—高级定时器—零死角玩转STM32-F429系列](https://www.cnblogs.com/firege/p/5805894.html)
 
+SMT32F1系列共有8个定时器：
+
+高级定时器（TIM1、TIM8）；通用定时器（TIM2、TIM3、TIM4、TIM5）；基本定时器（TIM6、TIM7）。
+
+SMT32F4系列共有15个定时器：
+
+高级定时器（TIM1、TIM8）；通用定时器（TIM2、TIM3、TIM4、TIM5、TIM9~TIM14）；基本定时器（TIM6、TIM7）。
+
 # code sample
 
 ## Timer time-base configuration

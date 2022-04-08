@@ -1,10 +1,18 @@
-[Rust 嵌入式教程](https://docs.rust-embedded.org/)
+[一个实际的rust embed项目](git clone https://github.com/petrohi/allbot )
 
-[rust-embedded f3discovery](https://docs.rust-embedded.org/discovery/f3discovery/index.html)
+[experiments with Rust + USB, Kevin making a touchpad.](https://github.com/lynaghk/touchtron)
+
+[Rust on STM32: Getting started](https://jonathanklimt.de/electronics/programming/embedded-rust/rust-on-stm32-2/)
+
+[The Embedded Rust Book](https://docs.rust-embedded.org/), [The Embedded Rust Book github](https://github.com/rust-embedded/book);  [The Embedded Rust Book中文](https://logiase.github.io/The-Embedded-Rust-Book-CN/).
+
+[rust-embedded f3discovery](https://docs.rust-embedded.org/discovery/f3discovery/index.html), [source code](https://github.com/rust-embedded/discovery)
 
 [rust-raspberrypi-OS-tutorials](https://github.com/rust-embedded/rust-raspberrypi-OS-tutorials)
 
 [Curated list of resources for Embedded and Low-level development in the Rust programming language](https://github.com/rust-embedded/awesome-embedded-rust)
+
+[A collection of small examples built with stm32f4xx-hal](https://github.com/lonesometraveler/stm32f4xx-examples)
 
 # 0.预准备
 
@@ -35,6 +43,8 @@ target = "thumbv7m-none-eabi"        # Cortex-M3
 # target = "thumbv8m.main-none-eabi"   # Cortex-M33 (no FPU)
 # target = "thumbv8m.main-none-eabihf" # Cortex-M33 (with FPU)
 ```
+
+例如nucleo  STM32F411RE 是ARM Cortex-M4，具有FPU，对应工具链应选择`thumbv7em-none-eabihf`
 
 ## cargo-generate
 
@@ -149,6 +159,8 @@ section               size        addr
 Total               750510
 ```
 
+"`cargo size --example xxx -- -A`" will shows example xxx size-information.
+
 ### llvm object file dumper
 
 ```rust
@@ -168,8 +180,8 @@ Disassembly of section .text:
 
 guess a program is a valid LM3S6965 program; we can execute it in a virtual microcontroller (QEMU) to test it out. 
 
-```text
-$ # this program will block
+```shell
+# this program will block
 $ qemu-system-arm \
       -cpu cortex-m3 \
       -machine lm3s6965evb \
@@ -178,7 +190,7 @@ $ qemu-system-arm \
       -nographic \
       -kernel target/thumbv7m-none-eabi/debug/app
 
-$ # on a different terminal
+# on a different terminal
 $ arm-none-eabi-gdb -q target/thumbv7m-none-eabi/debug/app
 Reading symbols from target/thumbv7m-none-eabi/debug/app...done.
 
@@ -311,10 +323,10 @@ rust 支持嵌入式采用下面的组织形式。对已经有了哪些crate资�
 
 ```text
 
-                               ┌───────────────────┐
-                             ┌─┤ architecture      │
-                             │ │   crate           │
-                             │ └───────────────────┘
+                               ┌───────────────────┐   ┌───────────────────┐
+                             ┌─┤ micro-architecture│───┤ microproecssor    |
+                             │ │   crate           │   │   (arm-cortex)    │
+                             │ └───────────────────┘   └───────────────────┘
  ┌────────────┐ ┌──────────┐ │
  │ board crate├─┤HAL crate ├─┤
  └────────────┘ └──────────┘ │ ┌───────────────────┐
@@ -323,17 +335,25 @@ rust 支持嵌入式采用下面的组织形式。对已经有了哪些crate资�
                                └───────────────────┘
 ```
 
-- Micro-architecture Crate : 针对microcontroller processor core共性，例如[cortex-m](https://crates.io/crates/cortex-m),与[cortex-m-rt](https://crates.io/crates/cortex-m-rt),其中cortex-m-rt专注于Startup code and minimal runtime for Cortex-M microcontrollers.通常在Cargo.toml中添加如下依赖：
+- Micro-architecture Crate : 针对microcontroller core共性，例如[cortex-m](https://crates.io/crates/cortex-m),与[cortex-m-rt](https://crates.io/crates/cortex-m-rt),其中cortex-m-rt专注于Startup code and minimal runtime for Cortex-M microcontrollers.通常在Cargo.toml中添加如下依赖：
     ```text
     [dependencies]
     cortex-m = "0.6.0"
     cortex-m-rt = "0.6.10"
     ```
+      
 - Peripheral Access Crate (PAC) ：这类crate为特定microcontroller产品的memory布局，通过它你将按照microcontroller产品手册说明与寄存器直接交互。例如micro stm32f40x系列的[stm32f40x](https://crates.io/crates/stm32f40x), Micro STM32F30x 系列的 [stm32f30x](https://crates.io/crates/stm32f30x),例如德州仪器 Tiva-C TM4C123 系列的 [tm4c123x](https://crates.io/crates/tm4c123x)
 
 - HAL Crate - These crates offer a more user-friendly API for your particular processor, often by implementing some common traits defined in embedded-hal. For example, this crate might offer a Serial struct, with a constructor that takes an appropriate set of GPIO pins and a baud rate, and offers some sort of write_byte function for sending data. See the chapter on [Portability](https://docs.rust-embedded.org/book/portability/index.html) for more information on [embedded-hal](https://crates.io/crates/embedded-hal).
 
 - Board Crate - 板级封装。例如 STM32F3DISCOVERY board的[stm32f3-discovery](https://crates.io/crates/stm32f3-discovery).nucleo-f411re板子的[nucleo-f411re](https://crates.io/crates/nucleo-f411re), 
+
+### 
+
+[dependencies.stm32f3xx-hal]
+version = "0.7.0"
+features = ["stm32f303xc", "rt"]
+
 
 ## 关于svd2rust
 
@@ -374,6 +394,7 @@ fn configure(gpioa: GPIOA) -> (PA0, PA1, ..) {
 }
 ```
 
+注：如果使用stm32f4xx_hal crate，对应ptr语法是"`let gp = &(*stm32f4xx_hal::pac::GPIOA::ptr());`"
 
 
 ### read / modify / write API
@@ -394,8 +415,22 @@ https://stackoverflow.com/questions/42612329/executing-code-from-ram-in-stm32
 
 [OpenOCD User’s Guide](http://openocd.org/doc-release/html/index.html#SEC_Contents)
 
+for example, to program the target flash, you can use [openocd flash programming](https://openocd.org/doc-release/html/Flash-Programming.html#Flash-Programming): 
+
+```text
+# program and verify using elf/hex/s19. verify and reset
+# are optional parameters
+openocd -f board/stm32f3discovery.cfg \
+	-c "program filename.elf verify reset exit"
+
+# binary files need the flash address passing
+openocd -f board/stm32f3discovery.cfg \
+	-c "program filename.bin exit 0x08000000"
+```
+
 ### 1.connect to board
-在一个单独的terminal执行下面的命令，之所以要单独的terminal，因为该执行除非终止，不然不会返回的。
+
+手头板子是nucleo stm32F411RE，已经通过usb连接pc。在一个单独的terminal执行下面的命令，之所以要单独的terminal，因为该执行除非终止，不然不会返回的。
 
 ```shell
 #openocd 0.10.0之后的版本建议使用 interface/stlink.cfg文件
@@ -499,3 +534,86 @@ stepi
 ```
 通过执行类似"`gdb -x openocd.gdb target/examples/hello`"将会立即连接gdb到openocd，并使能semihosting，加载，然后开启板上程序执行。
 
+
+# stm32f4xx_hal crate笔记
+
+## 时钟配置
+
+下面演示了两种配置，被注释代码演示了底层编码方式
+```rust
+    let dp = Peripherals::take().unwrap();
+    let rcc = dp.RCC.constrain();
+    let clocks = rcc.cfgr.sysclk(16.MHz()).pclk1(8.MHz()).freeze();
+
+    // rcc.apb1enr.modify(|_, w| w.tim2en().set_bit());
+    // let psc = (sysclk.0 / 1_000_000) as u16;
+    // timer.psc.write(|w| w.psc().bits(psc - 1));
+    // timer.egr.write(|w| w.ug().set_bit());
+```
+
+下面的例子更为直接：
+```rust
+use stm32f4xx_hal::{
+    pac::{RCC, TIM2, TIM5},
+    rcc::Clocks,
+};
+impl<const FREQ: u32> MonoTimer<TIM2, FREQ> {
+    pub fn new(timer: TIM2, clocks: &Clocks) -> Self {
+        let rcc = unsafe { &(*RCC::ptr()) };
+        rcc.apb1enr.modify(|_, w| w.tim2en().set_bit());
+        rcc.apb1rstr.modify(|_, w| w.tim2rst().set_bit());
+        rcc.apb1rstr.modify(|_, w| w.tim2rst().clear_bit());
+        let pclk_mul = if clocks.ppre1() == 1 { 1 } else { 2 };
+        let prescaler = clocks.pclk1().0 * pclk_mul / FREQ - 1;
+        timer.psc.write(|w| w.psc().bits(prescaler as u16));
+        timer.arr.write(|w| unsafe { w.bits(u32::MAX) });
+        timer.egr.write(|w| w.ug().set_bit());
+        timer.sr.modify(|_, w| w.uif().clear_bit());
+        timer.cr1.modify(|_, w| w.cen().set_bit().udis().set_bit());
+        Self(timer)
+    }
+}
+```
+
+### PWM的代码片段
+```rust
+use stm32f4xx_hal::pac::TIM1;
+use stm32f4xx_hal::timer::{PwmChannel,C1,C2};
+pub static mut G_CH1: Option<PwmChannel<TIM1,C1>> = None;
+pub static mut G_CH2: Option<PwmChannel<TIM1,C2>> = None;
+
+    let gpioa = dp.GPIOA.split();
+    // Set up TIM1 PWM
+    let channels = (gpioa.pa8.into_alternate(), gpioa.pa9.into_alternate());
+    let pwm = dp.TIM1.pwm_hz(channels, 20.kHz(), &clocks).split();
+    let (mut ch1, mut ch2) = pwm;
+    unsafe {
+        pwm::G_CH1.insert(ch1);
+        pwm::G_CH2.insert(ch2);
+
+        match pwm::G_CH1.as_mut() {
+            Some(v) => {
+                let max_duty = v.get_max_duty();
+                v.set_duty(max_duty / 2);
+                v.enable();
+            }
+            None => {}
+        }
+```
+
+## gpio代码片段
+
+```rust
+use stm32f4xx_hal::gpio::{ExtiPin,PinExt, Output, PushPull,Alternate},
+type LedPin = stm32f4xx_hal::gpio::PA5<Output<PushPull>>;
+pub static mut G_LED: Option<LedPin> = None;
+    let led = gpioa.pa5.into_push_pull_output();
+    // Move the pin into our global storage
+    unsafe {
+        led::G_LED.insert(led);
+    }
+```
+
+## stepper
+
+[stepper crate include drv8825 driver](https://crates.io/crates/stepper), [its github](https://github.com/flott-motion/stepper)
