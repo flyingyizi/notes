@@ -21,3 +21,22 @@ C:\Users\tu_xu\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\t
 [esp8266 rtos入门](https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/index.html)
 [esp8266 nonos入门](https://espressif.com/sites/default/files/documentation/2a-esp8266-sdk_getting_started_guide_en.pdf)
 [](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html)
+
+ESP8266开发板NodeMCU 资料:
+链接: https://pan.baidu.com/s/1n8gJToN1acbyyiwZ5Jvcsw 提取码: ni62
+NodeMCU 烧录固件教程：https://www.cnblogs.com/0pen1/p/12592906.html
+DHT11温湿度教程
+https://www.jianshu.com/p/3aba3ce1ad12
+
+
+1.44 Arduino黑色+ESP8266黑色开发板：
+http://www.lcdwiki.com/zh/1.44inch_SPI_Arduino_Module_Black_SKU:MAR1442 
+这个是单独另外参考资料
+学习资料免费链接: https://pan.baidu.com/s/1TRTU1f-35HpKSUEhKegHKQ  提取码: vttk 
+ESP826 6针OLED：https://blog.csdn.net/weixin_45631738/article/details/105961924
+4针OLED：
+https://blog.csdn.net/weixin_42268054/article/details/104254955?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.channel_param
+
+## Rust ESP32-C3 STD "Hello World"
+
+[Rust ESP32-C3 STD "Hello World"](https://zhuanlan.zhihu.com/p/428911351)

@@ -54,4 +54,8 @@ mod app {
 
 ## 例子
 
-stm32f4xx-hal crate 源码的example中有例子； 在“https://github.com/rtic-rs/rtic-examples”有官方例子
+stm32f4xx-hal crate 源码的example中有例子； 在“https://github.com/rtic-rs/rtic-examples”有官方例子,其中一个演示了如何在rtci框架下分模块
+
+[使用网卡的例子](https://github.com/jonlamb-gh/stm32f429-smoltcp-mqtt-rtic/blob/master/src/main.rs)
+
+[The goal of this project is to have a serial to wireless converter that allows the read and write to a serial port over wifi.](https://github.com/glbsalazar/wasp)

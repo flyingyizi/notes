@@ -14,13 +14,15 @@
 
 [A collection of small examples built with stm32f4xx-hal](https://github.com/lonesometraveler/stm32f4xx-examples)
 
+[async/await on embedded Rust](https://ferrous-systems.com/blog/async-on-embedded/)
+
 # 0.预准备
 
 建议使用最新stable toolchain。这与avr单片机不一样，它仅仅支持“nightly-2021-01-07”toolchain。
 
 ```shell
 #for Cortex-M3
-$ rustup +stable target add thumbv7m-none-eabi
+$ rustup +stable target add thumbv7em-none-eabihf
 # cargo-binutils
 $ cargo +stable install cargo-binutils
 $ rustup +stable component add llvm-tools-preview
@@ -46,7 +48,15 @@ target = "thumbv7m-none-eabi"        # Cortex-M3
 
 例如nucleo  STM32F411RE 是ARM Cortex-M4，具有FPU，对应工具链应选择`thumbv7em-none-eabihf`
 
-## cargo-generate
+## 常用工具
+
+### probe-run
+
+probe-run is a custom Cargo runner that transparently runs Rust firmware on an embedded device.
+
+常用来作为custom runner
+
+### cargo-generate
 
 cargo-generate工具方便通过模板生成project。例如"`cargo generate --git https://github.com/rust-embedded/cortex-m-quickstart`".
 
@@ -55,6 +65,8 @@ cargo-generate工具方便通过模板生成project。例如"`cargo generate --g
 ### templates
 
 cargo generate --git https://github.com/rust-embedded/cortex-m-quickstart
+
+cargo generate --git https://github.com/rtic-rs/defmt-app-template
 
 ## useful attributes
 
@@ -396,6 +408,7 @@ fn configure(gpioa: GPIOA) -> (PA0, PA1, ..) {
 
 注：如果使用stm32f4xx_hal crate，对应ptr语法是"`let gp = &(*stm32f4xx_hal::pac::GPIOA::ptr());`"
 
+例如在源码"stm32f4xx-hal-0.12.0\src\serial.rs"中
 
 ### read / modify / write API
 
@@ -534,6 +547,27 @@ stepi
 ```
 通过执行类似"`gdb -x openocd.gdb target/examples/hello`"将会立即连接gdb到openocd，并使能semihosting，加载，然后开启板上程序执行。
 
+## 4.日志
+
+[dependencies]
+log = "0.4.11"
+rtt-logger = "0.1"
+rtt-target = { version = "0.3.1", features = ["cortex-m"] }
+
+
+rtt-logger :An rtt-target logger implementation for Cortex-M embedded platforms
+log :A Rust library providing a lightweight logging facade.
+
+use log::{LevelFilter};
+use rtt_logger::RTTLogger;
+use rtt_target::rtt_init_print;
+
+static LOGGER: RTTLogger = RTTLogger::new(LevelFilter::Debug);
+
+rtt_init_print!(BlockIfFull, 4098);
+log::set_logger(&LOGGER).unwrap();
+log::set_max_level(log::LevelFilter::Info);
+log::info!("init");
 
 # stm32f4xx_hal crate笔记
 
@@ -575,6 +609,10 @@ impl<const FREQ: u32> MonoTimer<TIM2, FREQ> {
 }
 ```
 
+### STM32 DWT cycle counter (CYCCNT) surprising behavior (rust)
+
+[STM32 DWT cycle counter (CYCCNT) surprising behavior (rust)](https://stackoverflow.com/questions/64475200/stm32-dwt-cycle-counter-cyccnt-surprising-behavior-rust)
+
 ### PWM的代码片段
 ```rust
 use stm32f4xx_hal::pac::TIM1;
@@ -612,6 +650,21 @@ pub static mut G_LED: Option<LedPin> = None;
     unsafe {
         led::G_LED.insert(led);
     }
+```
+
+类型备忘:
+```rust
+    // let mut serial: hal::serial::Serial<
+    //     _,
+    //     (
+    //         stm32f4xx_hal::gpio::Pin<Alternate<_, 8_u8>, 'C', 6_u8>,
+    //         stm32f4xx_hal::gpio::Pin<Alternate<_, 8_u8>, 'C', 7_u8>,
+    //     ),
+    //     u8,    >
+    let mut serial: hal::serial::Serial6<(
+        hal::gpio::gpioc::PC6<Alternate<_, 8_u8>>,
+        hal::gpio::gpioc::PC7<Alternate<_, 8_u8>>,
+    )>
 ```
 
 ## stepper
