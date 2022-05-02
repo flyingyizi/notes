@@ -21,7 +21,8 @@
 建议使用最新stable toolchain。这与avr单片机不一样，它仅仅支持“nightly-2021-01-07”toolchain。
 
 ```shell
-#for Cortex-M3
+$ rustup +stable component add rust-src
+#for Cortex-M4f
 $ rustup +stable target add thumbv7em-none-eabihf
 # cargo-binutils
 $ cargo +stable install cargo-binutils
