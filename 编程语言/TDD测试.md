@@ -417,6 +417,10 @@ clean:
 
     注： eclipse.exe就是"C:\prog\TrueSTUDIO for STM32 9.3.0"\ide\TrueSTUDIO.exe。因为TrueSTUDIO是基于eclipse的工具。
 
+### vscode 无法设置断点
+
+确认settings 中debug “勾选上“允许在任何文件中设置断点”选项。”
+
 ### vscode debug 配置
 
 如果选择IDE采用“vscode”，则可以参考该节内容。

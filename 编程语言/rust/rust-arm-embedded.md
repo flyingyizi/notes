@@ -411,6 +411,81 @@ fn configure(gpioa: GPIOA) -> (PA0, PA1, ..) {
 
 例如在源码"stm32f4xx-hal-0.12.0\src\serial.rs"中
 
+#### 绕过单实例约束封装例子
+
+下面的例子演示了实现了OutPutPin trait自己封装的例子
+```rust
+use core::marker::PhantomData;
+use embedded_hal::digital::v2::{OutputPin, PinState,InputPin};
+use stm32f4xx_hal as hal;
+
+/// - `P` is port name: `A` for GPIOA, `B` for GPIOB, etc.
+/// - `N` is pin number: from `0` to `15`.
+pub struct MyPin<const P: char, const N: u8> {
+}
+
+impl<const P: char, const N: u8> MyPin<P, N> {
+    const fn ptr() -> *const hal::pac::gpioa::RegisterBlock {
+        match P {
+            'A' => hal::pac::GPIOA::ptr(),
+            'B' => hal::pac::GPIOB::ptr() as _,
+            'C' => hal::pac::GPIOC::ptr() as _,
+            'D' => hal::pac::GPIOD::ptr() as _,
+            'E' => hal::pac::GPIOE::ptr() as _,
+            'H' => hal::pac::GPIOH::ptr() as _,
+            _ => panic!("Unknown GPIO port"),
+        }
+    }
+    pub fn new() -> Self {
+        Self {
+            // _p: PhantomData,
+            // _n: PhantomData,
+        }
+    }
+}
+
+impl<const P: char, const N: u8> OutputPin for MyPin<P, N> {
+    type Error = core::convert::Infallible;
+
+    #[inline(always)]
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        unsafe { (*Self::ptr()).bsrr.write(|w| w.bits(1 << N)) }
+        Ok(())
+    }
+
+    #[inline(always)]
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        unsafe { (*Self::ptr()).bsrr.write(|w| w.bits(1 << (N + 16))) }
+        Ok(())
+    }
+    fn set_state(&mut self, state: PinState) -> Result<(), Self::Error> {
+        match state {
+            PinState::Low => self.set_low(),
+            PinState::High => self.set_high(),
+        }
+    }
+}
+impl<const P: char, const N: u8> InputPin for MyPin<P, N> {
+    type Error = core::convert::Infallible;
+
+    /// Is the input pin high?
+    fn is_high(&self) -> Result<bool, Self::Error>{
+        match self.is_low(){
+           Ok(b)=> return Ok(!b),
+           Err(t)=> return Err(t),
+        }        
+    }
+
+    /// Is the input pin low?
+    fn is_low(&self) -> Result<bool, Self::Error>{
+        let b:bool=unsafe { (*Self::ptr()).idr.read().bits() & (1 << N) == 0 };
+        Ok(b)
+    }
+}
+
+```
+
+
 ### read / modify / write API
 
 [read / modify / write API](https://docs.rs/svd2rust/0.19.0/svd2rust/#read--modify--write-api)
