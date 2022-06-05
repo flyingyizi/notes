@@ -166,6 +166,7 @@ search "window 10 bash"
 - anydesk
 - 如果是使用X server。建议是 [微软 VcXsrv ](https://sourceforge.net/projects/vcxsrv/),然后通过X11 forward使用SecureCRT ，具体配置是在secureCRT中option-> port forwarding 勾选  forward x11 packet。
 
+export DISPLAY=serverhost:0.0
 
 
 ## cmake + vcpkg
