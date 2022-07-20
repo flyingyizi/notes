@@ -1,6 +1,9 @@
 
 
 # install 
+
+注：截止 2022-07，发现安装最新nightly就可以，不必限制在nightly-2021-01-07。
+
 在rust环境下为了支持AVR编译，需要安装：
 
 - rust component rust-src: is required to allow Rust to compile libcore for any chip being targeted. 根据 [issure](https://github.com/avr-rust/blink/issues/38), 编译AVR当前应仅能使用“nightly-2021-01-07”toolchain。
@@ -45,6 +48,10 @@ avr topics in [Curated list of resources for Embedded and Low-level development 
 
 # 问题处理
 
+ ## avr-gcc
+
+  WinAVR-20100110 链接有问题，使用新版本的avr-gcc没有问题，“https://blog.zakkemble.net/avr-gcc-builds/”。
+
   ## error: cannot find macro `llvm_asm` in this scope
 
   根据"https://github.com/avr-rust/blink.git"尝试rust 编写AVR程序，报错。
@@ -59,3 +66,8 @@ cargo build -Z build-std=core --target avr-atmega328p.json --release
 ```
 Looks like it works only with nightly-2021-01-07 release.
 
+
+## libm  failed to compile targeting avr
+
+经常使用的num-trait 在嵌入式环境下需要使用libm，但libm在avr架构下编译有问题：
+[libm  failed to compile targeting avr](https://github.com/rust-lang/libm/issues/250)。 

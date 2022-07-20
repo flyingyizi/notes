@@ -413,6 +413,10 @@ fn configure(gpioa: GPIOA) -> (PA0, PA1, ..) {
 
 #### 绕过单实例约束封装例子
 
+方式1：采用hal steal，[例子](https://github.com/SebastianBraun01/rustuino/blob/73cd758caf8949f21050ac7ac077a08346670f55/src/time.rs)
+
+方式2：采用ptr,直接对寄存器编程
+
 下面的例子演示了实现了OutPutPin trait自己封装的例子
 ```rust
 use core::marker::PhantomData;

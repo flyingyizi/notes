@@ -121,6 +121,30 @@ git show v0.0
 git tag --delete v0.0
 ```
 
+## 不同标签的版本间切换
+```shell
+atmel@atmel-PC MINGW64 /d/critical-section (main)
+$ git tag
+v0.1.0
+v0.2.0
+v0.2.1
+v0.2.2
+v0.2.3
+v0.2.4
+v0.2.5
+v0.2.6
+v0.2.7
+
+atmel@atmel-PC MINGW64 /d/critical-section (main)
+$ git switch v0.2.7
+fatal: a branch is expected, got tag 'v0.2.7'
+hint: If you want to detach HEAD at the commit, try again with the --detach option.
+
+atmel@atmel-PC MINGW64 /d/critical-section (main)
+$ git switch v0.2.7  --detach
+HEAD is now at 527ec90 Release 0.2.7
+```
+
 ## 撤销还没有提交的代码
 
 就是对编辑了，还没有通过`git add xxx`进行提交的可以通过该命令撤销
